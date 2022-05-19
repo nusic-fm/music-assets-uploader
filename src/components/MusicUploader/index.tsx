@@ -1,13 +1,13 @@
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { Web3Storage } from "web3.storage";
-import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
-import PauseCircleFilledOutlinedIcon from "@mui/icons-material/PauseCircleFilledOutlined";
+// import { Web3Storage } from "web3.storage";
+// import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
+// import PauseCircleFilledOutlinedIcon from "@mui/icons-material/PauseCircleFilledOutlined";
 
 const MusicUploader = (props: any) => {
-  const { setCid } = props;
+  const { setFileUrl, setDuration } = props;
   const [file, setFile] = useState<any>();
-  const [isPlaying, setIsPlaying] = useState<any>(false);
+  const [, setIsPlaying] = useState<any>(false);
   const audioRef = useRef<any>(null);
 
   useEffect(() => {}, []);
@@ -19,7 +19,19 @@ const MusicUploader = (props: any) => {
     }
     setFile(files[0]);
     const url = URL.createObjectURL(files[0]);
-    audioRef.current = new Audio(url);
+    setFileUrl(url);
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.addEventListener(
+      "loadedmetadata",
+      function () {
+        // Obtain the duration in seconds of the audio file (with milliseconds as well, a float value)
+        var duration = audio.duration;
+
+        setDuration(duration);
+      },
+      false
+    );
     audioRef.current.addEventListener("play", function () {
       setIsPlaying(true);
     });
@@ -48,31 +60,40 @@ const MusicUploader = (props: any) => {
     // }
   };
 
-  const onPlayOrPause = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-  };
+  // const onPlayOrPause = () => {
+  //   if (isPlaying) {
+  //     audioRef.current.pause();
+  //   } else {
+  //     audioRef.current.play();
+  //   }
+  // };
 
-  const onUploadToStorage = async () => {
-    try {
-      const storage = new Web3Storage({
-        token: process.env.WEB3_STORAGE as string,
-      });
-      const fileCid = await storage.put([file]);
-      setCid(fileCid);
-    } catch (err) {
-      alert(err);
-    }
-  };
+  // const onUploadToStorage = async () => {
+  //   try {
+  //     const storage = new Web3Storage({
+  //       token: process.env.WEB3_STORAGE as string,
+  //     });
+  //     const fileCid = await storage.put([file]);
+  //     setCid(fileCid);
+  //   } catch (err) {
+  //     alert(err);
+  //   }
+  // };
 
   return (
     <Box>
       <Typography>Music Uploader</Typography>
       <Box pt={1}>
-        {!file ? (
+        <Button
+          variant="outlined"
+          component="label"
+          onChange={onFilesUpload}
+          disabled={file}
+        >
+          Upload
+          <input type="file" hidden />
+        </Button>
+        {/* {!file ? (
           <Button variant="outlined" component="label" onChange={onFilesUpload}>
             Upload
             <input type="file" hidden />
@@ -88,12 +109,12 @@ const MusicUploader = (props: any) => {
               <PauseCircleFilledOutlinedIcon color="warning" fontSize="large" />
             )}
           </IconButton>
-        )}
-        {file && (
+        )} */}
+        {/* {file && (
           <Button variant="contained" onClick={onUploadToStorage}>
             Upload to Web3Storage
           </Button>
-        )}
+        )} */}
       </Box>
       {/* <Box pt={2}>
         <Typography>Uploaded CID: {cid}</Typography>
