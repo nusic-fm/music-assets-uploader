@@ -7,12 +7,16 @@ import {
   OutlinedInput,
   InputAdornment,
   IconButton,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import MusicUploader from "./components/MusicUploader";
 // import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
 import WaveForm from "./components/WaveForm";
 import CachedIcon from "@mui/icons-material/Cached";
+import AcceptStems from "./components/Dropzone";
+import { useDropzone } from "react-dropzone";
 
 function App() {
   const [cid, setCid] = useState<string>();
@@ -28,8 +32,10 @@ function App() {
   const [fileUrl, setFileUrl] = useState<string>();
   const [startBeatOffset, setStartBeatOffset] = useState<number>();
   const [segments, setSegments] = useState([]);
+  const [stems, setStems] = useState([]);
 
   const getSelectedBeatOffet = useRef(null);
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
   useEffect(() => {
     // showWaveForm();
@@ -384,8 +390,43 @@ function App() {
           segments={segments}
           setSegments={setSegments}
         />
+        <Box mt={8}>
+          <Typography variant="h6">Proof of Creation</Typography>
+          <Box mt={4} display="flex" justifyContent="center">
+            <AcceptStems
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+            />
+          </Box>
+          <Box
+            mt={4}
+            display="flex"
+            gap={2}
+            justifyContent="center"
+            flexWrap="wrap"
+          >
+            {acceptedFiles.map((file, i) => (
+              <Box>
+                <Box display="flex" justifyContent="center">
+                  <Select size="small" value={i}>
+                    <MenuItem value={0}>Vocal</MenuItem>
+                    <MenuItem value={1}>Instrumental</MenuItem>
+                    <MenuItem value={2}>Bass</MenuItem>
+                    <MenuItem value={3}>Drums</MenuItem>
+                  </Select>
+                </Box>
+                <Box mt={2}>
+                  <TextField
+                    placeholder="Name"
+                    value={file.name.split(".")[0]}
+                  ></TextField>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
         <Box mt={8} display="flex" justifyContent="center">
-          <Button variant="outlined" color="secondary">
+          <Button variant="contained" color="primary">
             Send To Blockchain
           </Button>
         </Box>
