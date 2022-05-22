@@ -37,7 +37,7 @@ function App() {
   const [timeSignature, setTimeSignature] = useState<string>();
   const [noOfBars, setNoOfBars] = useState<number>();
   const [fileUrl, setFileUrl] = useState<string>();
-  const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>();
+  const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
   const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
     useState<number>();
   const [isUploaded, setIsUploaded] = useState(false);
@@ -63,15 +63,15 @@ function App() {
   }, [acceptedFiles]);
 
   useEffect(() => {
-    if (duration && bpm && timeSignature?.includes("/4") && startBeatOffsetMs) {
+    if (duration && bpm && timeSignature?.includes("/4")) {
       const beatsPerSecond = bpm / 60;
       const totalNoOfBeats =
         beatsPerSecond * (duration - startBeatOffsetMs / 1000);
-      const noOfBeatsPerBar = parseInt(timeSignature.split("/")[0]);
-      const durationOfEachBar = noOfBeatsPerBar * beatsPerSecond;
-      setDurationOfEachBarInSec(durationOfEachBar);
+      const noOfBeatsPerBar = parseFloat(timeSignature.split("/")[0]);
       const noOfMeasures = Math.floor(totalNoOfBeats / noOfBeatsPerBar);
       setNoOfBars(noOfMeasures);
+      const durationOfEachBar = duration / noOfMeasures;
+      setDurationOfEachBarInSec(durationOfEachBar);
     }
   }, [duration, bpm, timeSignature, startBeatOffsetMs]);
 

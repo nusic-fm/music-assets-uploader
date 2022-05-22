@@ -22,6 +22,19 @@ import { useEffect, useRef, useState } from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+const SectionNames = [
+  "Intro",
+  "Verse",
+  "Pre-Chorus",
+  "Chorus",
+  "Bridge",
+  "Outro",
+];
 
 const WaveForm = (props) => {
   const {
@@ -38,7 +51,7 @@ const WaveForm = (props) => {
   const [bars, setBars] = useState({});
 
   useEffect(() => {
-    if (noOfBars && durationOfEachBarInSec && startBeatOffsetMs) {
+    if (noOfBars && durationOfEachBarInSec) {
       let start = startBeatOffsetMs / 1000;
       let end;
       const newBars = {};
@@ -72,6 +85,8 @@ const WaveForm = (props) => {
       format: "float",
     });
     var wavesurfer = WaveSurfer.create({
+      scrollParent: true,
+      fillParent: false,
       barGap: 50,
       container: "#waveform",
       backgroundColor: "white",
@@ -84,8 +99,6 @@ const WaveForm = (props) => {
       plugins: [
         TimelinePlugin.create({
           container: "#wave-timeline",
-          primaryFontColor: "white",
-          secondaryFontColor: "white",
         }),
         RegionsPlugin.create({
           dragSelection: false,
@@ -176,14 +189,31 @@ const WaveForm = (props) => {
               aria-label="Volume"
               value={zoomValue}
               onChange={onZoom}
-              step={100}
+              step={10}
               min={1}
-              max={1000}
+              max={100}
             />
             <AddIcon color="primary" />
           </Stack>
         )}
       </Box>
+      <Accordion
+        expandIcon={<ExpandMoreIcon />}
+        mt={4}
+        width="100%"
+        color="primary"
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Audio Fingerprint</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box mt={2} id="wave-spectrogram" width="100%"></Box>
+        </AccordionDetails>
+      </Accordion>
+      {/* <Box mt={4} width="100%">
+        <Typography variant="h6">Audio Fingerprint</Typography>
+        <Box mt={2} id="wave-spectrogram" width="100%"></Box>
+      </Box> */}
       <Box mt={2}>
         <Typography variant="h6">Sections Information</Typography>
         <Box mt={2}>
@@ -199,7 +229,7 @@ const WaveForm = (props) => {
                   for (let i = 0; i < newNoSections; i++) {
                     newSections.push({
                       internalId: newSections + i,
-                      name: "",
+                      name: SectionNames[i] || "",
                       start: 0,
                       end: 0,
                     });
@@ -228,12 +258,12 @@ const WaveForm = (props) => {
                       setSections(newSections);
                     }}
                   >
-                    <MenuItem value={"intro"}>Intro</MenuItem>
-                    <MenuItem value={"verse"}>Verse</MenuItem>
-                    <MenuItem value={"pre-chorus"}>Pre-Chorus</MenuItem>
-                    <MenuItem value={"chorus"}>Chorus</MenuItem>
-                    <MenuItem value={"bridge"}>Bridge</MenuItem>
-                    <MenuItem value={"outro"}>Outro</MenuItem>
+                    <MenuItem value={"Intro"}>Intro</MenuItem>
+                    <MenuItem value={"Verse"}>Verse</MenuItem>
+                    <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
+                    <MenuItem value={"Chorus"}>Chorus</MenuItem>
+                    <MenuItem value={"Bridge"}>Bridge</MenuItem>
+                    <MenuItem value={"Outro"}>Outro</MenuItem>
                   </Select>
                 </Box>
                 <Box>
@@ -251,6 +281,7 @@ const WaveForm = (props) => {
                         );
                         newSections[idx].start = bars[startBar].start;
                         newSections[idx].end = bars[endBar].end;
+                        setSections(newSections);
                         var o = Math.round,
                           r = Math.random,
                           s = 255;
@@ -272,7 +303,6 @@ const WaveForm = (props) => {
                           drag: false,
                           id: i,
                         });
-                        setSections(newSections);
                       }
                     }}
                   ></TextField>
@@ -302,10 +332,6 @@ const WaveForm = (props) => {
               </Box>
             </Card>
           ))}
-        </Box>
-        <Box mt={4} width="100%">
-          <Typography variant="h6">Audio Fingerprint</Typography>
-          <Box mt={2} id="wave-spectrogram" width="100%"></Box>
         </Box>
       </Box>
     </Box>
