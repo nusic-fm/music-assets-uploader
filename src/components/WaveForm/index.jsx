@@ -72,6 +72,7 @@ const WaveForm = (props) => {
       format: "float",
     });
     var wavesurfer = WaveSurfer.create({
+      barGap: 50,
       container: "#waveform",
       backgroundColor: "white",
       waveColor: "#573FC8",
@@ -302,7 +303,7 @@ const WaveForm = (props) => {
             </Card>
           ))}
         </Box>
-        <Box width="100%">
+        <Box mt={4} width="100%">
           <Typography variant="h6">Audio Fingerprint</Typography>
           <Box mt={2} id="wave-spectrogram" width="100%"></Box>
         </Box>

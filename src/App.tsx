@@ -19,6 +19,11 @@ import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 
+const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
+type Stem = {
+  [key: string]: { file: File; name: string; type: string };
+};
+
 function App() {
   const [fullTrackFile, setFullTrackFile] = useState<File>();
   const [cid, setCid] = useState<string>();
@@ -39,9 +44,23 @@ function App() {
   const [sections, setSections] = useState<
     { internalId: string; name: string; start: number; end: number }[]
   >([]);
+  const [stemObj, setStemObj] = useState<Stem>({});
 
   const getSelectedBeatOffet = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+
+  useEffect(() => {
+    const obj = {} as Stem;
+    acceptedFiles.map((acceptedFile, i) => {
+      obj[i] = {
+        file: acceptedFile,
+        name: acceptedFile.name,
+        type: StemTypes[i] || "",
+      };
+      return "";
+    });
+    setStemObj(obj);
+  }, [acceptedFiles]);
 
   useEffect(() => {
     if (duration && bpm && timeSignature?.includes("/4") && startBeatOffsetMs) {
@@ -120,7 +139,10 @@ function App() {
         alert("Submit PoC/stem files");
         return;
       }
-      const files = [fullTrackFile, ...acceptedFiles];
+      const files = [
+        fullTrackFile,
+        ...Object.values(stemObj).map((obj) => obj.file),
+      ];
       const formData = new FormData();
       files.map((file) => {
         formData.append(file.name, file);
@@ -459,20 +481,33 @@ function App() {
             justifyContent="center"
             flexWrap="wrap"
           >
-            {acceptedFiles.map((file, i) => (
+            {Object.values(stemObj).map(({ file, name, type }, i) => (
               <Box>
                 <Box display="flex" justifyContent="center">
-                  <Select size="small" value={i}>
-                    <MenuItem value={0}>Vocal</MenuItem>
-                    <MenuItem value={1}>Instrumental</MenuItem>
-                    <MenuItem value={2}>Bass</MenuItem>
-                    <MenuItem value={3}>Drums</MenuItem>
+                  <Select
+                    size="small"
+                    value={type}
+                    onChange={(e) => {
+                      const newObject = { ...stemObj };
+                      newObject[i].type = String(e.target.value);
+                      setStemObj(newObject);
+                    }}
+                  >
+                    <MenuItem value={"Vocal"}>Vocal</MenuItem>
+                    <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
+                    <MenuItem value={"Bass"}>Bass</MenuItem>
+                    <MenuItem value={"Drums"}>Drums</MenuItem>
                   </Select>
                 </Box>
                 <Box mt={2}>
                   <TextField
                     placeholder="Name"
-                    value={file.name.split(".")[0]}
+                    value={name}
+                    onChange={(e) => {
+                      const newObject = { ...stemObj };
+                      newObject[i].name = e.target.value;
+                      setStemObj(newObject);
+                    }}
                   ></TextField>
                 </Box>
               </Box>
