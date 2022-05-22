@@ -17,35 +17,57 @@ import WaveForm from "./components/WaveForm";
 import CachedIcon from "@mui/icons-material/Cached";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
+import axios from "axios";
 
 function App() {
+  const [fullTrackFile, setFullTrackFile] = useState<File>();
   const [cid, setCid] = useState<string>();
   const [artist, setArtist] = useState<string>();
   const [duration, setDuration] = useState<number>();
   const [title, setTitle] = useState<string>();
   const [album, setAlbum] = useState<string>();
   const [genre, setGenre] = useState<string>();
-  const [bpm, setBpm] = useState<string>();
+  const [bpm, setBpm] = useState<number>();
   const [key, setKey] = useState<string>();
   const [timeSignature, setTimeSignature] = useState<string>();
-  const [noOfBars, setNoOfBars] = useState<string>();
+  const [noOfBars, setNoOfBars] = useState<number>();
   const [fileUrl, setFileUrl] = useState<string>();
-  const [startBeatOffset, setStartBeatOffset] = useState<number>();
-  const [segments, setSegments] = useState([]);
-  const [stems, setStems] = useState([]);
+  const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>();
+  const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
+    useState<number>();
+  const [isUploaded, setIsUploaded] = useState(false);
+  const [sections, setSections] = useState<
+    { internalId: string; name: string; start: number; end: number }[]
+  >([]);
 
   const getSelectedBeatOffet = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
   useEffect(() => {
-    // showWaveForm();
-  }, []);
+    if (duration && bpm && timeSignature?.includes("/4") && startBeatOffsetMs) {
+      const beatsPerSecond = bpm / 60;
+      const totalNoOfBeats =
+        beatsPerSecond * (duration - startBeatOffsetMs / 1000);
+      const noOfBeatsPerBar = parseInt(timeSignature.split("/")[0]);
+      const durationOfEachBar = noOfBeatsPerBar * beatsPerSecond;
+      setDurationOfEachBarInSec(durationOfEachBar);
+      const noOfMeasures = Math.floor(totalNoOfBeats / noOfBeatsPerBar);
+      setNoOfBars(noOfMeasures);
+    }
+  }, [duration, bpm, timeSignature, startBeatOffsetMs]);
 
-  const onFetchStartBeatOffet = () => {
+  const onFetchStartBeatOffet = async () => {
     if (fileUrl) {
       const time = document.getElementsByTagName("audio")[0]?.currentTime;
-      setStartBeatOffset(Math.floor(time * 1000));
+      setStartBeatOffsetMs(Math.floor(time * 1000));
     }
+    // const response = await fetch(
+    //   "http://localhost:8080/cid/bafybeianjehxvg3qpore2bkt5vjmou5qovxuxl46izid4wm4kugxtxcq5e"
+    // );
+    // const content = await response.arrayBuffer();
+    // const blob = new Blob([content], { type: "audio/wav" });
+    // const a = new Audio(URL.createObjectURL(blob));
+    // a.play();
   };
 
   // const onClick = async () => {
@@ -87,6 +109,35 @@ function App() {
   //   //   .signAndSend("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY");
   //   // const txHash = await api.tx.templateModule.createClaim()
   // };
+  const onTxClick = async () => {
+    if (isUploaded) {
+      alert("Tx to blockchain is currently disabled");
+    } else {
+      if (!fullTrackFile) {
+        alert("Upload Full Track.");
+        return;
+      } else if (acceptedFiles.length === 0) {
+        alert("Submit PoC/stem files");
+        return;
+      }
+      const files = [fullTrackFile, ...acceptedFiles];
+      const formData = new FormData();
+      files.map((file) => {
+        formData.append(file.name, file);
+        return false;
+      });
+      const response = await axios.post(
+        "http://localhost:8080/upload",
+        formData
+      );
+      if (response.data.cid) {
+        setCid(response.data.cid);
+        setIsUploaded(true);
+      } else {
+        alert("Some error Occured, please try again later.");
+      }
+    }
+  };
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
@@ -139,16 +190,6 @@ function App() {
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Bpm</Typography>
-                  <TextField
-                    variant="outlined"
-                    type={"number"}
-                    onChange={(e: any) => setBpm(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
                   <Typography>Key</Typography>
                   <TextField
                     variant="outlined"
@@ -158,21 +199,12 @@ function App() {
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Time Signature</Typography>
-                  <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setTimeSignature(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>No Of Bars</Typography>
-                  <TextField
-                    variant="outlined"
-                    type="number"
-                    onChange={(e: any) => setNoOfBars(e.target.value)}
-                  ></TextField>
+                  <MusicUploader
+                    fullTrackFile={fullTrackFile}
+                    setFullTrackFile={setFullTrackFile}
+                    setFileUrl={setFileUrl}
+                    setDuration={setDuration}
+                  />
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
@@ -190,13 +222,11 @@ function App() {
                 <Box>
                   <Typography>Start Beat offset(ms)</Typography>
                   <OutlinedInput
-                    id="outlined-adornment-password"
-                    value={startBeatOffset}
+                    value={startBeatOffsetMs}
                     onChange={(e) =>
-                      setStartBeatOffset(parseInt(e.target.value))
+                      setStartBeatOffsetMs(parseInt(e.target.value))
                     }
                     type="number"
-                    disabled
                     placeholder="Waveform Selection"
                     endAdornment={
                       <InputAdornment position="end">
@@ -205,18 +235,37 @@ function App() {
                         </IconButton>
                       </InputAdornment>
                     }
-                    label="Password"
                   />
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <MusicUploader
-                    cid={cid}
-                    setCid={setCid}
-                    setFileUrl={setFileUrl}
-                    setDuration={setDuration}
-                  />
+                  <Typography>Bpm</Typography>
+                  <TextField
+                    variant="outlined"
+                    type={"number"}
+                    onChange={(e: any) => setBpm(parseInt(e.target.value))}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Time Signature</Typography>
+                  <TextField
+                    variant="outlined"
+                    onChange={(e: any) => setTimeSignature(e.target.value)}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>No Of Measures</Typography>
+                  <TextField
+                    variant="outlined"
+                    type="number"
+                    value={noOfBars}
+                    disabled
+                  ></TextField>
                 </Box>
               </Grid>
             </Grid>
@@ -328,7 +377,7 @@ function App() {
                     <Box p={1} display="flex" alignItems={"center"}>
                       <Box flexBasis={{ xs: "45%", md: "20%" }}>
                         <Typography fontWeight="bold" color="black">
-                          No Of Bars:
+                          No Of Measures:
                         </Typography>
                       </Box>
                       <Box>
@@ -356,7 +405,9 @@ function App() {
                         </Typography>
                       </Box>
                       <Box>
-                        <Typography color="black">{startBeatOffset}</Typography>
+                        <Typography color="black">
+                          {startBeatOffsetMs}
+                        </Typography>
                       </Box>
                     </Box>
                   </Grid>
@@ -386,9 +437,12 @@ function App() {
         </Grid>
         <WaveForm
           url={fileUrl}
+          durationOfEachBarInSec={durationOfEachBarInSec}
+          noOfBars={noOfBars}
+          startBeatOffsetMs={startBeatOffsetMs}
           getSelectedBeatOffet={getSelectedBeatOffet}
-          segments={segments}
-          setSegments={setSegments}
+          sections={sections}
+          setSections={setSections}
         />
         <Box mt={8}>
           <Typography variant="h6">Proof of Creation</Typography>
@@ -426,8 +480,8 @@ function App() {
           </Box>
         </Box>
         <Box mt={8} display="flex" justifyContent="center">
-          <Button variant="contained" color="primary">
-            Send To Blockchain
+          <Button variant="contained" color="primary" onClick={onTxClick}>
+            {!isUploaded ? "Upload Music Assets" : "Send To Blockchain"}
           </Button>
         </Box>
       </Box>

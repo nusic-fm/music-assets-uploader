@@ -5,8 +5,7 @@ import { useEffect, useRef, useState } from "react";
 // import PauseCircleFilledOutlinedIcon from "@mui/icons-material/PauseCircleFilledOutlined";
 
 const MusicUploader = (props: any) => {
-  const { setFileUrl, setDuration } = props;
-  const [file, setFile] = useState<any>();
+  const { fullTrackFile, setFileUrl, setDuration, setFullTrackFile } = props;
   const [, setIsPlaying] = useState<any>(false);
   const audioRef = useRef<any>(null);
 
@@ -17,7 +16,7 @@ const MusicUploader = (props: any) => {
     if (files.length === 0) {
       return;
     }
-    setFile(files[0]);
+    setFullTrackFile(files[0]);
     const url = URL.createObjectURL(files[0]);
     setFileUrl(url);
     const audio = new Audio(url);
@@ -82,13 +81,13 @@ const MusicUploader = (props: any) => {
 
   return (
     <Box>
-      <Typography>Music Uploader</Typography>
+      <Typography>Full Track Uploader</Typography>
       <Box pt={1}>
         <Button
           variant="outlined"
           component="label"
           onChange={onFilesUpload}
-          disabled={file}
+          disabled={fullTrackFile}
         >
           Upload
           <input type="file" hidden />
