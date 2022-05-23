@@ -32,6 +32,7 @@ const SectionNames = [
   "Verse",
   "Pre-Chorus",
   "Chorus",
+  "Breakdown",
   "Bridge",
   "Outro",
 ];
@@ -67,8 +68,9 @@ const WaveForm = (props) => {
         const no = i + 1;
         wavesurferIns.current.addMarker({
           time: start,
-          color: "#ff990a",
+          color: "rgba(0,0,0,0.1)",
           position: "top",
+          label: no,
         });
         newBars[no] = { start, end };
         start = end;
@@ -86,7 +88,7 @@ const WaveForm = (props) => {
     var wavesurfer = WaveSurfer.create({
       scrollParent: true,
       fillParent: false,
-      barGap: 50,
+      // barGap: 50,
       container: "#waveform",
       backgroundColor: "white",
       waveColor: "#573FC8",
@@ -363,6 +365,7 @@ const WaveForm = (props) => {
                     <MenuItem value={"Verse"}>Verse</MenuItem>
                     <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
                     <MenuItem value={"Chorus"}>Chorus</MenuItem>
+                    <MenuItem value={"Chorus"}>Breakdown</MenuItem>
                     <MenuItem value={"Bridge"}>Bridge</MenuItem>
                     <MenuItem value={"Outro"}>Outro</MenuItem>
                   </Select>
