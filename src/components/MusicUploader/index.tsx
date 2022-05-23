@@ -87,7 +87,7 @@ const MusicUploader = (props: any) => {
           variant="outlined"
           component="label"
           onChange={onFilesUpload}
-          disabled={fullTrackFile}
+          disabled={!!fullTrackFile}
         >
           Upload
           <input type="file" hidden />

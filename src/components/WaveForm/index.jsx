@@ -15,7 +15,7 @@ import {
   MenuItem,
   IconButton,
   Card,
-  TextField,
+  // TextField,
 } from "@mui/material";
 import colormap from "colormap";
 import { useEffect, useRef, useState } from "react";
@@ -57,7 +57,6 @@ const WaveForm = (props) => {
       const newBars = {};
       for (let i = 0; i < noOfBars; i++) {
         end = start + durationOfEachBarInSec;
-        console.log({ start, end });
         // const hue = (360 * i) / noOfBars
         // wavesurferIns.current.addRegion({
         //   start,
@@ -68,8 +67,8 @@ const WaveForm = (props) => {
         const no = i + 1;
         wavesurferIns.current.addMarker({
           time: start,
-          label: no,
           color: "#ff990a",
+          position: "top",
         });
         newBars[no] = { start, end };
         start = end;
@@ -99,9 +98,14 @@ const WaveForm = (props) => {
       plugins: [
         TimelinePlugin.create({
           container: "#wave-timeline",
+          primaryFontColor: "#fff",
+          secondaryFontColor: "#fff",
         }),
         RegionsPlugin.create({
-          dragSelection: false,
+          // dragSelection: false,
+          dragSelection: {
+            slop: 5,
+          },
         }),
         SpectrogramPlugin.create({
           container: "#wave-spectrogram",
@@ -113,13 +117,8 @@ const WaveForm = (props) => {
     });
     wavesurfer.on("ready", function () {
       setIsLoading(false);
-      const list = wavesurferIns.current?.regions?.list;
-      console.log({ list });
       // wavesurfer.backend()
     });
-    // wavesurfer.on("region-created", function (region) {
-    //   region.color = 'hsla(200, 50%, 70%, 0.4)'
-    // })
     // wavesurfer.on("region-update-end", function () {
     //   // start, end, id,
     //   setSegments(Object.values(wavesurferIns.current.regions.list).map(region => ({internalId: region.id, start: region.start, end: region.end, })))
@@ -144,6 +143,32 @@ const WaveForm = (props) => {
     // })
     wavesurfer.load(url);
     wavesurferIns.current = wavesurfer;
+    wavesurferIns.current.on("region-created", function (region) {
+      // const newSectionsObj = { ...sections };
+      // const id = Object.keys(newSectionsObj).length;
+      // region.id = id;
+      // var o = Math.round,
+      //   r = Math.random,
+      //   s = 255;
+      // const color =
+      //   "rgba(" +
+      //   o(r() * s) +
+      //   "," +
+      //   o(r() * s) +
+      //   "," +
+      //   o(r() * s) +
+      //   "," +
+      //   0.4 +
+      //   ")";
+      // region.id = id;
+      // region.color = color;
+      // newSectionsObj[id] = {
+      //   name: SectionNames[id],
+      //   start: region.start,
+      //   end: region.end,
+      // };
+      // setSections(newSectionsObj);
+    });
   };
 
   useEffect(() => {
@@ -152,6 +177,84 @@ const WaveForm = (props) => {
     }
   }, [url]);
 
+  useEffect(() => {
+    if (wavesurferIns.current && !isLoading) {
+      wavesurferIns.current.on("region-update-end", function (region) {
+        const id = region.id;
+        const newSectionsObj = { ...sections };
+        if (newSectionsObj[id]) {
+          // newSectionsObj[id].start = region.start;
+          const differenceToClosestBarEnd = Object.values(bars).filter(
+            (bar) => region.end >= bar.start && region.end < bar.end
+          );
+          if (differenceToClosestBarEnd.length) {
+            const newEnd = differenceToClosestBarEnd[0].end;
+            newSectionsObj[id].end = newEnd;
+            region.onResize(newEnd - region.end);
+          } else {
+            newSectionsObj[id].end = region.end;
+            setSections(newSectionsObj);
+          }
+          // if (
+          //   id &&
+          //   region.start !== wavesurferIns.current.regions.list[id - 1].end
+          // ) {
+          //   region.onResize(
+          //     wavesurferIns.current.regions.list[id - 1].end,
+          //     "start"
+          //   );
+          // }
+        }
+        // else {
+        //   newSectionsObj[id] = {
+        //     name: SectionNames[id],
+        //     start: region.start,
+        //     end: region.end,
+        //   };
+        //   setSections(newSectionsObj);
+        // }
+      });
+    }
+  }, [isLoading, sections]);
+
+  const addSection = () => {
+    const newSectionsObj = { ...sections };
+    const id = Object.keys(newSectionsObj).length;
+    if (id === 0) {
+      newSectionsObj[id] = {
+        name: SectionNames[id],
+        start: 0,
+        end: durationOfEachBarInSec,
+      };
+    } else {
+      const prevRegion = wavesurferIns.current.regions.list[id - 1];
+      newSectionsObj[id] = {
+        name: SectionNames[id],
+        start: prevRegion.end,
+        end: prevRegion.end + durationOfEachBarInSec,
+      };
+    }
+    var o = Math.round,
+      r = Math.random,
+      s = 255;
+    const color =
+      "rgba(" +
+      o(r() * s) +
+      "," +
+      o(r() * s) +
+      "," +
+      o(r() * s) +
+      "," +
+      0.4 +
+      ")";
+    wavesurferIns.current.addRegion({
+      id,
+      start: newSectionsObj[id].start,
+      end: newSectionsObj[id].end,
+      color,
+    });
+    setSections(newSectionsObj);
+  };
   const pauseOrPlay = () => {
     wavesurferIns.current.playPause();
   };
@@ -197,12 +300,7 @@ const WaveForm = (props) => {
           </Stack>
         )}
       </Box>
-      <Accordion
-        expandIcon={<ExpandMoreIcon />}
-        mt={4}
-        width="100%"
-        color="primary"
-      >
+      <Accordion mt={4} width="100%" color="primary">
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">Audio Fingerprint</Typography>
         </AccordionSummary>
@@ -218,30 +316,33 @@ const WaveForm = (props) => {
         <Typography variant="h6">Sections Information</Typography>
         <Box mt={2}>
           <Box>
-            <Typography>No of Sections</Typography>
+            <Button onClick={addSection} variant="contained">
+              Add Section
+            </Button>
+            {/* <Typography>No of Sections</Typography>
             <TextField
               type="number"
               onChange={(e) => {
-                const noOfSections = parseInt(e.target.value);
-                if (noOfSections > sections.length) {
-                  const newNoSections = noOfSections - sections.length;
-                  const newSections = [...sections];
-                  for (let i = 0; i < newNoSections; i++) {
-                    newSections.push({
-                      internalId: newSections + i,
-                      name: SectionNames[i] || "",
-                      start: 0,
-                      end: 0,
-                    });
-                  }
-                  setSections(newSections);
-                }
+                // const noOfSections = parseInt(e.target.value);
+                // if (noOfSections > sections.length) {
+                //   const newNoSections = noOfSections - sections.length;
+                //   const newSections = [...sections];
+                //   for (let i = 0; i < newNoSections; i++) {
+                //     newSections.push({
+                //       internalId: newSections + i,
+                //       name: SectionNames[i] || "",
+                //       start: 0,
+                //       end: 0,
+                //     });
+                //   }
+                //   setSections(newSections);
+                // }
               }}
-            />
+            /> */}
           </Box>
         </Box>
         <Box display="flex" gap={3} flexWrap="wrap" mt={2}>
-          {sections.map((section, i) => (
+          {Object.values(sections).map((section, i) => (
             <Card>
               <Box p={2}>
                 <Box mb={1}>
@@ -250,12 +351,12 @@ const WaveForm = (props) => {
                     size="small"
                     value={section.name}
                     onChange={(e) => {
-                      const newSections = [...sections];
-                      const idx = newSections.findIndex(
-                        (sec) => sec.internalId === section.internalId
-                      );
-                      newSections[idx].name = e.target.value;
-                      setSections(newSections);
+                      // const newSections = [...sections];
+                      // const idx = newSections.findIndex(
+                      //   (sec) => sec.internalId === section.internalId
+                      // );
+                      // newSections[idx].name = e.target.value;
+                      // setSections(newSections);
                     }}
                   >
                     <MenuItem value={"Intro"}>Intro</MenuItem>
@@ -266,47 +367,58 @@ const WaveForm = (props) => {
                     <MenuItem value={"Outro"}>Outro</MenuItem>
                   </Select>
                 </Box>
-                <Box>
+                {/* <Box>
                   <Typography>Measures</Typography>
                   <TextField
                     size="small"
                     style={{ width: "100px" }}
                     onChange={(e) => {
-                      const splits = e.target.value.split(",");
-                      if (splits.length === 2) {
-                        const [startBar, endBar] = splits;
-                        const newSections = [...sections];
-                        const idx = newSections.findIndex(
-                          (sec) => sec.internalId === section.internalId
-                        );
-                        newSections[idx].start = bars[startBar].start;
-                        newSections[idx].end = bars[endBar].end;
-                        setSections(newSections);
-                        var o = Math.round,
-                          r = Math.random,
-                          s = 255;
-                        const color =
-                          "rgba(" +
-                          o(r() * s) +
-                          "," +
-                          o(r() * s) +
-                          "," +
-                          o(r() * s) +
-                          "," +
-                          0.4 +
-                          ")";
-                        wavesurferIns.current.addRegion({
-                          start: bars[startBar].start,
-                          end: bars[endBar].end,
-                          color,
-                          resize: false,
-                          drag: false,
-                          id: i,
-                        });
-                      }
+                      // const [startBar, endBar] = e.target.value.split(",");
+                      // if (parseInt(startBar) && parseInt(endBar)) {
+                      //   const newSections = [...sections];
+                      //   const idx = newSections.findIndex(
+                      //     (sec) => sec.internalId === section.internalId
+                      //   );
+                      //   newSections[idx].start = bars[startBar].start;
+                      //   newSections[idx].end = bars[endBar].end;
+                      //   var o = Math.round,
+                      //     r = Math.random,
+                      //     s = 255;
+                      //   const color =
+                      //     "rgba(" +
+                      //     o(r() * s) +
+                      //     "," +
+                      //     o(r() * s) +
+                      //     "," +
+                      //     o(r() * s) +
+                      //     "," +
+                      //     0.4 +
+                      //     ")";
+                      //   if (wavesurferIns.current.regions.list[i]) {
+                      //     wavesurferIns.current.regions.list[i].onResize(
+                      //       bars[startBar].start,
+                      //       "start"
+                      //     );
+                      //     wavesurferIns.current.regions.list[i].onResize(
+                      //       bars[startBar].start,
+                      //       "end"
+                      //     );
+                      //   } else {
+                      //     newSections[idx].color = color;
+                      //     wavesurferIns.current.addRegion({
+                      //       start: bars[startBar].start,
+                      //       end: bars[endBar].end,
+                      //       color: newSections[idx].color,
+                      //       resize: false,
+                      //       drag: false,
+                      //       id: i,
+                      //     });
+                      //   }
+                      //   setSections(newSections);
+                      // }
                     }}
                   ></TextField>
-                </Box>
+                </Box> */}
                 {section.end > 0 && (
                   <Box mt={2}>
                     <Typography>Start: {section.start.toFixed(2)}s</Typography>

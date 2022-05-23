@@ -20,10 +20,14 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
-type Stem = {
-  [key: string]: { file: File; name: string; type: string };
+type Stem = { file: File; name: string; type: string };
+type StemsObj = {
+  [key: string]: Stem;
 };
-
+type Section = { name: string; start: number; end: number };
+type SectionsObj = {
+  [internalId: string]: Section;
+};
 function App() {
   const [fullTrackFile, setFullTrackFile] = useState<File>();
   const [cid, setCid] = useState<string>();
@@ -41,16 +45,14 @@ function App() {
   const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
     useState<number>();
   const [isUploaded, setIsUploaded] = useState(false);
-  const [sections, setSections] = useState<
-    { internalId: string; name: string; start: number; end: number }[]
-  >([]);
-  const [stemObj, setStemObj] = useState<Stem>({});
+  const [sections, setSections] = useState<SectionsObj>({});
+  const [stemObj, setStemObj] = useState<StemsObj>({});
 
   const getSelectedBeatOffet = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
   useEffect(() => {
-    const obj = {} as Stem;
+    const obj = {} as StemsObj;
     acceptedFiles.map((acceptedFile, i) => {
       obj[i] = {
         file: acceptedFile,
