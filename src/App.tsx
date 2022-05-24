@@ -9,6 +9,7 @@ import {
   IconButton,
   Select,
   MenuItem,
+  Checkbox,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import MusicUploader from "./components/MusicUploader";
@@ -16,14 +17,17 @@ import WaveForm from "./components/WaveForm";
 import CachedIcon from "@mui/icons-material/Cached";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
-import axios from "axios";
+// import axios from "axios";
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import TransactionDialog from "./components/TransactionDialog";
+import { Web3Storage } from "web3.storage";
+
+const CryptoJS = require("crypto-js");
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 // type StemType = "Vocal" | "Instrumental" | "Bass" | "Drums";
 
-type Stem = { file?: File; name: string; type: string };
+type Stem = { file: File; name: string; type: string };
 type StemsObj = {
   [key: string]: Stem;
 };
@@ -49,11 +53,12 @@ function App() {
     useState<number>();
   const [sectionsObj, setSectionsObj] = useState<SectionsObj>({});
   const [stemsObj, setStemsObj] = useState<StemsObj>({});
-  console.log({ stemsObj, sectionsObj });
+
   const getSelectedBeatOffet = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
   const [activeTxStep, setActiveTxStep] = useState<number>(0);
   const [isTxDialogOpen, setIsTxDialogOpen] = useState<boolean>(false);
+  const [isEncryptFiles, setIsEncryptFiles] = useState<boolean>(false);
 
   const [fullTrackHash, setFullTrackHash] = useState<string>();
   const [stemsHash, setStemsHash] = useState<string[]>([]);
@@ -238,32 +243,74 @@ function App() {
       return;
     }
     setIsTxDialogOpen(true);
-    const files = [
-      fullTrackFile,
-      ...Object.values(stemsObj).map((obj) => obj.file),
-    ];
-    const formData = new FormData();
-    files.map((file) => {
-      if (file) {
-        formData.append(file.name, file);
-      }
-      return false;
-    });
-    const response = await axios.post(
-      "https://music-assets-storage-ynfarb57wa-uc.a.run.app/upload",
-      formData
-    );
-    if (response.data.cid) {
-      setCid(response.data.cid);
+    const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
+    const allFiles = [fullTrackFile, ...stemFiles];
+    let finalFiles;
+    if (isEncryptFiles) {
+      finalFiles = await encryptFiles(allFiles);
     } else {
-      alert("Some error Occured, please try again later.");
-      setIsTxDialogOpen(false);
-      return;
+      finalFiles = allFiles;
     }
+    const client = new Web3Storage({
+      token: process.env.REACT_APP_WEB3_STORAGE as string,
+    });
+    const cid = await client.put(finalFiles);
+    setCid(cid);
+    // const formData = new FormData();
+    // files.map((file) => {
+    //   if (file) {
+    //     formData.append(file.name, file);
+    //   }
+    //   return false;
+    // });
+    // const response = await axios.post(
+    //   "https://music-assets-storage-ynfarb57wa-uc.a.run.app/upload",
+    //   formData
+    // );
+    // if (response.data.cid) {
+    //   setCid(response.data.cid);
+    // } else {
+    //   alert("Some error Occured, please try again later.");
+    //   setIsTxDialogOpen(false);
+    //   return;
+    // }
     setActiveTxStep(1);
     onTx();
   };
 
+  const encryptFiles = async (files: File[]): Promise<File[]> => {
+    const filePromises = files.map((file) => {
+      return new Promise<File>((res) => {
+        const reader = new FileReader();
+        reader.addEventListener("load", (event: any) => {
+          const buff = event.target.result;
+          var wordArray = CryptoJS.lib.WordArray.create(buff);
+          var encrypted = CryptoJS.AES.encrypt(
+            wordArray,
+            process.env.REACT_APP_ENCRYPTION_KEY
+          ).toString();
+          const newEncryptedFile = new File([encrypted], file.name);
+          res(newEncryptedFile);
+        });
+        reader.readAsArrayBuffer(file);
+      });
+    });
+    return Promise.all(filePromises);
+    // await new Promise((res) => {
+    //   const reader = new FileReader();
+    //   reader.addEventListener("load", async (event: any) => {
+    //     const buff = event.target.result;
+    //     var wordArray = CryptoJS.lib.WordArray.create(buff);
+    //     var encrypted = CryptoJS.AES.encrypt(
+    //       wordArray,
+    //       "1234567887654321"
+    //     ).toString();
+    //     const file = new File([encrypted], "fileName");
+    //     console.log(file);
+    //   });
+    //   reader.readAsArrayBuffer(fullTrackFile as File);
+    // });
+  };
   const onTxDialogClose = () => {
     setIsTxDialogOpen(false);
   };
@@ -395,6 +442,16 @@ function App() {
                     value={noOfBars}
                     disabled
                   ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Encrypt Assets</Typography>
+                  <Checkbox
+                    value={isEncryptFiles}
+                    onChange={(e) => setIsEncryptFiles(e.target.checked)}
+                    sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
+                  />
                 </Box>
               </Grid>
             </Grid>
@@ -634,6 +691,7 @@ function App() {
         fullTrackHash={fullTrackHash}
         stemsHash={stemsHash}
         sectionsHash={sectionsHash}
+        isEncryptFiles={isEncryptFiles}
       />
     </Box>
   );

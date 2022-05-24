@@ -22,6 +22,7 @@ const TransactionDialog = (props: any) => {
     fullTrackHash,
     stemsHash,
     sectionsHash,
+    isEncryptFiles,
   } = props;
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -37,7 +38,9 @@ const TransactionDialog = (props: any) => {
             </StepLabel>
             <StepContent>
               <Typography variant="caption">
-                Encrypting and Storing on Web3.Storage
+                {isEncryptFiles
+                  ? "Encrypting and Storing on Web3.Storage"
+                  : "Storing on Web3.Storage"}
               </Typography>
               <LinearProgress color="secondary" />
             </StepContent>
