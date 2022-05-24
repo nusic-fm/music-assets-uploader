@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import MusicUploader from "./components/MusicUploader";
-// import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
 import WaveForm from "./components/WaveForm";
 import CachedIcon from "@mui/icons-material/Cached";
 import AcceptStems from "./components/Dropzone";
