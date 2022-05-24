@@ -43,8 +43,8 @@ const WaveForm = (props) => {
     durationOfEachBarInSec,
     noOfBars,
     startBeatOffsetMs,
-    sections,
-    setSections,
+    sectionsObj,
+    setSectionsObj,
   } = props;
   const [isLoading, setIsLoading] = useState(true);
   const wavesurferIns = useRef(null);
@@ -52,7 +52,7 @@ const WaveForm = (props) => {
   const [bars, setBars] = useState({});
 
   useEffect(() => {
-    if (noOfBars && durationOfEachBarInSec) {
+    if (noOfBars && durationOfEachBarInSec && wavesurferIns.current) {
       let start = startBeatOffsetMs / 1000;
       let end;
       const newBars = {};
@@ -146,7 +146,7 @@ const WaveForm = (props) => {
     wavesurfer.load(url);
     wavesurferIns.current = wavesurfer;
     wavesurferIns.current.on("region-created", function (region) {
-      // const newSectionsObj = { ...sections };
+      // const newSectionsObj = { ...sectionsObj };
       // const id = Object.keys(newSectionsObj).length;
       // region.id = id;
       // var o = Math.round,
@@ -169,7 +169,7 @@ const WaveForm = (props) => {
       //   start: region.start,
       //   end: region.end,
       // };
-      // setSections(newSectionsObj);
+      // setSectionsObj(newSectionsObj);
     });
   };
 
@@ -183,7 +183,7 @@ const WaveForm = (props) => {
     if (wavesurferIns.current && !isLoading) {
       wavesurferIns.current.on("region-update-end", function (region) {
         const id = region.id;
-        const newSectionsObj = { ...sections };
+        const newSectionsObj = { ...sectionsObj };
         if (newSectionsObj[id]) {
           // newSectionsObj[id].start = region.start;
           const differenceToClosestBarEnd = Object.values(bars).filter(
@@ -195,7 +195,7 @@ const WaveForm = (props) => {
             region.onResize(newEnd - region.end);
           } else {
             newSectionsObj[id].end = region.end;
-            setSections(newSectionsObj);
+            setSectionsObj(newSectionsObj);
           }
           // if (
           //   id &&
@@ -213,14 +213,14 @@ const WaveForm = (props) => {
         //     start: region.start,
         //     end: region.end,
         //   };
-        //   setSections(newSectionsObj);
+        //   setSectionsObj(newSectionsObj);
         // }
       });
     }
-  }, [isLoading, sections]);
+  }, [isLoading, sectionsObj]);
 
   const addSection = () => {
-    const newSectionsObj = { ...sections };
+    const newSectionsObj = { ...sectionsObj };
     const id = Object.keys(newSectionsObj).length;
     if (id === 0) {
       newSectionsObj[id] = {
@@ -255,7 +255,7 @@ const WaveForm = (props) => {
       end: newSectionsObj[id].end,
       color,
     });
-    setSections(newSectionsObj);
+    setSectionsObj(newSectionsObj);
   };
   const pauseOrPlay = () => {
     wavesurferIns.current.playPause();
@@ -326,9 +326,9 @@ const WaveForm = (props) => {
               type="number"
               onChange={(e) => {
                 // const noOfSections = parseInt(e.target.value);
-                // if (noOfSections > sections.length) {
-                //   const newNoSections = noOfSections - sections.length;
-                //   const newSections = [...sections];
+                // if (noOfSections > sectionsObj.length) {
+                //   const newNoSections = noOfSections - sectionsObj.length;
+                //   const newSections = [...sectionsObj];
                 //   for (let i = 0; i < newNoSections; i++) {
                 //     newSections.push({
                 //       internalId: newSections + i,
@@ -337,14 +337,14 @@ const WaveForm = (props) => {
                 //       end: 0,
                 //     });
                 //   }
-                //   setSections(newSections);
+                //   setSectionsObj(newSections);
                 // }
               }}
             /> */}
           </Box>
         </Box>
         <Box display="flex" gap={3} flexWrap="wrap" mt={2}>
-          {Object.values(sections).map((section, i) => (
+          {Object.values(sectionsObj).map((section, i) => (
             <Card>
               <Box p={2}>
                 <Box mb={1}>
@@ -353,19 +353,19 @@ const WaveForm = (props) => {
                     size="small"
                     value={section.name}
                     onChange={(e) => {
-                      // const newSections = [...sections];
+                      // const newSections = [...sectionsObj];
                       // const idx = newSections.findIndex(
                       //   (sec) => sec.internalId === section.internalId
                       // );
                       // newSections[idx].name = e.target.value;
-                      // setSections(newSections);
+                      // setSectionsObj(newSections);
                     }}
                   >
                     <MenuItem value={"Intro"}>Intro</MenuItem>
                     <MenuItem value={"Verse"}>Verse</MenuItem>
                     <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
                     <MenuItem value={"Chorus"}>Chorus</MenuItem>
-                    <MenuItem value={"Chorus"}>Breakdown</MenuItem>
+                    <MenuItem value={"Breakdown"}>Breakdown</MenuItem>
                     <MenuItem value={"Bridge"}>Bridge</MenuItem>
                     <MenuItem value={"Outro"}>Outro</MenuItem>
                   </Select>
@@ -378,7 +378,7 @@ const WaveForm = (props) => {
                     onChange={(e) => {
                       // const [startBar, endBar] = e.target.value.split(",");
                       // if (parseInt(startBar) && parseInt(endBar)) {
-                      //   const newSections = [...sections];
+                      //   const newSections = [...sectionsObj];
                       //   const idx = newSections.findIndex(
                       //     (sec) => sec.internalId === section.internalId
                       //   );
@@ -417,7 +417,7 @@ const WaveForm = (props) => {
                       //       id: i,
                       //     });
                       //   }
-                      //   setSections(newSections);
+                      //   setSectionsObj(newSections);
                       // }
                     }}
                   ></TextField>

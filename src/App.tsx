@@ -18,9 +18,13 @@ import CachedIcon from "@mui/icons-material/Cached";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
+import TransactionDialog from "./components/TransactionDialog";
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
-type Stem = { file: File; name: string; type: string };
+// type StemType = "Vocal" | "Instrumental" | "Bass" | "Drums";
+
+type Stem = { file?: File; name: string; type: string };
 type StemsObj = {
   [key: string]: Stem;
 };
@@ -44,24 +48,31 @@ function App() {
   const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
   const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
     useState<number>();
-  const [isUploaded, setIsUploaded] = useState(false);
-  const [sections, setSections] = useState<SectionsObj>({});
-  const [stemObj, setStemObj] = useState<StemsObj>({});
-
+  const [sectionsObj, setSectionsObj] = useState<SectionsObj>({});
+  const [stemsObj, setStemsObj] = useState<StemsObj>({});
+  console.log({ stemsObj, sectionsObj });
   const getSelectedBeatOffet = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+  const [activeTxStep, setActiveTxStep] = useState<number>(0);
+  const [isTxDialogOpen, setIsTxDialogOpen] = useState<boolean>(false);
+
+  const [fullTrackHash, setFullTrackHash] = useState<string>();
+  const [stemsHash, setStemsHash] = useState<string[]>([]);
+  const [sectionsHash, setSectionsHash] = useState<string[]>([]);
 
   useEffect(() => {
-    const obj = {} as StemsObj;
-    acceptedFiles.map((acceptedFile, i) => {
-      obj[i] = {
-        file: acceptedFile,
-        name: acceptedFile.name,
-        type: StemTypes[i] || "",
-      };
-      return "";
-    });
-    setStemObj(obj);
+    if (acceptedFiles.length) {
+      const obj = {} as StemsObj;
+      acceptedFiles.map((acceptedFile, i) => {
+        obj[i] = {
+          file: acceptedFile,
+          name: acceptedFile.name,
+          type: StemTypes[i] || "",
+        };
+        return "";
+      });
+      setStemsObj(obj);
+    }
   }, [acceptedFiles]);
 
   useEffect(() => {
@@ -91,37 +102,126 @@ function App() {
     // a.play();
   };
 
-  // const onClick = async () => {
-  //   //wss://rpc.polkadot.io
-  //   // const wsProvider = new WsProvider("ws://127.0.0.1:9944");
-  //   // const api = await ApiPromise.create({ provider: wsProvider });
-  //   // // Do something
-  //   // console.log(api.genesisHash.toHex());
-  //   // const keyring = new Keyring({ type: "sr25519" });
-  //   // const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
-  //   // const txHash = await api.tx.templateModule
-  //   //   .createClaim("0x8888", "Kenya", "Some Title", "54")
-  //   //   .signAndSend(alice);
-  //   // console.log({ txHash });
-  //   // debugger;
-  //   // const queried = await api.query.templateModule.proofs(
-  //   //   "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
-  //   // );
-  //   // const data = await api.query.system.account(
-  //   //   "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
-  //   // );
-  //   // console.log(
-  //   //   `${(data as any).now}: balance of ${
-  //   //     (data as any).data.free
-  //   //   } and a nonce of ${(data as any).nonce}`
-  //   // );
-  //   // The length of an epoch (session) in Babe
-  //   // console.log(api.consts.babe.epochDuration.toNumber());
-  //   // // The amount required to create a new account
-  //   // console.log(api.consts.balances.existentialDeposit.toNumber());
-  //   // // The amount required per byte on an extrinsic
-  //   // console.log(api.consts.transactionPayment.transactionByteFee.toNumber());
-  // };
+  const onTx = async () => {
+    //wss://rpc.polkadot.io
+    const wsProvider = new WsProvider("ws://127.0.0.1:9944");
+    const api = await ApiPromise.create({ provider: wsProvider });
+    // // Do something
+    // console.log(api.genesisHash.toHex());
+    const keyring = new Keyring({ type: "sr25519" });
+    const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
+    const fullTrackTxHash = await new Promise<string>((res) => {
+      api.tx.templateModule
+        .createFulltrack(
+          `fulltrack${title}${genre}${key}${bpm}`,
+          cid,
+          artist,
+          title,
+          album,
+          genre,
+          bpm,
+          key,
+          timeSignature,
+          noOfBars,
+          duration,
+          startBeatOffsetMs
+        )
+        .signAndSend(alice, ({ events = [], status }) => {
+          if (status.isFinalized) {
+            console.log(
+              `Transaction included at blockHash ${status.asFinalized}`
+            );
+
+            // Loop through Vec<EventRecord> to display all events
+            events.forEach(({ phase, event: { data, method, section } }) => {
+              console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+            });
+            res(status.hash.toString());
+          }
+        });
+    });
+    setFullTrackHash(fullTrackTxHash);
+    setActiveTxStep(2);
+    // Stems
+    const stems = Object.values(stemsObj);
+    for (let i = 0; i < stems.length; i++) {
+      const stemObj = stems[i];
+      const stemHash = await new Promise<string>((res) => {
+        api.tx.templateModule
+          .createStem(
+            `stem${i + 1}${title}${genre}${key}${bpm}`,
+            cid,
+            stemObj.name,
+            stemObj.type
+          )
+          .signAndSend(alice, ({ events = [], status }) => {
+            if (status.isFinalized) {
+              console.log(
+                `Transaction included at blockHash ${status.asFinalized}`
+              );
+
+              // Loop through Vec<EventRecord> to display all events
+              events.forEach(({ phase, event: { data, method, section } }) => {
+                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+              });
+              res(status.hash.toString());
+            }
+          });
+      });
+      setStemsHash([...stemsHash, stemHash]);
+    }
+    setActiveTxStep(3);
+
+    // Section
+    const sections = Object.values(sectionsObj);
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      const sectionHash = await new Promise<string>((res) => {
+        api.tx.templateModule
+          .createSection(
+            `section${i + 1}${title}${genre}${key}${bpm}`,
+            section.name,
+            section.start * 1000,
+            section.end * 1000
+          )
+          .signAndSend(alice, ({ events = [], status }) => {
+            if (status.isFinalized) {
+              console.log(
+                `Transaction included at blockHash ${status.asFinalized}`
+              );
+
+              // Loop through Vec<EventRecord> to display all events
+              events.forEach(({ phase, event: { data, method, section } }) => {
+                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+              });
+              res(status.hash.toString());
+            }
+          });
+      });
+      setSectionsHash([...sectionsHash, sectionHash]);
+    }
+    setActiveTxStep(4);
+    // const sectionTxs = await Promise.all(sectionsTxPromises);
+    // console.log({ sectionTxs });
+    // debugger;
+    // const queried = await api.query.templateModule.proofs(
+    //   "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
+    // );
+    // const data = await api.query.system.account(
+    //   "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+    // );
+    // console.log(
+    //   `${(data as any).now}: balance of ${
+    //     (data as any).data.free
+    //   } and a nonce of ${(data as any).nonce}`
+    // );
+    // The length of an epoch (session) in Babe
+    // console.log(api.consts.babe.epochDuration.toNumber());
+    // // The amount required to create a new account
+    // console.log(api.consts.balances.existentialDeposit.toNumber());
+    // // The amount required per byte on an extrinsic
+    // console.log(api.consts.transactionPayment.transactionByteFee.toNumber());
+  };
 
   // const transfer = async () => {
   //   // Sign and send a transfer from Alice to Bob
@@ -131,36 +231,42 @@ function App() {
   //   // const txHash = await api.tx.templateModule.createClaim()
   // };
   const onTxClick = async () => {
-    if (isUploaded) {
-      alert("Tx to blockchain is currently disabled");
-    } else {
-      if (!fullTrackFile) {
-        alert("Upload Full Track.");
-        return;
-      } else if (acceptedFiles.length === 0) {
-        alert("Submit PoC/stem files");
-        return;
-      }
-      const files = [
-        fullTrackFile,
-        ...Object.values(stemObj).map((obj) => obj.file),
-      ];
-      const formData = new FormData();
-      files.map((file) => {
-        formData.append(file.name, file);
-        return false;
-      });
-      const response = await axios.post(
-        "http://localhost:8080/upload",
-        formData
-      );
-      if (response.data.cid) {
-        setCid(response.data.cid);
-        setIsUploaded(true);
-      } else {
-        alert("Some error Occured, please try again later.");
-      }
+    if (!fullTrackFile) {
+      alert("Upload Full Track.");
+      return;
+    } else if (acceptedFiles.length === 0) {
+      alert("Submit PoC/stem files");
+      return;
     }
+    setIsTxDialogOpen(true);
+    const files = [
+      fullTrackFile,
+      ...Object.values(stemsObj).map((obj) => obj.file),
+    ];
+    const formData = new FormData();
+    files.map((file) => {
+      if (file) {
+        formData.append(file.name, file);
+      }
+      return false;
+    });
+    const response = await axios.post(
+      "https://music-assets-storage-ynfarb57wa-uc.a.run.app/upload",
+      formData
+    );
+    if (response.data.cid) {
+      setCid(response.data.cid);
+    } else {
+      alert("Some error Occured, please try again later.");
+      setIsTxDialogOpen(false);
+      return;
+    }
+    setActiveTxStep(1);
+    onTx();
+  };
+
+  const onTxDialogClose = () => {
+    setIsTxDialogOpen(false);
   };
 
   return (
@@ -465,8 +571,8 @@ function App() {
           noOfBars={noOfBars}
           startBeatOffsetMs={startBeatOffsetMs}
           getSelectedBeatOffet={getSelectedBeatOffet}
-          sections={sections}
-          setSections={setSections}
+          sectionsObj={sectionsObj}
+          setSectionsObj={setSectionsObj}
         />
         <Box mt={8}>
           <Typography variant="h6">Proof of Creation</Typography>
@@ -483,16 +589,16 @@ function App() {
             justifyContent="center"
             flexWrap="wrap"
           >
-            {Object.values(stemObj).map(({ file, name, type }, i) => (
+            {Object.values(stemsObj).map(({ file, name, type }, i) => (
               <Box>
                 <Box display="flex" justifyContent="center">
                   <Select
                     size="small"
                     value={type}
                     onChange={(e) => {
-                      const newObject = { ...stemObj };
+                      const newObject = { ...stemsObj };
                       newObject[i].type = String(e.target.value);
-                      setStemObj(newObject);
+                      setStemsObj(newObject);
                     }}
                   >
                     <MenuItem value={"Vocal"}>Vocal</MenuItem>
@@ -506,9 +612,9 @@ function App() {
                     placeholder="Name"
                     value={name}
                     onChange={(e) => {
-                      const newObject = { ...stemObj };
+                      const newObject = { ...stemsObj };
                       newObject[i].name = e.target.value;
-                      setStemObj(newObject);
+                      setStemsObj(newObject);
                     }}
                   ></TextField>
                 </Box>
@@ -518,10 +624,18 @@ function App() {
         </Box>
         <Box mt={8} display="flex" justifyContent="center">
           <Button variant="contained" color="primary" onClick={onTxClick}>
-            {!isUploaded ? "Upload Music Assets" : "Send To Blockchain"}
+            Send To Blockchain
           </Button>
         </Box>
       </Box>
+      <TransactionDialog
+        isTxDialogOpen={isTxDialogOpen}
+        activeTxStep={activeTxStep}
+        onTxDialogClose={onTxDialogClose}
+        fullTrackHash={fullTrackHash}
+        stemsHash={stemsHash}
+        sectionsHash={sectionsHash}
+      />
     </Box>
   );
 }
