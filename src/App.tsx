@@ -128,7 +128,9 @@ function App() {
           timeSignature,
           noOfBars,
           duration,
-          startBeatOffsetMs
+          startBeatOffsetMs,
+          Object.keys(sectionsObj).length,
+          Object.keys(stemsObj).length
         )
         .signAndSend(alice, ({ events = [], status }) => {
           if (status.isFinalized) {
