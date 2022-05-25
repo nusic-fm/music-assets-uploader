@@ -27,37 +27,37 @@ const CryptoJS = require("crypto-js");
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 // type StemType = "Vocal" | "Instrumental" | "Bass" | "Drums";
 const musicKeys = [
-  { key: "C major", id: "cma" },
-  { key: "D♭ major", id: "dflma" },
-  { key: "D major", id: "dma" },
-  { key: "E♭ major", id: "eflma" },
-  { key: "E major", id: "ema" },
-  { key: "F major", id: "fma" },
-  { key: "F# major", id: "Fshma" },
-  { key: "G major", id: "gma" },
-  { key: "A♭ major", id: "aflma" },
-  { key: "A major", id: "ama" },
-  { key: "B♭ major", id: "bflma" },
-  { key: "B major", id: "bma" },
-  { key: "C minor", id: "cmi" },
-  { key: "C# minor", id: "cshmi" },
-  { key: "D minor", id: "dmi" },
-  { key: "E♭ minor", id: "eflmi" },
-  { key: "E minor", id: "emi" },
-  { key: "F minor", id: "fmi" },
-  { key: "F# minor", id: "fshmi" },
-  { key: "G minor", id: "gmi" },
-  { key: "G# minor", id: "gshmi" },
-  { key: "A minor", id: "ami" },
-  { key: "B♭ minor", id: "bflmi" },
-  { key: "B minor", id: "bmi" },
+  { key: "C major", id: "CMa" },
+  { key: "D♭ major", id: "DflMa" },
+  { key: "D major", id: "DMa" },
+  { key: "E♭ major", id: "EflMa" },
+  { key: "E major", id: "EMa" },
+  { key: "F major", id: "FMa" },
+  { key: "F# major", id: "FshMa" },
+  { key: "G major", id: "GMa" },
+  { key: "A♭ major", id: "AflMa" },
+  { key: "A major", id: "AMa" },
+  { key: "B♭ major", id: "BflMa" },
+  { key: "B major", id: "BMa" },
+  { key: "C minor", id: "CMi" },
+  { key: "C# minor", id: "CshMi" },
+  { key: "D minor", id: "DMi" },
+  { key: "E♭ minor", id: "EflMi" },
+  { key: "E minor", id: "EMi" },
+  { key: "F minor", id: "FMi" },
+  { key: "F# minor", id: "FshMi" },
+  { key: "G minor", id: "GMi" },
+  { key: "G# minor", id: "GshMi" },
+  { key: "A minor", id: "AMi" },
+  { key: "B♭ minor", id: "BflMi" },
+  { key: "B minor", id: "BMi" },
 ];
 
 type Stem = { file: File; name: string; type: string };
 type StemsObj = {
   [key: string]: Stem;
 };
-type Section = { name: string; start: number; end: number };
+type Section = { name: string; start: number; end: number; bars: number };
 type SectionsObj = {
   [internalId: string]: Section;
 };
@@ -75,7 +75,9 @@ function App() {
   const [bpm, setBpm] = useState<number>();
   const [key, setKey] = useState<string>();
   const [timeSignature, setTimeSignature] = useState<string>();
+  const [noOfBeatsPerBar, setNoOfBeatsPerBar] = useState<number>(0);
   const [noOfBars, setNoOfBars] = useState<number>();
+  const [noOfBeats, setNoOfBeats] = useState<number>();
   const [fileUrl, setFileUrl] = useState<string>();
   const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
   const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
@@ -113,7 +115,9 @@ function App() {
       const beatsPerSecond = bpm / 60;
       const totalNoOfBeats =
         beatsPerSecond * (duration - startBeatOffsetMs / 1000);
+      setNoOfBeats(totalNoOfBeats);
       const noOfBeatsPerBar = parseFloat(timeSignature.split("/")[0]);
+      setNoOfBeatsPerBar(noOfBeatsPerBar);
       const noOfMeasures = Math.floor(totalNoOfBeats / noOfBeatsPerBar);
       setNoOfBars(noOfMeasures);
       const durationOfEachBar = duration / noOfMeasures;
@@ -158,6 +162,7 @@ function App() {
           key,
           timeSignature,
           noOfBars,
+          noOfBeats,
           duration,
           startBeatOffsetMs.toString(),
           Object.keys(sectionsObj).length,
@@ -221,7 +226,9 @@ function App() {
             }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
             section.name,
             section.start * 1000,
-            section.end * 1000
+            section.end * 1000,
+            section.bars,
+            section.bars * noOfBeatsPerBar
           )
           .signAndSend(alice, ({ events = [], status }) => {
             if (status.isFinalized) {
@@ -310,8 +317,13 @@ function App() {
     //   return;
     // }
     setActiveTxStep(1);
-    onTx();
   };
+  useEffect(() => {
+    if (cid) {
+      onTx();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cid]);
 
   const encryptFiles = async (files: File[]): Promise<File[]> => {
     const filePromises = files.map((file) => {
@@ -409,7 +421,6 @@ function App() {
                   <Select
                     variant="outlined"
                     onChange={(e: any) => setKey(e.target.value)}
-                    defaultValue={"cma"}
                   >
                     {musicKeys.map(({ key, id }) => {
                       return (

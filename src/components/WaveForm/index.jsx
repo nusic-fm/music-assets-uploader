@@ -189,6 +189,13 @@ const WaveForm = (props) => {
           const differenceToClosestBarEnd = Object.values(bars).filter(
             (bar) => region.end >= bar.start && region.end < bar.end
           );
+          const barsInSection =
+            Object.keys(bars).filter(
+              (barNo) =>
+                bars[barNo].start >= region.start &&
+                bars[barNo].end <= region.end
+            ).length + 1;
+          newSectionsObj[id].bars = barsInSection;
           if (differenceToClosestBarEnd.length) {
             const newEnd = differenceToClosestBarEnd[0].end;
             newSectionsObj[id].end = newEnd;
@@ -228,6 +235,7 @@ const WaveForm = (props) => {
         name: SectionNames[id],
         start: 0,
         end: durationOfEachBarInSec,
+        bars: 1,
       };
     } else {
       const prevRegion = wavesurferIns.current.regions.list[id - 1];
@@ -236,6 +244,7 @@ const WaveForm = (props) => {
         name: SectionNames[id],
         start: prevRegion.end,
         end: prevRegion.end + durationOfEachBarInSec,
+        bars: 1,
       };
     }
     var o = Math.round,
