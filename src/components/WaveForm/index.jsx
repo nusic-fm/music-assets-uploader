@@ -224,6 +224,7 @@ const WaveForm = (props) => {
     const id = Object.keys(newSectionsObj).length;
     if (id === 0) {
       newSectionsObj[id] = {
+        id,
         name: SectionNames[id],
         start: 0,
         end: durationOfEachBarInSec,
@@ -231,6 +232,7 @@ const WaveForm = (props) => {
     } else {
       const prevRegion = wavesurferIns.current.regions.list[id - 1];
       newSectionsObj[id] = {
+        id,
         name: SectionNames[id],
         start: prevRegion.end,
         end: prevRegion.end + durationOfEachBarInSec,
@@ -353,12 +355,12 @@ const WaveForm = (props) => {
                     size="small"
                     value={section.name}
                     onChange={(e) => {
-                      // const newSections = [...sectionsObj];
-                      // const idx = newSections.findIndex(
-                      //   (sec) => sec.internalId === section.internalId
-                      // );
-                      // newSections[idx].name = e.target.value;
-                      // setSectionsObj(newSections);
+                      const newSectionsObj = { ...sectionsObj };
+                      const id = Object.keys(newSectionsObj).filter(
+                        (key) => key === section.id.toString()
+                      )[0];
+                      newSectionsObj[id].name = e.target.value;
+                      setSectionsObj(newSectionsObj);
                     }}
                   >
                     <MenuItem value={"Intro"}>Intro</MenuItem>

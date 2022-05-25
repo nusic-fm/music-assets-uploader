@@ -26,6 +26,32 @@ const CryptoJS = require("crypto-js");
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 // type StemType = "Vocal" | "Instrumental" | "Bass" | "Drums";
+const musicKeys = [
+  { key: "C major", id: "cma" },
+  { key: "D♭ major", id: "dflma" },
+  { key: "D major", id: "dma" },
+  { key: "E♭ major", id: "eflma" },
+  { key: "E major", id: "ema" },
+  { key: "F major", id: "fma" },
+  { key: "F# major", id: "Fshma" },
+  { key: "G major", id: "gma" },
+  { key: "A♭ major", id: "aflma" },
+  { key: "A major", id: "ama" },
+  { key: "B♭ major", id: "bflma" },
+  { key: "B major", id: "bma" },
+  { key: "C minor", id: "cmi" },
+  { key: "C# minor", id: "cshmi" },
+  { key: "D minor", id: "dmi" },
+  { key: "E♭ minor", id: "eflmi" },
+  { key: "E minor", id: "emi" },
+  { key: "F minor", id: "fmi" },
+  { key: "F# minor", id: "fshmi" },
+  { key: "G minor", id: "gmi" },
+  { key: "G# minor", id: "gshmi" },
+  { key: "A minor", id: "ami" },
+  { key: "B♭ minor", id: "bflmi" },
+  { key: "B minor", id: "bmi" },
+];
 
 type Stem = { file: File; name: string; type: string };
 type StemsObj = {
@@ -35,6 +61,9 @@ type Section = { name: string; start: number; end: number };
 type SectionsObj = {
   [internalId: string]: Section;
 };
+
+const getWithoutSpace = (str: string) => str.split(" ").join("");
+
 function App() {
   const [fullTrackFile, setFullTrackFile] = useState<File>();
   const [cid, setCid] = useState<string>();
@@ -114,10 +143,12 @@ function App() {
     // console.log(api.genesisHash.toHex());
     const keyring = new Keyring({ type: "sr25519" });
     const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
+    const titleWithoutSpace = getWithoutSpace(title as string);
+    const genreWithoutSpace = getWithoutSpace(title as string);
     const fullTrackTxHash = await new Promise<string>((res) => {
       api.tx.templateModule
         .createFulltrack(
-          `fulltrack${title}${genre}${key}${bpm}`,
+          `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
           cid,
           artist,
           title,
@@ -128,7 +159,7 @@ function App() {
           timeSignature,
           noOfBars,
           duration,
-          startBeatOffsetMs,
+          startBeatOffsetMs.toString(),
           Object.keys(sectionsObj).length,
           Object.keys(stemsObj).length
         )
@@ -155,7 +186,7 @@ function App() {
       const stemHash = await new Promise<string>((res) => {
         api.tx.templateModule
           .createStem(
-            `stem${i + 1}${title}${genre}${key}${bpm}`,
+            `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
             cid,
             stemObj.name,
             stemObj.type
@@ -185,7 +216,9 @@ function App() {
       const sectionHash = await new Promise<string>((res) => {
         api.tx.templateModule
           .createSection(
-            `section${i + 1}${title}${genre}${key}${bpm}`,
+            `section${
+              i + 1
+            }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
             section.name,
             section.start * 1000,
             section.end * 1000
@@ -369,10 +402,26 @@ function App() {
               <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>Key</Typography>
-                  <TextField
+                  {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setKey(e.target.value)}
-                  ></TextField>
+                  ></TextField> */}
+                  <Select
+                    variant="outlined"
+                    onChange={(e: any) => setKey(e.target.value)}
+                    defaultValue={"cma"}
+                  >
+                    {musicKeys.map(({ key, id }) => {
+                      return (
+                        <MenuItem value={id}>{key.toUpperCase()}</MenuItem>
+                      );
+                    })}
+                    {/* 
+                    <MenuItem value={"Vocal"}>C Minor</MenuItem>
+                    <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
+                    <MenuItem value={"Bass"}>Bass</MenuItem>
+                    <MenuItem value={"Drums"}>Drums</MenuItem> */}
+                  </Select>
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
