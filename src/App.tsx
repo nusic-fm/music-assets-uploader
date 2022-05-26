@@ -146,7 +146,10 @@ function App() {
     // // Do something
     // console.log(api.genesisHash.toHex());
     const keyring = new Keyring({ type: "sr25519" });
-    const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
+    // const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
+
+    const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
+    const account = keyring.addFromUri(PHRASE);
     const titleWithoutSpace = getWithoutSpace(title as string);
     const genreWithoutSpace = getWithoutSpace(title as string);
     const fullTrackTxHash = await new Promise<string>((res) => {
@@ -168,7 +171,7 @@ function App() {
           Object.keys(sectionsObj).length,
           Object.keys(stemsObj).length
         )
-        .signAndSend(alice, ({ events = [], status }) => {
+        .signAndSend(account, ({ events = [], status }) => {
           if (status.isFinalized) {
             console.log(
               `Transaction included at blockHash ${status.asFinalized}`
@@ -196,7 +199,7 @@ function App() {
             stemObj.name,
             stemObj.type
           )
-          .signAndSend(alice, ({ events = [], status }) => {
+          .signAndSend(account, ({ events = [], status }) => {
             if (status.isFinalized) {
               console.log(
                 `Transaction included at blockHash ${status.asFinalized}`
@@ -230,7 +233,7 @@ function App() {
             section.bars,
             section.bars * noOfBeatsPerBar
           )
-          .signAndSend(alice, ({ events = [], status }) => {
+          .signAndSend(account, ({ events = [], status }) => {
             if (status.isFinalized) {
               console.log(
                 `Transaction included at blockHash ${status.asFinalized}`
