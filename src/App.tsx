@@ -141,8 +141,19 @@ function App() {
 
   const onTx = async () => {
     //wss://rpc.polkadot.io
-    const wsProvider = new WsProvider("ws://127.0.0.1:9944");
-    const api = await ApiPromise.create({ provider: wsProvider });
+    let wsProvider;
+    let api: ApiPromise;
+    try {
+      wsProvider = new WsProvider("ws://127.0.0.1:9944");
+      api = await ApiPromise.create({
+        provider: wsProvider,
+        throwOnConnect: true,
+      });
+    } catch (e) {
+      setFullTrackHash("error");
+      setActiveTxStep(4);
+      return;
+    }
     // // Do something
     // console.log(api.genesisHash.toHex());
     const keyring = new Keyring({ type: "sr25519" });

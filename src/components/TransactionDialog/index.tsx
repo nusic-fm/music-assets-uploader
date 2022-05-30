@@ -48,7 +48,11 @@ const TransactionDialog = (props: any) => {
           <Step>
             <StepLabel>
               <Typography>Submitting Fulltrack</Typography>
-              {fullTrackHash && (
+              {fullTrackHash === "error" ? (
+                <Typography variant="caption" color="error">
+                  Rococo blockchain node is offline at the moment.
+                </Typography>
+              ) : (
                 <Typography variant="caption">{fullTrackHash}</Typography>
               )}
             </StepLabel>
@@ -62,9 +66,15 @@ const TransactionDialog = (props: any) => {
           <Step>
             <StepLabel>
               <Typography>Submitting Proof of Creation (stems)</Typography>
-              {stemsHash.map((stemHash: string) => (
-                <Typography variant="caption">{stemHash}</Typography>
-              ))}
+              {fullTrackHash === "error" ? (
+                <Typography variant="caption" color="error">
+                  Rococo blockchain node is offline at the moment.
+                </Typography>
+              ) : (
+                stemsHash.map((stemHash: string) => (
+                  <Typography variant="caption">{stemHash}</Typography>
+                ))
+              )}
             </StepLabel>
             <StepContent>
               <Typography variant="caption">
@@ -76,9 +86,15 @@ const TransactionDialog = (props: any) => {
           <Step>
             <StepLabel>
               <Typography>Submitting Sections</Typography>
-              {sectionsHash.map((sectionHash: string) => (
-                <Typography variant="caption">{sectionHash}</Typography>
-              ))}
+              {fullTrackHash === "error" ? (
+                <Typography variant="caption" color="error">
+                  Rococo blockchain node is offline at the moment.
+                </Typography>
+              ) : (
+                sectionsHash.map((sectionHash: string) => (
+                  <Typography variant="caption">{sectionHash}</Typography>
+                ))
+              )}
             </StepLabel>
             <StepContent>
               <Typography variant="caption">
