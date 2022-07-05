@@ -144,7 +144,9 @@ function App() {
     let wsProvider;
     let api: ApiPromise;
     try {
-      wsProvider = new WsProvider("ws://127.0.0.1:9944");
+      wsProvider = new WsProvider(
+        "wss://node-6948493832736464896.rz.onfinality.io/ws?apikey=78d805ee-1473-4737-a764-1b9fece4dd60"
+      );
       api = await ApiPromise.create({
         provider: wsProvider,
         throwOnConnect: true,
@@ -157,14 +159,14 @@ function App() {
     // // Do something
     // console.log(api.genesisHash.toHex());
     const keyring = new Keyring({ type: "sr25519" });
-    // const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
+    const account = keyring.addFromUri("//Alice", { name: "Alice default" });
 
-    const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
-    const account = keyring.addFromUri(PHRASE);
+    // const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
+    // const account = keyring.addFromUri(PHRASE);
     const titleWithoutSpace = getWithoutSpace(title as string);
     const genreWithoutSpace = getWithoutSpace(title as string);
     const fullTrackTxHash = await new Promise<string>((res) => {
-      api.tx.templateModule
+      api.tx.uploadModule
         .createFulltrack(
           `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
           cid,
@@ -203,7 +205,7 @@ function App() {
     for (let i = 0; i < stems.length; i++) {
       const stemObj = stems[i];
       const stemHash = await new Promise<string>((res) => {
-        api.tx.templateModule
+        api.tx.uploadModule
           .createStem(
             `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
             cid,
@@ -233,7 +235,7 @@ function App() {
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
       const sectionHash = await new Promise<string>((res) => {
-        api.tx.templateModule
+        api.tx.uploadModule
           .createSection(
             `section${
               i + 1
@@ -264,7 +266,7 @@ function App() {
     // const sectionTxs = await Promise.all(sectionsTxPromises);
     // console.log({ sectionTxs });
     // debugger;
-    // const queried = await api.query.templateModule.proofs(
+    // const queried = await api.query.uploadModule.proofs(
     //   "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
     // );
     // const data = await api.query.system.account(
@@ -288,7 +290,7 @@ function App() {
   //   // const txHash = await api.tx.balances
   //   //   .transfer("5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty", 12345)
   //   //   .signAndSend("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY");
-  //   // const txHash = await api.tx.templateModule.createClaim()
+  //   // const txHash = await api.tx.uploadModule.createClaim()
   // };
   const onTxClick = async () => {
     if (!fullTrackFile) {
