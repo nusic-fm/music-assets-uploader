@@ -43,7 +43,9 @@ export const MarketPlace = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const selectedSectionIndex = useRef<number>(-1);
+  const stemPlayerName = useRef<string>("");
   const [clientWidth, setClientWidth] = useState<number>(0);
+  const isSongMode = useRef<boolean>(true);
 
   const onMounted = (width: number) => {
     setClientWidth(width);
@@ -186,18 +188,29 @@ export const MarketPlace = () => {
       sectionEndBeatInSeconds
     );
   };
-
+  const setMutes = () => {
+    ["synth", "sound", "bass", "drums"].map((section) => {
+      if (tonePlayers.current) {
+        if (
+          isSongMode.current === false &&
+          section !== stemPlayerName.current
+        ) {
+          tonePlayers.current.player(section).mute = true;
+        } else {
+          tonePlayers.current.player(section).mute = false;
+        }
+      }
+    });
+  };
   const changeSectionAndTone = (
     event: any,
     stemName: string,
     calculatedOffsetLeft: number
   ) => {
     const previousSectionIndex = selectedSectionIndex.current;
-    // this.selectedStemPlayerName = stemName
-    // setMutes()
+    stemPlayerName.current = stemName;
+    setMutes();
     if (tonePlayers.current) tonePlayers.current.mute = false;
-    // console.log(event.target.offsetLeft);
-    // console.log(event.clientX);
 
     const sectionCoordinate = transformPixelToSectionStartPixel({
       offsetX: calculatedOffsetLeft,
@@ -240,7 +253,6 @@ export const MarketPlace = () => {
         ].sectionStartBeatInSeconds;
     }, delayTime * 1000);
     // console.log("Transport Seconds: ", Tone.Transport.seconds);
-    // Tone.Transport.seconds = 40;
   };
 
   const onMultiTrackHover = (event: React.MouseEvent) => {
@@ -266,10 +278,19 @@ export const MarketPlace = () => {
     // TODO:
     // this.waveFormTooltip.position.left = adjustedLeft;
     // this.waveFormTooltip.position.top = adjustedTop;
-    changeSectionAndTone(event, "stemName", calculatedOffsetLeft);
+    if ((event.target as HTMLElement).tagName === "CANVAS") {
+      const stemName = (event.target as HTMLElement).getAttribute(
+        "data-player"
+      ) as string;
+      changeSectionAndTone(event, stemName, calculatedOffsetLeft);
+    }
   };
   const onPlayOrPause = () => {
     toggleTransport();
+  };
+  const toggleSongOrStemMode = () => {
+    isSongMode.current = !isSongMode.current;
+    setMutes();
   };
   return (
     <Box style={{ backgroundColor: "black", minHeight: "100vh" }} p={4}>
@@ -281,6 +302,16 @@ export const MarketPlace = () => {
           onMouseMove={onMultiTrackHover}
         >
           <TonePlayerViz
+            name="synth"
+            onMounted={onMounted}
+            tonePlayer={synthPlayer.current as Tone.Player}
+          />
+          <TonePlayerViz
+            name="sound"
+            onMounted={onMounted}
+            tonePlayer={soundPlayer.current as Tone.Player}
+          />
+          <TonePlayerViz
             name="bass"
             onMounted={onMounted}
             tonePlayer={bassPlayer.current as Tone.Player}
@@ -290,16 +321,6 @@ export const MarketPlace = () => {
             onMounted={onMounted}
             tonePlayer={drumsPlayer.current as Tone.Player}
           />
-          <TonePlayerViz
-            name="sound"
-            onMounted={onMounted}
-            tonePlayer={soundPlayer.current as Tone.Player}
-          />
-          <TonePlayerViz
-            name="synth"
-            onMounted={onMounted}
-            tonePlayer={synthPlayer.current as Tone.Player}
-          />
           {/* <canvas
           style={{ width: "100%", height: "100%" }}
           ref={audioWaveformCanvas}
@@ -307,9 +328,14 @@ export const MarketPlace = () => {
           <CanvasSectionBox
             sectionLocation={sectionLocation}
             onPlayOrPause={onPlayOrPause}
+            toggleSongOrStemMode={toggleSongOrStemMode}
           />
         </div>
       )}
     </Box>
   );
 };
+// TODO:
+//   ConvasSectionBox for sections
+//   Mint NFTs
+//   Waveform Customization

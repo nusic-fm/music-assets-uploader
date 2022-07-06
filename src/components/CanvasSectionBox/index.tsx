@@ -5,10 +5,12 @@ import LoopIcon from "@mui/icons-material/Loop";
 const CanvasSectionBox = (props: {
   sectionLocation: { left: number; width: number };
   onPlayOrPause: () => void;
+  toggleSongOrStemMode: () => void;
 }) => {
   const {
     sectionLocation: { left, width },
     onPlayOrPause,
+    toggleSongOrStemMode,
   } = props;
 
   return (
@@ -32,7 +34,7 @@ const CanvasSectionBox = (props: {
         <IconButton onClick={onPlayOrPause} size="small">
           <PlayArrowIcon sx={{ height: 38, width: 38 }} />
         </IconButton>
-        <IconButton size="small">
+        <IconButton size="small" onClick={toggleSongOrStemMode}>
           <LoopIcon sx={{ height: 38, width: 38 }} />
         </IconButton>
       </ButtonGroup>

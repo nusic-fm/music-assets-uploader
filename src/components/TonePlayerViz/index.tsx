@@ -18,7 +18,6 @@ const colors = ["#221AE1", "#B52FD8", "#7074DE", "#5425CC", "#8927E2"];
 const TonePlayerViz = (props: {
   onMounted: (width: number) => void;
   tonePlayer: Tone.Player;
-
   name: string;
 }) => {
   const { onMounted, tonePlayer, name } = props;
