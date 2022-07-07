@@ -1,10 +1,10 @@
-import { TreeItem, TreeView } from "@mui/lab";
+// import { TreeItem, TreeView } from "@mui/lab";
 import { Button, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useState } from "react";
-import { NftItem } from "./components/NftItem";
-import { getBinaryTree } from "./utils/binaryTreeGenerator";
+// import { NftItem } from "./components/NftItem";
+// import { getBinaryTree } from "./utils/binaryTreeGenerator";
 import * as Tone from "tone";
 import { useEffect, useRef } from "react";
 import CanvasSectionBox from "./components/CanvasSectionBox";
@@ -60,7 +60,7 @@ export const MarketPlace = () => {
     useState<string>("");
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoopOn, setIsLoopOn] = useState<boolean>(false);
-  const [duration, setDuration] = useState<number>(0);
+  const [, setDuration] = useState<number>(0);
   const [transportProgress, setTransportProgress] = useState<number>(0);
   const [songMetadata, setSongMetadata] = useState<any>(null);
 
@@ -240,6 +240,7 @@ export const MarketPlace = () => {
           tonePlayers.current.player(section).mute = false;
         }
       }
+      return "";
     });
   };
   const changeSectionAndTone = (
@@ -289,24 +290,24 @@ export const MarketPlace = () => {
   };
 
   const onMultiTrackHover = (event: React.MouseEvent) => {
-    const { left, top } = (
+    const { left } = (
       event.currentTarget as HTMLElement
     ).getBoundingClientRect();
     const calculatedOffsetLeft = event.clientX - left;
-    const calculatedOffsetTop = event.clientY - top;
-    const cursorToTooltipDifferenceX = 20;
-    const playerWidth = event.currentTarget.clientWidth;
-    const isTooltipXOutOfPlayer = calculatedOffsetLeft > playerWidth - 150;
-    const adjustedLeft = isTooltipXOutOfPlayer
-      ? playerWidth - 132
-      : calculatedOffsetLeft + cursorToTooltipDifferenceX;
+    // const calculatedOffsetTop = event.clientY - top;
+    // const cursorToTooltipDifferenceX = 20;
+    // const playerWidth = event.currentTarget.clientWidth;
+    // const isTooltipXOutOfPlayer = calculatedOffsetLeft > playerWidth - 150;
+    // const adjustedLeft = isTooltipXOutOfPlayer
+    //   ? playerWidth - 132
+    //   : calculatedOffsetLeft + cursorToTooltipDifferenceX;
 
-    const cursorToTooltipDifferenceY = 120;
-    const isTooltipYOutOfPlayer =
-      calculatedOffsetTop < cursorToTooltipDifferenceY;
-    const adjustedTop = isTooltipYOutOfPlayer
-      ? 0
-      : calculatedOffsetTop - cursorToTooltipDifferenceY;
+    // const cursorToTooltipDifferenceY = 120;
+    // const isTooltipYOutOfPlayer =
+    //   calculatedOffsetTop < cursorToTooltipDifferenceY;
+    // const adjustedTop = isTooltipYOutOfPlayer
+    //   ? 0
+    //   : calculatedOffsetTop - cursorToTooltipDifferenceY;
 
     // TODO:
     // this.waveFormTooltip.position.left = adjustedLeft;

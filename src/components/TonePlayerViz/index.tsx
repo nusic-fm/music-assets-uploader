@@ -146,8 +146,8 @@ const TonePlayerViz = (props: {
           if (!section) {
             context.fillStyle = "#553B96";
           } else {
-            const hue =
-              (section.sectionStartBeatInSeconds / buffer.duration) * 360;
+            // const hue =
+            //   (section.sectionStartBeatInSeconds / buffer.duration) * 360;
             context.fillStyle = colors[index];
           }
           const y = height / 2 - barHeight / 2;
@@ -172,6 +172,7 @@ const TonePlayerViz = (props: {
           // context.fillStyle = "red";
           context.fill();
         }
+        return "";
       });
     }
   };
@@ -181,7 +182,7 @@ const TonePlayerViz = (props: {
       visualize(tonePlayer);
       onMounted(audioWaveformCanvas.current?.clientWidth ?? 1);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Box position={"relative"} width="100%" height="100%">

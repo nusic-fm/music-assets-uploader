@@ -1,6 +1,6 @@
-import { Box, Button, ButtonGroup, IconButton } from "@mui/material";
+import { Box, ButtonGroup, IconButton } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import LoopIcon from "@mui/icons-material/Loop";
+// import LoopIcon from "@mui/icons-material/Loop";
 import PauseIcon from "@mui/icons-material/Pause";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
@@ -18,7 +18,7 @@ const CanvasSectionBox = (props: {
     onPlayOrPause,
     toggleSongOrStemMode,
     isPlaying,
-    isLoopOn,
+    // isLoopOn,
     isSongModeState,
   } = props;
 
