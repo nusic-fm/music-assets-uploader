@@ -9,6 +9,7 @@ import * as Tone from "tone";
 import { useEffect, useRef } from "react";
 import CanvasSectionBox from "./components/CanvasSectionBox";
 import TonePlayerViz from "./components/TonePlayerViz";
+import TransportBar from "./components/TransportBar";
 
 export interface Section {
   beatEnd: number;
@@ -26,7 +27,7 @@ export type SectionCoordinate = { left: number; right: number };
 export type PixelLocation = { offsetX: number; clientWidth: number };
 
 export const sectionsWithOffset = [
-  { sectionStartBeatInSeconds: 1, sectionEndBeatInSeconds: 20 },
+  { sectionStartBeatInSeconds: 0, sectionEndBeatInSeconds: 20 },
   { sectionStartBeatInSeconds: 20, sectionEndBeatInSeconds: 40 },
   { sectionStartBeatInSeconds: 40, sectionEndBeatInSeconds: 60 },
   { sectionStartBeatInSeconds: 60, sectionEndBeatInSeconds: 90 },
@@ -44,8 +45,18 @@ export const MarketPlace = () => {
 
   const selectedSectionIndex = useRef<number>(-1);
   const stemPlayerName = useRef<string>("");
-  const [clientWidth, setClientWidth] = useState<number>(0);
   const isSongMode = useRef<boolean>(true);
+  const transportProgressRef = useRef<number>(0);
+  const toneChangetimer = useRef<NodeJS.Timeout>();
+
+  const [clientWidth, setClientWidth] = useState<number>(0);
+  const [isSongModeState, setIsSongModeState] = useState<boolean>(true);
+  const [selectedStemPlayerName, setSelectedStemPlayerName] =
+    useState<string>("");
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isLoopOn, setIsLoopOn] = useState<boolean>(false);
+  const [duration, setDuration] = useState<number>(0);
+  const [transportProgress, setTransportProgress] = useState<number>(0);
 
   const onMounted = (width: number) => {
     setClientWidth(width);
@@ -77,34 +88,48 @@ export const MarketPlace = () => {
     //   return
     // }
     await Tone.start();
-    Tone.Transport.bpm.value = 89.9;
+    Tone.Transport.bpm.value = 150;
     // eslint-disable-next-line no-console
     console.log("🥁 Tone started");
     // Tone.Transport.start();
     Tone.Transport.cancel(0);
 
-    const startBeatOffset = 2000 / 1000;
+    const startBeatOffset = 1;
     bassPlayer.current?.start(0, startBeatOffset);
     drumsPlayer.current?.start(0, startBeatOffset);
     soundPlayer.current?.start(0, startBeatOffset);
     synthPlayer.current?.start(0, startBeatOffset);
-
+    setDuration(bassPlayer.current?.buffer.duration ?? 0);
     // this.metronomeLoop = new Tone.Loop((time) => {
     //   this.metronome.start(time)
     //   // TODO: Support time signatures other than 4/4
     // }, '4n').start(0)
-    //TODO
-    // new Tone.Loop(() => {
-    //   if (
-    //     Tone.Transport.seconds.toFixed(0) === transport.duration.value.toFixed(0)
-    //   ) {
-    //     Tone.Transport.stop()
-    //   }
-    //   transport.position.value = Tone.Transport.position
-    //   transport.seconds.value = Tone.Transport.seconds
-    //   transport.progress.value = Tone.Transport.seconds / transport.duration.value
-    // }, '16n').start(0)
+
+    new Tone.Loop(() => {
+      // if (
+      //   Tone.Transport.seconds.toFixed(0) === transport.duration.value.toFixed(0)
+      // ) {
+      //   Tone.Transport.stop()
+      // }
+      // transport.position.value = Tone.Transport.position
+      // transport.seconds.value = Tone.Transport.seconds
+      const progress =
+        Tone.Transport.seconds / (bassPlayer.current?.buffer.duration ?? 0);
+      transportProgressRef.current = progress;
+    }, "16n").start(0);
   };
+  const handleTimerTick = () => {
+    setTransportProgress(transportProgressRef.current * clientWidth);
+  };
+  useEffect(() => {
+    let timerEvent: NodeJS.Timer;
+    if (isPlaying) {
+      timerEvent = setInterval(handleTimerTick, 10);
+    }
+    return () => {
+      clearTimeout(timerEvent);
+    };
+  }, [isPlaying]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = async () => {
     // https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3
@@ -122,6 +147,15 @@ export const MarketPlace = () => {
       synth:
         "https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3",
     };
+    // const stemPlayers = {
+    //   bass: "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-bass.mp3",
+    //   drums:
+    //     "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-drums.mp3",
+    //   sound:
+    //     "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-melody.mp3",
+    //   synth:
+    //     "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-vocals.mp3",
+    // };
 
     // const stemsAudioBuffer = await new Promise(async (res) => {
     //   const stemRes = await Promise.all(
@@ -152,11 +186,11 @@ export const MarketPlace = () => {
       setIsLoaded(true);
     });
     tonePlayers.current = players;
+    initializeToneTransportBridge();
     // player.autostart = true;
   };
   const toggleTransport = () => {
     if (Tone.Transport.state !== "started") {
-      console.log("started");
       Tone.Transport.start();
     } else {
       Tone.Transport.pause();
@@ -208,7 +242,6 @@ export const MarketPlace = () => {
     calculatedOffsetLeft: number
   ) => {
     const previousSectionIndex = selectedSectionIndex.current;
-    stemPlayerName.current = stemName;
     setMutes();
     if (tonePlayers.current) tonePlayers.current.mute = false;
 
@@ -234,25 +267,19 @@ export const MarketPlace = () => {
     //     sectionEndBeatInSeconds
     //   )
     // }
-    // if (this.toneChangetimer !== null) {
-    //   clearTimeout(this.toneChangetimer)
-    // }
+    if (toneChangetimer.current) {
+      clearTimeout(toneChangetimer.current);
+    }
     const currentBeat = parseInt(
       Tone.Transport.position.toString().split(":")[1]
     );
     const delayTime = ((4 - currentBeat) / 4) * (60 / Tone.Transport.bpm.value);
-    // this.toneChangetimer = setTimeout(() => {
-    //   Tone.Transport.seconds = this.sectionsWithOffset[
-    //     this.selectedSectionIndex
-    //   ].sectionStartBeatInSeconds
-    // }, delayTime * 1000)
-    setTimeout(() => {
+    toneChangetimer.current = setTimeout(() => {
       Tone.Transport.seconds =
         sectionsWithOffset[
           selectedSectionIndex.current
         ].sectionStartBeatInSeconds;
     }, delayTime * 1000);
-    // console.log("Transport Seconds: ", Tone.Transport.seconds);
   };
 
   const onMultiTrackHover = (event: React.MouseEvent) => {
@@ -282,6 +309,9 @@ export const MarketPlace = () => {
       const stemName = (event.target as HTMLElement).getAttribute(
         "data-player"
       ) as string;
+      if (selectedStemPlayerName !== stemName)
+        setSelectedStemPlayerName(stemName);
+      stemPlayerName.current = stemName;
       changeSectionAndTone(event, stemName, calculatedOffsetLeft);
     }
   };
@@ -290,12 +320,32 @@ export const MarketPlace = () => {
   };
   const toggleSongOrStemMode = () => {
     isSongMode.current = !isSongMode.current;
+    setIsSongModeState(isSongMode.current);
     setMutes();
   };
+  const initializeToneTransportBridge = (): void => {
+    Tone.Transport.on("start", () => {
+      setIsPlaying(true);
+    });
+    Tone.Transport.on("pause", () => {
+      setIsPlaying(false);
+    });
+    Tone.Transport.on("stop", () => {
+      setIsPlaying(false);
+    });
+    Tone.Transport.on("loop", () => {
+      setIsLoopOn(true);
+    });
+    Tone.Transport.off("loop", () => {
+      setIsLoopOn(false);
+    });
+  };
+
   return (
     <Box style={{ backgroundColor: "black", minHeight: "100vh" }} p={4}>
       <Typography variant="h4">NUSIC Marketplace</Typography>
       <button onClick={start}>start</button>
+      <Typography>{drumsPlayer.current?.buffer.duration}</Typography>
       {isLoaded && (
         <div
           style={{ position: "relative", marginTop: "30px" }}
@@ -305,31 +355,71 @@ export const MarketPlace = () => {
             name="synth"
             onMounted={onMounted}
             tonePlayer={synthPlayer.current as Tone.Player}
+            sectionLocation={sectionLocation}
+            onPlayOrPause={onPlayOrPause}
+            toggleSongOrStemMode={toggleSongOrStemMode}
+            isSongModeState={isSongModeState}
+            selectedStemPlayerName={selectedStemPlayerName}
+            isPlaying={isPlaying}
+            isLoopOn={isLoopOn}
+            transportProgress={transportProgress}
           />
           <TonePlayerViz
             name="sound"
             onMounted={onMounted}
             tonePlayer={soundPlayer.current as Tone.Player}
+            sectionLocation={sectionLocation}
+            onPlayOrPause={onPlayOrPause}
+            toggleSongOrStemMode={toggleSongOrStemMode}
+            isSongModeState={isSongModeState}
+            selectedStemPlayerName={selectedStemPlayerName}
+            isPlaying={isPlaying}
+            isLoopOn={isLoopOn}
+            transportProgress={transportProgress}
           />
           <TonePlayerViz
             name="bass"
             onMounted={onMounted}
             tonePlayer={bassPlayer.current as Tone.Player}
+            sectionLocation={sectionLocation}
+            onPlayOrPause={onPlayOrPause}
+            toggleSongOrStemMode={toggleSongOrStemMode}
+            isSongModeState={isSongModeState}
+            selectedStemPlayerName={selectedStemPlayerName}
+            isPlaying={isPlaying}
+            isLoopOn={isLoopOn}
+            transportProgress={transportProgress}
           />
           <TonePlayerViz
             name="drums"
             onMounted={onMounted}
             tonePlayer={drumsPlayer.current as Tone.Player}
+            sectionLocation={sectionLocation}
+            onPlayOrPause={onPlayOrPause}
+            toggleSongOrStemMode={toggleSongOrStemMode}
+            isSongModeState={isSongModeState}
+            selectedStemPlayerName={selectedStemPlayerName}
+            isPlaying={isPlaying}
+            isLoopOn={isLoopOn}
+            transportProgress={transportProgress}
           />
           {/* <canvas
           style={{ width: "100%", height: "100%" }}
           ref={audioWaveformCanvas}
         /> */}
-          <CanvasSectionBox
-            sectionLocation={sectionLocation}
-            onPlayOrPause={onPlayOrPause}
-            toggleSongOrStemMode={toggleSongOrStemMode}
-          />
+          {isSongModeState && (
+            <TransportBar transportProgress={transportProgress} />
+          )}
+          {isSongModeState && (
+            <CanvasSectionBox
+              sectionLocation={sectionLocation}
+              onPlayOrPause={onPlayOrPause}
+              toggleSongOrStemMode={toggleSongOrStemMode}
+              isPlaying={isPlaying}
+              isLoopOn={isLoopOn}
+              isSongModeState={isSongModeState}
+            />
+          )}
         </div>
       )}
     </Box>
@@ -339,3 +429,4 @@ export const MarketPlace = () => {
 //   ConvasSectionBox for sections
 //   Mint NFTs
 //   Waveform Customization
+//   Bar

@@ -1,16 +1,25 @@
 import { Box, Button, ButtonGroup, IconButton } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import LoopIcon from "@mui/icons-material/Loop";
+import PauseIcon from "@mui/icons-material/Pause";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 
 const CanvasSectionBox = (props: {
   sectionLocation: { left: number; width: number };
   onPlayOrPause: () => void;
   toggleSongOrStemMode: () => void;
+  isPlaying: boolean;
+  isLoopOn: boolean;
+  isSongModeState: boolean;
 }) => {
   const {
     sectionLocation: { left, width },
     onPlayOrPause,
     toggleSongOrStemMode,
+    isPlaying,
+    isLoopOn,
+    isSongModeState,
   } = props;
 
   return (
@@ -19,10 +28,13 @@ const CanvasSectionBox = (props: {
       top={0}
       zIndex={3}
       height="100%"
-      border="1px solid white"
+      // border="1px solid white"
       style={{
         transition: "all 0.2s",
-        // background: "rgba(196, 196, 196, 0.1)",
+        background: "rgba(0, 0, 0, 0.4)",
+        borderWidth: "0 1px",
+        borderStyle: "solid",
+        borderColor: "hsl(0, 0%, 20%)",
       }}
       left={left}
       width={width}
@@ -32,10 +44,25 @@ const CanvasSectionBox = (props: {
     >
       <ButtonGroup size="small">
         <IconButton onClick={onPlayOrPause} size="small">
-          <PlayArrowIcon sx={{ height: 38, width: 38 }} />
+          {isPlaying ? (
+            <PauseIcon sx={{ height: 25, width: 25 }} />
+          ) : (
+            <PlayArrowIcon sx={{ height: 25, width: 25 }} />
+          )}
         </IconButton>
+        {/* <Button
+          size="small"
+          variant={isLoopOn ? "contained" : "text"}
+          color="secondary"
+        >
+          <LoopIcon sx={{ height: 25, width: 25 }} />
+        </Button> */}
         <IconButton size="small" onClick={toggleSongOrStemMode}>
-          <LoopIcon sx={{ height: 38, width: 38 }} />
+          {isSongModeState ? (
+            <QueueMusicIcon sx={{ height: 25, width: 25 }} />
+          ) : (
+            <MusicNoteIcon sx={{ height: 25, width: 25 }} />
+          )}
         </IconButton>
       </ButtonGroup>
     </Box>
