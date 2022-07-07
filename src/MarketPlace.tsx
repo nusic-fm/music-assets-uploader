@@ -1,5 +1,5 @@
 import { TreeItem, TreeView } from "@mui/lab";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useState } from "react";
@@ -32,6 +32,11 @@ export const sectionsWithOffset = [
   { sectionStartBeatInSeconds: 40, sectionEndBeatInSeconds: 60 },
   { sectionStartBeatInSeconds: 60, sectionEndBeatInSeconds: 90 },
   { sectionStartBeatInSeconds: 90, sectionEndBeatInSeconds: 120 },
+  { sectionStartBeatInSeconds: 120, sectionEndBeatInSeconds: 160 },
+  { sectionStartBeatInSeconds: 160, sectionEndBeatInSeconds: 180 },
+  { sectionStartBeatInSeconds: 180, sectionEndBeatInSeconds: 190 },
+  { sectionStartBeatInSeconds: 190, sectionEndBeatInSeconds: 220 },
+  { sectionStartBeatInSeconds: 220, sectionEndBeatInSeconds: 243 },
 ] as Section[];
 
 export const MarketPlace = () => {
@@ -57,6 +62,7 @@ export const MarketPlace = () => {
   const [isLoopOn, setIsLoopOn] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(0);
   const [transportProgress, setTransportProgress] = useState<number>(0);
+  const [songMetadata, setSongMetadata] = useState<any>(null);
 
   const onMounted = (width: number) => {
     setClientWidth(width);
@@ -340,15 +346,114 @@ export const MarketPlace = () => {
       setIsLoopOn(false);
     });
   };
+  const fetchFulltracks = async () => {
+    const graphqlQuery = {
+      query: `query {
+                fullTrackRecords (first: 5) {
+                  nodes {
+                      id
+                      musicId
+                      cid
+                      artistName
+                      trackTitle
+                      albumName
+                      genre
+                      bpm
+                      key
+                      timeSignature
+                      bars
+                      beats
+                      duration
+                      startBeatOffsetMs
+                      sectionsCount
+                      stemsCount
+                    }
+                  }
+                }`,
+      variables: {},
+    };
+    // sectionRecords (first: 5) {
+    //   nodes {
+    //     id
+    //     musicId
+    //   }
+    // }
+    const fullTracks = await axios.post(
+      "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
+      graphqlQuery
+    );
+    const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
+    console.log({ raveCodeRecord });
+    setSongMetadata(raveCodeRecord);
+    // const sections = [32, 64, 80, 96, 112, 128, 152];
+    // const binaryTree = getBinaryTree(
+    //   raveCodeRecord.bars
+    //   sections,
+    //   sections
+    // );
+    // console.log(binaryTree);
+    // setBinaryTreeData(binaryTree);
+  };
+
+  useEffect(() => {
+    fetchFulltracks();
+  }, []);
 
   return (
     <Box style={{ backgroundColor: "black", minHeight: "100vh" }} p={4}>
       <Typography variant="h4">NUSIC Marketplace</Typography>
-      <button onClick={start}>start</button>
-      <Typography>{drumsPlayer.current?.buffer.duration}</Typography>
+      <Box
+        style={{ backgroundColor: "#2E2E44", borderRadius: "6px" }}
+        mt={4}
+        p={2}
+      >
+        <Typography variant="h5" align="center">
+          Track Explorer
+        </Typography>
+        <Box m={2} display="flex" justifyContent="center">
+          <Box
+            style={{
+              backgroundColor: "rgba(196,196,196,13%",
+              borderRadius: "6px",
+              minWidth: "80%",
+            }}
+            p={2}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-around"
+          >
+            <Box>
+              <Button onClick={start} variant="contained">
+                Load Audio
+              </Button>
+            </Box>
+            <Box>
+              <Box>
+                <Typography variant="h6" fontWeight={"bold"}>
+                  {songMetadata?.albumName}
+                </Typography>
+                <Typography variant="h6" fontWeight={"bold"}>
+                  {songMetadata?.artistName}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography>Genre: {songMetadata?.genre}</Typography>
+                <Typography>Bpm: {songMetadata?.bpm}</Typography>
+                <Typography>Key: {songMetadata?.key}</Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
       {isLoaded && (
         <div
-          style={{ position: "relative", marginTop: "30px" }}
+          style={{
+            position: "relative",
+            marginTop: "30px",
+            margin: "40px",
+            marginLeft: "160px",
+            marginRight: "160px",
+          }}
           onMouseMove={onMultiTrackHover}
         >
           <TonePlayerViz
@@ -403,10 +508,6 @@ export const MarketPlace = () => {
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
           />
-          {/* <canvas
-          style={{ width: "100%", height: "100%" }}
-          ref={audioWaveformCanvas}
-        /> */}
           {isSongModeState && (
             <TransportBar transportProgress={transportProgress} />
           )}
@@ -426,7 +527,7 @@ export const MarketPlace = () => {
   );
 };
 // TODO:
-//   ConvasSectionBox for sections
+//   Fetch data and create sections class
 //   Mint NFTs
-//   Waveform Customization
-//   Bar
+//
+//

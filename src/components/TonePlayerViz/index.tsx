@@ -15,7 +15,18 @@ const scaleValue = (
   return ((v - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
 };
 
-const colors = ["#221AE1", "#B52FD8", "#7074DE", "#5425CC", "#8927E2"];
+const colors = [
+  "#221AE1",
+  "#B52FD8",
+  "#7074DE",
+  "#5425CC",
+  "#8927E2",
+  "#221AE1",
+  "#B52FD8",
+  "#7074DE",
+  "#5425CC",
+  "#8927E2",
+];
 
 const TonePlayerViz = (props: {
   onMounted: (width: number) => void;
