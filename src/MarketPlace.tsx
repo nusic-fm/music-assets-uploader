@@ -91,7 +91,10 @@ export const MarketPlace = () => {
   useEffect(() => {
     // const audioBuffers = {}
   }, []);
-  const [sectionLocation, setSectionLocation] = useState({ left: 0, width: 0 });
+  const [sectionLocation, setSectionLocation] = useState<{
+    left: number;
+    width: number;
+  }>({ left: -1, width: 0 });
 
   const setupTransportTimeline = async () => {
     // const song = songModel.value
@@ -189,11 +192,11 @@ export const MarketPlace = () => {
       soundPlayer.current = players.player("sound").toDestination().sync();
       synthPlayer.current = players.player("synth").toDestination().sync();
       setupTransportTimeline();
-      const { left, right } = transformCoordinateSecondsIntoPixels(
-        sectionsWithOffset[0].sectionStartBeatInSeconds,
-        sectionsWithOffset[0].sectionEndBeatInSeconds
-      );
-      setSectionLocation({ left, width: right - left });
+      // const { left, right } = transformCoordinateSecondsIntoPixels(
+      //   sectionsWithOffset[0].sectionStartBeatInSeconds,
+      //   sectionsWithOffset[0].sectionEndBeatInSeconds
+      // );
+      // setSectionLocation({ left, width: right - left });
       setIsLoaded(true);
     });
     tonePlayers.current = players;
@@ -391,7 +394,6 @@ export const MarketPlace = () => {
     const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
     console.log({ raveCodeRecord });
     setSongMetadata(raveCodeRecord);
-    start();
   };
 
   useEffect(() => {
@@ -458,6 +460,11 @@ export const MarketPlace = () => {
                 <Typography>Genre: {songMetadata?.genre}</Typography>
                 <Typography>Bpm: {songMetadata?.bpm}</Typography>
                 <Typography>Key: {songMetadata?.key}</Typography>
+                <Box mt={2}>
+                  <Button onClick={start} variant="contained" size="small">
+                    Load Track
+                  </Button>
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -529,7 +536,7 @@ export const MarketPlace = () => {
           {isSongModeState && (
             <TransportBar transportProgress={transportProgress} />
           )}
-          {isSongModeState && (
+          {isSongModeState && sectionLocation.left !== -1 && (
             <CanvasSectionBox
               sectionLocation={sectionLocation}
               onPlayOrPause={onPlayOrPause}
