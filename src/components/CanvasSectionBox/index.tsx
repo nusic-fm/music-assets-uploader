@@ -4,6 +4,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
+import ShopIcon from "@mui/icons-material/Shop";
 
 const CanvasSectionBox = (props: {
   sectionLocation: { left: number; width: number };
@@ -63,6 +64,9 @@ const CanvasSectionBox = (props: {
           ) : (
             <MusicNoteIcon sx={{ height: 25, width: 25 }} />
           )}
+        </IconButton>
+        <IconButton size="small">
+          <ShopIcon />
         </IconButton>
       </ButtonGroup>
     </Box>

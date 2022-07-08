@@ -1,5 +1,5 @@
 // import { TreeItem, TreeView } from "@mui/lab";
-import { Button, Typography } from "@mui/material";
+import { Button, Chip, Tooltip, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useState } from "react";
@@ -10,6 +10,8 @@ import { useEffect, useRef } from "react";
 import CanvasSectionBox from "./components/CanvasSectionBox";
 import TonePlayerViz from "./components/TonePlayerViz";
 import TransportBar from "./components/TransportBar";
+import useAuth from "./hooks/useAuth";
+import { useWeb3React } from "@web3-react/core";
 
 export interface Section {
   beatEnd: number;
@@ -40,6 +42,9 @@ export const sectionsWithOffset = [
 ] as Section[];
 
 export const MarketPlace = () => {
+  const { login } = useAuth();
+  const { account } = useWeb3React();
+
   const tonePlayers = useRef<Tone.Players | null>(null);
   const bassPlayer = useRef<Tone.Player | null>(null);
   const drumsPlayer = useRef<Tone.Player | null>(null);
@@ -386,22 +391,33 @@ export const MarketPlace = () => {
     const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
     console.log({ raveCodeRecord });
     setSongMetadata(raveCodeRecord);
-    // const sections = [32, 64, 80, 96, 112, 128, 152];
-    // const binaryTree = getBinaryTree(
-    //   raveCodeRecord.bars
-    //   sections,
-    //   sections
-    // );
-    // console.log(binaryTree);
-    // setBinaryTreeData(binaryTree);
+    start();
   };
 
   useEffect(() => {
     fetchFulltracks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Box style={{ backgroundColor: "black", minHeight: "100vh" }} p={4}>
+      <Box style={{ float: "right" }}>
+        {account ? (
+          <Tooltip title={account}>
+            <Chip
+              clickable
+              label={`${account.slice(0, 6)}...${account.slice(
+                account.length - 4
+              )}`}
+              style={{ marginLeft: "auto" }}
+            />
+          </Tooltip>
+        ) : (
+          <Button variant="contained" onClick={login}>
+            Connect
+          </Button>
+        )}
+      </Box>
       <Typography variant="h4">NUSIC Marketplace</Typography>
       <Box
         style={{ backgroundColor: "#2E2E44", borderRadius: "6px" }}
@@ -424,19 +440,20 @@ export const MarketPlace = () => {
             justifyContent="space-around"
           >
             <Box>
-              <Button onClick={start} variant="contained">
+              {/* <Button onClick={start} variant="contained">
                 Load Audio
-              </Button>
+              </Button> */}
+              <Typography variant="h6" fontWeight={"bold"} align="center">
+                {songMetadata?.albumName}
+              </Typography>
+              <Typography variant="body2" align="center">
+                By
+              </Typography>
+              <Typography variant="h6" fontWeight={"bold"} align="center">
+                {songMetadata?.artistName}
+              </Typography>
             </Box>
             <Box>
-              <Box>
-                <Typography variant="h6" fontWeight={"bold"}>
-                  {songMetadata?.albumName}
-                </Typography>
-                <Typography variant="h6" fontWeight={"bold"}>
-                  {songMetadata?.artistName}
-                </Typography>
-              </Box>
               <Box>
                 <Typography>Genre: {songMetadata?.genre}</Typography>
                 <Typography>Bpm: {songMetadata?.bpm}</Typography>
