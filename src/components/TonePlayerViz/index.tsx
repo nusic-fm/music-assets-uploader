@@ -40,6 +40,7 @@ const TonePlayerViz = (props: {
   isPlaying: boolean;
   isLoopOn: boolean;
   transportProgress: number;
+  onMintNft: () => void;
 }) => {
   const {
     onMounted,
@@ -53,6 +54,7 @@ const TonePlayerViz = (props: {
     isPlaying,
     isLoopOn,
     transportProgress,
+    onMintNft,
   } = props;
   const audioWaveformCanvas = useRef<HTMLCanvasElement>(null);
 
@@ -203,6 +205,7 @@ const TonePlayerViz = (props: {
           isPlaying={isPlaying}
           isLoopOn={isLoopOn}
           isSongModeState={isSongModeState}
+          onMintNft={onMintNft}
         ></CanvasSectionBox>
       )}
     </Box>

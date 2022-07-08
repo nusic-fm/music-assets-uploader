@@ -13,6 +13,7 @@ const CanvasSectionBox = (props: {
   isPlaying: boolean;
   isLoopOn: boolean;
   isSongModeState: boolean;
+  onMintNft: () => void;
 }) => {
   const {
     sectionLocation: { left, width },
@@ -21,6 +22,7 @@ const CanvasSectionBox = (props: {
     isPlaying,
     // isLoopOn,
     isSongModeState,
+    onMintNft,
   } = props;
 
   return (
@@ -65,7 +67,7 @@ const CanvasSectionBox = (props: {
             <MusicNoteIcon sx={{ height: 25, width: 25 }} />
           )}
         </IconButton>
-        <IconButton size="small">
+        <IconButton size="small" onClick={onMintNft}>
           <ShopIcon />
         </IconButton>
       </ButtonGroup>

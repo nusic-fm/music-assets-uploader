@@ -12,6 +12,7 @@ import TonePlayerViz from "./components/TonePlayerViz";
 import TransportBar from "./components/TransportBar";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
+import BarChart from "./components/BarChart";
 
 export interface Section {
   beatEnd: number;
@@ -401,8 +402,10 @@ export const MarketPlace = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onMintNft = () => {};
+
   return (
-    <Box style={{ backgroundColor: "black", minHeight: "100vh" }} p={4}>
+    <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }} p={4}>
       <Box style={{ float: "right" }}>
         {account ? (
           <Tooltip title={account}>
@@ -478,6 +481,7 @@ export const MarketPlace = () => {
             margin: "40px",
             marginLeft: "160px",
             marginRight: "160px",
+            backgroundColor: "black",
           }}
           onMouseMove={onMultiTrackHover}
         >
@@ -493,6 +497,7 @@ export const MarketPlace = () => {
             isPlaying={isPlaying}
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
+            onMintNft={onMintNft}
           />
           <TonePlayerViz
             name="sound"
@@ -506,6 +511,7 @@ export const MarketPlace = () => {
             isPlaying={isPlaying}
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
+            onMintNft={onMintNft}
           />
           <TonePlayerViz
             name="bass"
@@ -519,6 +525,7 @@ export const MarketPlace = () => {
             isPlaying={isPlaying}
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
+            onMintNft={onMintNft}
           />
           <TonePlayerViz
             name="drums"
@@ -532,6 +539,7 @@ export const MarketPlace = () => {
             isPlaying={isPlaying}
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
+            onMintNft={onMintNft}
           />
           {isSongModeState && (
             <TransportBar transportProgress={transportProgress} />
@@ -544,10 +552,16 @@ export const MarketPlace = () => {
               isPlaying={isPlaying}
               isLoopOn={isLoopOn}
               isSongModeState={isSongModeState}
+              onMintNft={onMintNft}
             />
           )}
         </div>
       )}
+      <Box mt={20} display="flex" justifyContent="center">
+        <Box width="70%">
+          <BarChart />
+        </Box>
+      </Box>
     </Box>
   );
 };
