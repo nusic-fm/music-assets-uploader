@@ -15,7 +15,7 @@ const scaleValue = (
   return ((v - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
 };
 
-const colors = [
+export const colors = [
   "#221AE1",
   "#B52FD8",
   "#7074DE",
@@ -41,6 +41,7 @@ const TonePlayerViz = (props: {
   isLoopOn: boolean;
   transportProgress: number;
   onMintNft: () => void;
+  selectedTrackIndex?: number;
 }) => {
   const {
     onMounted,
@@ -55,6 +56,7 @@ const TonePlayerViz = (props: {
     isLoopOn,
     transportProgress,
     onMintNft,
+    selectedTrackIndex,
   } = props;
   const audioWaveformCanvas = useRef<HTMLCanvasElement>(null);
 
@@ -185,7 +187,9 @@ const TonePlayerViz = (props: {
       onMounted(audioWaveformCanvas.current?.clientWidth ?? 1);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  if (!tonePlayer) {
+    return <Box></Box>;
+  }
   return (
     <Box position={"relative"} width="100%" height="100%">
       <canvas
@@ -206,6 +210,7 @@ const TonePlayerViz = (props: {
           isLoopOn={isLoopOn}
           isSongModeState={isSongModeState}
           onMintNft={onMintNft}
+          selectedTrackIndex={selectedTrackIndex}
         ></CanvasSectionBox>
       )}
     </Box>

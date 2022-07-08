@@ -8,13 +8,14 @@ import { useState } from "react";
 import * as Tone from "tone";
 import { useEffect, useRef } from "react";
 import CanvasSectionBox from "./components/CanvasSectionBox";
-import TonePlayerViz from "./components/TonePlayerViz";
+import TonePlayerViz, { colors } from "./components/TonePlayerViz";
 import TransportBar from "./components/TransportBar";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import BarChart from "./components/BarChart";
 
 export interface Section {
+  name: string;
   beatEnd: number;
   beatStart: number;
   stems: {
@@ -30,16 +31,38 @@ export type SectionCoordinate = { left: number; right: number };
 export type PixelLocation = { offsetX: number; clientWidth: number };
 
 export const sectionsWithOffset = [
-  { sectionStartBeatInSeconds: 0, sectionEndBeatInSeconds: 20 },
-  { sectionStartBeatInSeconds: 20, sectionEndBeatInSeconds: 40 },
-  { sectionStartBeatInSeconds: 40, sectionEndBeatInSeconds: 60 },
-  { sectionStartBeatInSeconds: 60, sectionEndBeatInSeconds: 90 },
-  { sectionStartBeatInSeconds: 90, sectionEndBeatInSeconds: 120 },
-  { sectionStartBeatInSeconds: 120, sectionEndBeatInSeconds: 160 },
-  { sectionStartBeatInSeconds: 160, sectionEndBeatInSeconds: 180 },
-  { sectionStartBeatInSeconds: 180, sectionEndBeatInSeconds: 190 },
-  { sectionStartBeatInSeconds: 190, sectionEndBeatInSeconds: 220 },
-  { sectionStartBeatInSeconds: 220, sectionEndBeatInSeconds: 243 },
+  { sectionStartBeatInSeconds: 0, sectionEndBeatInSeconds: 20, name: "intro" },
+  { sectionStartBeatInSeconds: 20, sectionEndBeatInSeconds: 40, name: "verse" },
+  {
+    sectionStartBeatInSeconds: 40,
+    sectionEndBeatInSeconds: 60,
+    name: "prechorus",
+  },
+  {
+    sectionStartBeatInSeconds: 60,
+    sectionEndBeatInSeconds: 90,
+    name: "chorus",
+  },
+  {
+    sectionStartBeatInSeconds: 90,
+    sectionEndBeatInSeconds: 120,
+    name: "verse",
+  },
+  {
+    sectionStartBeatInSeconds: 120,
+    sectionEndBeatInSeconds: 160,
+    name: "prechorus",
+  },
+  {
+    sectionStartBeatInSeconds: 160,
+    sectionEndBeatInSeconds: 200,
+    name: "chorus",
+  },
+  {
+    sectionStartBeatInSeconds: 200,
+    sectionEndBeatInSeconds: 243,
+    name: "outro",
+  },
 ] as Section[];
 
 export const MarketPlace = () => {
@@ -53,6 +76,8 @@ export const MarketPlace = () => {
   const synthPlayer = useRef<Tone.Player | null>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedTrackIndex, setSelectedTrackIndex] = useState(-1);
+  // const [isLoaded, setIsLoaded] = useState(false);
 
   const selectedSectionIndex = useRef<number>(-1);
   const stemPlayerName = useRef<string>("");
@@ -146,22 +171,32 @@ export const MarketPlace = () => {
     };
   }, [isPlaying]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const start = async () => {
+  const start = async (trackIndex: number) => {
     // https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3
     // https://storage.googleapis.com/nusic-mashup-content/Yatta/drums.mp3
     // https://storage.googleapis.com/nusic-mashup-content/Yatta/sound.mp3
     // https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3
     // https://storage.googleapis.com/nusic-mashup-content/Yatta/audio.wav
+    setSelectedTrackIndex(trackIndex);
+    let stemPlayers;
+    if (trackIndex === 0) {
+      stemPlayers = {
+        bass: "https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3",
+        drums:
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/drums.mp3",
+        sound:
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/sound.mp3",
+        synth:
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3",
+      };
+    } else {
+      setIsSongModeState(false);
+      isSongMode.current = false;
+      stemPlayers = {
+        bass: "https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3",
+      };
+    }
 
-    const stemPlayers = {
-      bass: "https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3",
-      drums:
-        "https://storage.googleapis.com/nusic-mashup-content/Yatta/drums.mp3",
-      sound:
-        "https://storage.googleapis.com/nusic-mashup-content/Yatta/sound.mp3",
-      synth:
-        "https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3",
-    };
     // const stemPlayers = {
     //   bass: "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-bass.mp3",
     //   drums:
@@ -189,9 +224,11 @@ export const MarketPlace = () => {
     // });
     const players = new Tone.Players(stemPlayers as any, () => {
       bassPlayer.current = players.player("bass").toDestination().sync();
-      drumsPlayer.current = players.player("drums").toDestination().sync();
-      soundPlayer.current = players.player("sound").toDestination().sync();
-      synthPlayer.current = players.player("synth").toDestination().sync();
+      if (trackIndex === 0) {
+        drumsPlayer.current = players.player("drums").toDestination().sync();
+        soundPlayer.current = players.player("sound").toDestination().sync();
+        synthPlayer.current = players.player("synth").toDestination().sync();
+      }
       setupTransportTimeline();
       // const { left, right } = transformCoordinateSecondsIntoPixels(
       //   sectionsWithOffset[0].sectionStartBeatInSeconds,
@@ -238,7 +275,9 @@ export const MarketPlace = () => {
     );
   };
   const setMutes = () => {
-    ["synth", "sound", "bass", "drums"].map((section) => {
+    const stems =
+      selectedTrackIndex === 0 ? ["synth", "sound", "bass", "drums"] : ["bass"];
+    stems.map((section) => {
       if (tonePlayers.current) {
         if (
           isSongMode.current === false &&
@@ -457,21 +496,70 @@ export const MarketPlace = () => {
               <Typography variant="h6" fontWeight={"bold"} align="center">
                 {songMetadata?.artistName}
               </Typography>
-            </Box>
-            <Box>
-              <Box>
-                <Typography>Genre: {songMetadata?.genre}</Typography>
-                <Typography>Bpm: {songMetadata?.bpm}</Typography>
-                <Typography>Key: {songMetadata?.key}</Typography>
+              {selectedTrackIndex === -1 && (
                 <Box mt={2}>
-                  <Button onClick={start} variant="contained" size="small">
+                  <Button
+                    onClick={() => {
+                      start(0);
+                    }}
+                    variant="contained"
+                    size="small"
+                  >
+                    Load Track
+                  </Button>
+                </Box>
+              )}
+            </Box>
+            {selectedTrackIndex === -1 ? (
+              <Box>
+                {/* <Button onClick={start} variant="contained">
+                Load Audio
+              </Button> */}
+                <Typography variant="h6" fontWeight={"bold"} align="center">
+                  No Air
+                </Typography>
+                <Typography variant="body2" align="center">
+                  By
+                </Typography>
+                <Typography variant="h6" fontWeight={"bold"} align="center">
+                  Andrew
+                </Typography>
+                <Box mt={2}>
+                  <Button
+                    onClick={() => {
+                      start(1);
+                    }}
+                    variant="contained"
+                    size="small"
+                  >
                     Load Track
                   </Button>
                 </Box>
               </Box>
-            </Box>
+            ) : (
+              <Box>
+                <Box>
+                  <Typography>Genre: {songMetadata?.genre}</Typography>
+                  <Typography>Bpm: {songMetadata?.bpm}</Typography>
+                  <Typography>Key: {songMetadata?.key}</Typography>
+                </Box>
+              </Box>
+            )}
           </Box>
         </Box>
+        {selectedTrackIndex !== -1 && (
+          <Box
+            mt={2}
+            display="flex"
+            justifyContent="center"
+            gap={2}
+            alignItems="center"
+          >
+            {sectionsWithOffset.map(({ name }, i) => (
+              <Chip label={name} sx={{ bgcolor: colors[i] }}></Chip>
+            ))}
+          </Box>
+        )}
       </Box>
       {isLoaded && (
         <div
@@ -526,6 +614,7 @@ export const MarketPlace = () => {
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
             onMintNft={onMintNft}
+            selectedTrackIndex={selectedTrackIndex}
           />
           <TonePlayerViz
             name="drums"
@@ -557,11 +646,13 @@ export const MarketPlace = () => {
           )}
         </div>
       )}
-      <Box mt={20} display="flex" justifyContent="center">
-        <Box width="70%">
-          <BarChart />
+      {selectedTrackIndex === 1 && (
+        <Box mt={5} display="flex" justifyContent="center">
+          <Box width="80%">
+            <BarChart />
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 };

@@ -14,6 +14,7 @@ const CanvasSectionBox = (props: {
   isLoopOn: boolean;
   isSongModeState: boolean;
   onMintNft: () => void;
+  selectedTrackIndex?: number;
 }) => {
   const {
     sectionLocation: { left, width },
@@ -23,6 +24,7 @@ const CanvasSectionBox = (props: {
     // isLoopOn,
     isSongModeState,
     onMintNft,
+    selectedTrackIndex,
   } = props;
 
   return (
@@ -60,13 +62,15 @@ const CanvasSectionBox = (props: {
         >
           <LoopIcon sx={{ height: 25, width: 25 }} />
         </Button> */}
-        <IconButton size="small" onClick={toggleSongOrStemMode}>
-          {isSongModeState ? (
-            <QueueMusicIcon sx={{ height: 25, width: 25 }} />
-          ) : (
-            <MusicNoteIcon sx={{ height: 25, width: 25 }} />
-          )}
-        </IconButton>
+        {selectedTrackIndex !== 1 && (
+          <IconButton size="small" onClick={toggleSongOrStemMode}>
+            {isSongModeState ? (
+              <QueueMusicIcon sx={{ height: 25, width: 25 }} />
+            ) : (
+              <MusicNoteIcon sx={{ height: 25, width: 25 }} />
+            )}
+          </IconButton>
+        )}
         <IconButton size="small" onClick={onMintNft}>
           <ShopIcon />
         </IconButton>
