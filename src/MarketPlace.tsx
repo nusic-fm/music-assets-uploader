@@ -1,5 +1,12 @@
 // import { TreeItem, TreeView } from "@mui/lab";
-import { Button, Chip, Tooltip, Typography } from "@mui/material";
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  Grid,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useState } from "react";
@@ -77,7 +84,6 @@ export const MarketPlace = () => {
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedTrackIndex, setSelectedTrackIndex] = useState(-1);
-  // const [isLoaded, setIsLoaded] = useState(false);
 
   const selectedSectionIndex = useRef<number>(-1);
   const stemPlayerName = useRef<string>("");
@@ -193,7 +199,7 @@ export const MarketPlace = () => {
       setIsSongModeState(false);
       isSongMode.current = false;
       stemPlayers = {
-        bass: "https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3",
+        bass: "https://storage.googleapis.com/nusic-mashup-content/No-Air/master.wav",
       };
     }
 
@@ -442,7 +448,7 @@ export const MarketPlace = () => {
   }, []);
 
   const onMintNft = () => {};
-
+  //No Air - Jording Sparks, Chris Brown
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }} p={4}>
       <Box style={{ float: "right" }}>
@@ -478,70 +484,100 @@ export const MarketPlace = () => {
               borderRadius: "6px",
               minWidth: "80%",
             }}
-            p={2}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-around"
           >
-            <Box>
-              {/* <Button onClick={start} variant="contained">
-                Load Audio
-              </Button> */}
-              <Typography variant="h6" fontWeight={"bold"} align="center">
-                {songMetadata?.albumName}
-              </Typography>
-              <Typography variant="body2" align="center">
-                By
-              </Typography>
-              <Typography variant="h6" fontWeight={"bold"} align="center">
-                {songMetadata?.artistName}
-              </Typography>
-              {selectedTrackIndex === -1 && (
-                <Box mt={2}>
-                  <Button
-                    onClick={() => {
-                      start(0);
-                    }}
-                    variant="contained"
-                    size="small"
-                  >
-                    Load Track
-                  </Button>
+            {!isLoaded ? (
+              <Box
+                p={2}
+                display="flex"
+                alignItems="center"
+                justifyContent="space-around"
+              >
+                <Box>
+                  <Typography variant="h6" fontWeight={"bold"} align="center">
+                    {songMetadata?.albumName}
+                  </Typography>
+                  <Typography variant="body2" align="center">
+                    By
+                  </Typography>
+                  <Typography variant="h6" fontWeight={"bold"} align="center">
+                    {songMetadata?.artistName}
+                  </Typography>
+                  <Box mt={2}>
+                    <Button
+                      onClick={() => {
+                        start(0);
+                      }}
+                      variant="contained"
+                      size="small"
+                    >
+                      Load Track
+                    </Button>
+                  </Box>
                 </Box>
-              )}
-            </Box>
-            {selectedTrackIndex === -1 ? (
-              <Box>
-                {/* <Button onClick={start} variant="contained">
-                Load Audio
-              </Button> */}
-                <Typography variant="h6" fontWeight={"bold"} align="center">
-                  No Air
-                </Typography>
-                <Typography variant="body2" align="center">
-                  By
-                </Typography>
-                <Typography variant="h6" fontWeight={"bold"} align="center">
-                  Andrew
-                </Typography>
-                <Box mt={2}>
-                  <Button
-                    onClick={() => {
-                      start(1);
-                    }}
-                    variant="contained"
-                    size="small"
-                  >
-                    Load Track
-                  </Button>
+                <Box>
+                  <Typography variant="h6" fontWeight={"bold"} align="center">
+                    No Air
+                  </Typography>
+                  <Typography variant="body2" align="center">
+                    By
+                  </Typography>
+                  <Typography variant="h6" fontWeight={"bold"} align="center">
+                    Andrew
+                  </Typography>
+                  <Box mt={2}>
+                    <Button
+                      onClick={() => {
+                        start(1);
+                      }}
+                      variant="contained"
+                      size="small"
+                    >
+                      Load Track
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             ) : (
-              <Box>
+              <Box p={4} display="flex" alignItems="flex-start">
                 <Box>
-                  <Typography>Genre: {songMetadata?.genre}</Typography>
-                  <Typography>Bpm: {songMetadata?.bpm}</Typography>
-                  <Typography>Key: {songMetadata?.key}</Typography>
+                  <img src="/no-air.png" alt="no-air" width="185px"></img>
+                </Box>
+                <Box ml={4}>
+                  <Typography variant="h6" fontWeight="bold">
+                    {songMetadata?.albumName} - {songMetadata?.artistName}
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    Limited Steven Russell ASCAP Royalties (US Market)
+                  </Typography>
+                  <Box mt={2} width="200px">
+                    <Grid container>
+                      {["genre", "bpm", "key"].map((prop) => {
+                        return (
+                          <>
+                            <Grid item xs={4}>
+                              <Typography
+                                align="right"
+                                textTransform="capitalize"
+                                fontSize="small"
+                              >
+                                {prop}:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={2}></Grid>
+                            <Grid item xs={6}>
+                              <Typography
+                                align="left"
+                                fontWeight="bold"
+                                fontSize="small"
+                              >
+                                {songMetadata && songMetadata[prop]}
+                              </Typography>
+                            </Grid>
+                          </>
+                        );
+                      })}
+                    </Grid>
+                  </Box>
                 </Box>
               </Box>
             )}
@@ -646,11 +682,22 @@ export const MarketPlace = () => {
           )}
         </div>
       )}
-      {selectedTrackIndex === 1 && (
+      {isLoaded && (
         <Box mt={5} display="flex" justifyContent="center">
-          <Box width="80%">
-            <BarChart />
+          <Box width="70%">
+            {selectedTrackIndex === 1 ? (
+              <BarChart />
+            ) : (
+              <Typography variant="body2" color="info" align="center">
+                Royalty data not available.
+              </Typography>
+            )}
           </Box>
+        </Box>
+      )}
+      {selectedTrackIndex !== -1 && isLoaded === false && (
+        <Box display="flex" justifyContent="center" mt={8}>
+          <CircularProgress></CircularProgress>
         </Box>
       )}
     </Box>
