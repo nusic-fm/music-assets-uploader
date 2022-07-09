@@ -86,6 +86,8 @@ export const MarketPlace = () => {
   const [selectedTrackIndex, setSelectedTrackIndex] = useState(-1);
 
   const selectedSectionIndex = useRef<number>(-1);
+  // const [selectedSectionIndexState, setSelectedSectionIndexState] =
+  //   useState<number>(-1);
   const stemPlayerName = useRef<string>("");
   const isSongMode = useRef<boolean>(true);
   const transportProgressRef = useRef<number>(0);
@@ -196,8 +198,8 @@ export const MarketPlace = () => {
           "https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3",
       };
     } else {
-      setIsSongModeState(false);
-      isSongMode.current = false;
+      // setIsSongModeState(false);
+      // isSongMode.current = false;
       stemPlayers = {
         bass: "https://storage.googleapis.com/nusic-mashup-content/No-Air/master.wav",
       };
@@ -272,6 +274,7 @@ export const MarketPlace = () => {
       }
     );
     selectedSectionIndex.current = sectionIndex === -1 ? 0 : sectionIndex;
+    // setSelectedSectionIndexState(selectedSectionIndex.current);
     const { sectionStartBeatInSeconds, sectionEndBeatInSeconds } =
       sectionsWithOffset[selectedSectionIndex.current];
 
@@ -281,21 +284,22 @@ export const MarketPlace = () => {
     );
   };
   const setMutes = () => {
-    const stems =
-      selectedTrackIndex === 0 ? ["synth", "sound", "bass", "drums"] : ["bass"];
-    stems.map((section) => {
-      if (tonePlayers.current) {
-        if (
-          isSongMode.current === false &&
-          section !== stemPlayerName.current
-        ) {
-          tonePlayers.current.player(section).mute = true;
-        } else {
-          tonePlayers.current.player(section).mute = false;
+    if (selectedTrackIndex === 0) {
+      const stems = ["synth", "sound", "bass", "drums"];
+      stems.map((section) => {
+        if (tonePlayers.current) {
+          if (
+            isSongMode.current === false &&
+            section !== stemPlayerName.current
+          ) {
+            tonePlayers.current.player(section).mute = true;
+          } else {
+            tonePlayers.current.player(section).mute = false;
+          }
         }
-      }
-      return "";
-    });
+        return "";
+      });
+    }
   };
   const changeSectionAndTone = (
     event: any,
@@ -448,6 +452,33 @@ export const MarketPlace = () => {
   }, []);
 
   const onMintNft = () => {};
+
+  const onSectionChipSelection = (sectionIndex: number): void => {
+    selectedSectionIndex.current = sectionIndex;
+    // setSelectedSectionIndexState(selectedSectionIndex.current);
+    const { sectionStartBeatInSeconds, sectionEndBeatInSeconds } =
+      sectionsWithOffset[selectedSectionIndex.current];
+    //  Playing only in song mode
+    // this.songOrStemMode = 0
+    setMutes();
+    const currentBeat = parseInt(
+      Tone.Transport.position.toString().split(":")[1]
+    );
+    const delayTime = ((4 - currentBeat) / 4) * (60 / Tone.Transport.bpm.value);
+    setTimeout(() => {
+      //  Delay included for hover section box as well
+      const { left, right } = transformCoordinateSecondsIntoPixels(
+        sectionStartBeatInSeconds,
+        sectionEndBeatInSeconds
+      );
+      setSectionLocation({ left, width: right - left });
+      Tone.Transport.seconds = sectionStartBeatInSeconds;
+      if (isPlaying === false) {
+        toggleTransport();
+      }
+    }, delayTime * 1000);
+  };
+
   //No Air - Jording Sparks, Chris Brown
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }} p={4}>
@@ -477,6 +508,13 @@ export const MarketPlace = () => {
         <Typography variant="h5" align="center">
           Track Explorer
         </Typography>
+        <Typography
+          variant="body2"
+          align="center"
+          visibility={selectedTrackIndex === -1 ? "visible" : "hidden"}
+        >
+          Select a track
+        </Typography>
         <Box m={2} display="flex" justifyContent="center">
           <Box
             style={{
@@ -488,12 +526,14 @@ export const MarketPlace = () => {
             {!isLoaded ? (
               <Box
                 p={2}
+                ml={4}
                 display="flex"
                 alignItems="center"
-                justifyContent="space-around"
+                // justifyContent="space-around"
+                gap={6}
               >
                 <Box>
-                  <Typography variant="h6" fontWeight={"bold"} align="center">
+                  {/* <Typography variant="h6" fontWeight={"bold"} align="center">
                     {songMetadata?.albumName}
                   </Typography>
                   <Typography variant="body2" align="center">
@@ -501,8 +541,24 @@ export const MarketPlace = () => {
                   </Typography>
                   <Typography variant="h6" fontWeight={"bold"} align="center">
                     {songMetadata?.artistName}
-                  </Typography>
-                  <Box mt={2}>
+                  </Typography> */}
+
+                  <Box
+                    onClick={() => {
+                      start(0);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img
+                      src="/rave-code.jpg"
+                      alt="no-air"
+                      width="185px"
+                      height="185px"
+                      style={{ borderRadius: "15px" }}
+                    ></img>
+                    <Typography align="center">Rave Code</Typography>
+                  </Box>
+                  {/* <Box mt={2} display="flex" justifyContent="center">
                     <Button
                       onClick={() => {
                         start(0);
@@ -512,10 +568,10 @@ export const MarketPlace = () => {
                     >
                       Load Track
                     </Button>
-                  </Box>
+                  </Box> */}
                 </Box>
                 <Box>
-                  <Typography variant="h6" fontWeight={"bold"} align="center">
+                  {/* <Typography variant="h6" fontWeight={"bold"} align="center">
                     No Air
                   </Typography>
                   <Typography variant="body2" align="center">
@@ -523,8 +579,23 @@ export const MarketPlace = () => {
                   </Typography>
                   <Typography variant="h6" fontWeight={"bold"} align="center">
                     Andrew
-                  </Typography>
-                  <Box mt={2}>
+                  </Typography> */}
+                  <Box
+                    onClick={() => {
+                      start(1);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img
+                      src="/no-air.png"
+                      alt="no-air"
+                      width="185px"
+                      height="185px"
+                      style={{ borderRadius: "15px" }}
+                    ></img>
+                    <Typography align="center">No Air</Typography>
+                  </Box>
+                  {/* <Box mt={2}>
                     <Button
                       onClick={() => {
                         start(1);
@@ -534,13 +605,28 @@ export const MarketPlace = () => {
                     >
                       Load Track
                     </Button>
+                  </Box> */}
+                </Box>
+                <Box>
+                  <Box>
+                    <Typography>Coming Soon...</Typography>
                   </Box>
                 </Box>
               </Box>
             ) : (
               <Box p={4} display="flex" alignItems="flex-start">
                 <Box>
-                  <img src="/no-air.png" alt="no-air" width="185px"></img>
+                  <img
+                    src={
+                      selectedTrackIndex === 0
+                        ? "/rave-code.jpg"
+                        : "/no-air.png"
+                    }
+                    alt="no-air"
+                    width="185px"
+                    height="185px"
+                    style={{ borderRadius: "15px" }}
+                  ></img>
                 </Box>
                 <Box ml={4}>
                   <Typography variant="h6" fontWeight="bold">
@@ -583,7 +669,7 @@ export const MarketPlace = () => {
             )}
           </Box>
         </Box>
-        {selectedTrackIndex !== -1 && (
+        {isLoaded && (
           <Box
             mt={2}
             display="flex"
@@ -592,7 +678,12 @@ export const MarketPlace = () => {
             alignItems="center"
           >
             {sectionsWithOffset.map(({ name }, i) => (
-              <Chip label={name} sx={{ bgcolor: colors[i] }}></Chip>
+              <Chip
+                label={name}
+                sx={{ bgcolor: colors[i] }}
+                clickable
+                onClick={() => onSectionChipSelection(i)}
+              ></Chip>
             ))}
           </Box>
         )}
