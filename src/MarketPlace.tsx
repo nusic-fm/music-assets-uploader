@@ -201,7 +201,7 @@ export const MarketPlace = () => {
       // setIsSongModeState(false);
       // isSongMode.current = false;
       stemPlayers = {
-        bass: "https://storage.googleapis.com/nusic-mashup-content/No-Air/master.wav",
+        bass: "https://storage.googleapis.com/nusic-mashup-content/No-Air/fulltrack.mp3",
       };
     }
 
@@ -769,6 +769,7 @@ export const MarketPlace = () => {
               isLoopOn={isLoopOn}
               isSongModeState={isSongModeState}
               onMintNft={onMintNft}
+              selectedTrackIndex={selectedTrackIndex}
             />
           )}
         </div>
