@@ -26,6 +26,16 @@ export const colors = [
   "#7074DE",
   "#5425CC",
   "#8927E2",
+  "#221AE1",
+  "#B52FD8",
+  "#7074DE",
+  "#5425CC",
+  "#8927E2",
+  "#221AE1",
+  "#B52FD8",
+  "#7074DE",
+  "#5425CC",
+  "#8927E2",
 ];
 
 const TonePlayerViz = (props: {
@@ -141,12 +151,16 @@ const TonePlayerViz = (props: {
             0,
             buffer.duration
           );
-          const index = (sectionsWithOffset as Section[]).findIndex(
+          const index = (
+            sectionsWithOffset[selectedTrackIndex as 0 | 1] as Section[]
+          ).findIndex(
             ({ sectionStartBeatInSeconds, sectionEndBeatInSeconds }) =>
               sectionStartBeatInSeconds < offsetStart &&
               sectionEndBeatInSeconds > offsetStart
           );
-          const section = (sectionsWithOffset as Section[])[index];
+          const section = (
+            sectionsWithOffset[selectedTrackIndex as 0 | 1] as Section[]
+          )[index];
           if (!section) {
             context.fillStyle = "#553B96";
           } else {

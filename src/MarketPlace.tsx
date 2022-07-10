@@ -20,6 +20,7 @@ import TransportBar from "./components/TransportBar";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import BarChart from "./components/BarChart";
+import { ethers } from "ethers";
 
 export interface Section {
   name: string;
@@ -37,44 +38,145 @@ export interface Section {
 export type SectionCoordinate = { left: number; right: number };
 export type PixelLocation = { offsetX: number; clientWidth: number };
 
-export const sectionsWithOffset = [
-  { sectionStartBeatInSeconds: 0, sectionEndBeatInSeconds: 20, name: "intro" },
-  { sectionStartBeatInSeconds: 20, sectionEndBeatInSeconds: 40, name: "verse" },
-  {
-    sectionStartBeatInSeconds: 40,
-    sectionEndBeatInSeconds: 60,
-    name: "prechorus",
-  },
-  {
-    sectionStartBeatInSeconds: 60,
-    sectionEndBeatInSeconds: 90,
-    name: "chorus",
-  },
-  {
-    sectionStartBeatInSeconds: 90,
-    sectionEndBeatInSeconds: 120,
-    name: "verse",
-  },
-  {
-    sectionStartBeatInSeconds: 120,
-    sectionEndBeatInSeconds: 160,
-    name: "prechorus",
-  },
-  {
-    sectionStartBeatInSeconds: 160,
-    sectionEndBeatInSeconds: 200,
-    name: "chorus",
-  },
-  {
-    sectionStartBeatInSeconds: 200,
-    sectionEndBeatInSeconds: 243,
-    name: "outro",
-  },
-] as Section[];
+export const sectionsWithOffset = {
+  0: [
+    {
+      sectionStartBeatInSeconds: 0,
+      sectionEndBeatInSeconds: 25.6,
+      name: "Intro",
+    },
+    {
+      sectionStartBeatInSeconds: 25.6,
+      sectionEndBeatInSeconds: 51.2,
+      name: "Verse",
+    },
+    {
+      sectionStartBeatInSeconds: 51.2,
+      sectionEndBeatInSeconds: 78.41,
+      name: "Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 78.41,
+      sectionEndBeatInSeconds: 104,
+      name: "Verse",
+    },
+    {
+      sectionStartBeatInSeconds: 104,
+      sectionEndBeatInSeconds: 129.61,
+      name: "Breakdown",
+    },
+    {
+      sectionStartBeatInSeconds: 129.61,
+      sectionEndBeatInSeconds: 155.21,
+      name: "Pre-Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 155.21,
+      sectionEndBeatInSeconds: 180.81,
+      name: "Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 180.81,
+      sectionEndBeatInSeconds: 214,
+      name: "Outro",
+    },
+  ],
+  1: [
+    {
+      sectionStartBeatInSeconds: 0,
+      sectionEndBeatInSeconds: 18,
+      name: "intro",
+    },
+    {
+      sectionStartBeatInSeconds: 18,
+      sectionEndBeatInSeconds: 42,
+      name: "verse",
+    },
+    {
+      sectionStartBeatInSeconds: 42,
+      sectionEndBeatInSeconds: 54,
+      name: "Pre-Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 54,
+      sectionEndBeatInSeconds: 79,
+      name: "Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 79,
+      sectionEndBeatInSeconds: 90,
+      name: "Post-Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 90,
+      sectionEndBeatInSeconds: 114,
+      name: "Verse",
+    },
+    {
+      sectionStartBeatInSeconds: 114,
+      sectionEndBeatInSeconds: 126,
+      name: "Pre-Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 126,
+      sectionEndBeatInSeconds: 150,
+      name: "Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 150,
+      sectionEndBeatInSeconds: 162,
+      name: "Post-Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 162,
+      sectionEndBeatInSeconds: 186,
+      name: "Bridge",
+    },
+    {
+      sectionStartBeatInSeconds: 186,
+      sectionEndBeatInSeconds: 210,
+      name: "Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 210,
+      sectionEndBeatInSeconds: 222,
+      name: "Pre-Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 222,
+      sectionEndBeatInSeconds: 246,
+      name: "Chorus",
+    },
+    {
+      sectionStartBeatInSeconds: 246,
+      sectionEndBeatInSeconds: 267,
+      name: "Hook",
+    },
+  ] as Section[],
+};
+
+const noAir = {
+  artistName: "Steven Russell ASCAP Royalties (US Market)",
+  trackTitle: "No Air - Jordin Sparks, Chris Brown",
+
+  albumName: "Mystery of the Floating Pagoda",
+
+  genre: "Pop",
+
+  bpm: 160,
+
+  key: "A♭ minor",
+
+  timeSignature: "4/4",
+};
+
+const abi = [
+  "function mint(uint256 tokenId, uint256 parentTokenId) payable public",
+];
 
 export const MarketPlace = () => {
   const { login } = useAuth();
-  const { account } = useWeb3React();
+  const { account, library } = useWeb3React();
 
   const tonePlayers = useRef<Tone.Players | null>(null);
   const bassPlayer = useRef<Tone.Player | null>(null);
@@ -191,11 +293,11 @@ export const MarketPlace = () => {
       stemPlayers = {
         bass: "https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3",
         drums:
-          "https://storage.googleapis.com/nusic-mashup-content/Yatta/drums.mp3",
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/pads.mp3",
         sound:
-          "https://storage.googleapis.com/nusic-mashup-content/Yatta/sound.mp3",
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/chords.mp3",
         synth:
-          "https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3",
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/percussion.mp3",
       };
     } else {
       // setIsSongModeState(false);
@@ -265,18 +367,20 @@ export const MarketPlace = () => {
     const clickTransportPositionInSeconds =
       (offsetX / clientWidth) * songDurationInSeconds;
 
-    const sectionIndex = sectionsWithOffset.findIndex(
-      ({ sectionStartBeatInSeconds, sectionEndBeatInSeconds }) => {
-        return (
-          clickTransportPositionInSeconds > sectionStartBeatInSeconds &&
-          clickTransportPositionInSeconds < sectionEndBeatInSeconds
-        );
-      }
-    );
+    const sectionIndex = sectionsWithOffset[
+      selectedTrackIndex as 0 | 1
+    ].findIndex(({ sectionStartBeatInSeconds, sectionEndBeatInSeconds }) => {
+      return (
+        clickTransportPositionInSeconds > sectionStartBeatInSeconds &&
+        clickTransportPositionInSeconds < sectionEndBeatInSeconds
+      );
+    });
     selectedSectionIndex.current = sectionIndex === -1 ? 0 : sectionIndex;
     // setSelectedSectionIndexState(selectedSectionIndex.current);
     const { sectionStartBeatInSeconds, sectionEndBeatInSeconds } =
-      sectionsWithOffset[selectedSectionIndex.current];
+      sectionsWithOffset[selectedTrackIndex as 0 | 1][
+        selectedSectionIndex.current
+      ];
 
     return transformCoordinateSecondsIntoPixels(
       sectionStartBeatInSeconds,
@@ -341,7 +445,7 @@ export const MarketPlace = () => {
     const delayTime = ((4 - currentBeat) / 4) * (60 / Tone.Transport.bpm.value);
     toneChangetimer.current = setTimeout(() => {
       Tone.Transport.seconds =
-        sectionsWithOffset[
+        sectionsWithOffset[selectedTrackIndex as 0 | 1][
           selectedSectionIndex.current
         ].sectionStartBeatInSeconds;
     }, delayTime * 1000);
@@ -447,17 +551,41 @@ export const MarketPlace = () => {
   };
 
   useEffect(() => {
-    fetchFulltracks();
+    if (selectedTrackIndex === 0) fetchFulltracks();
+    else setSongMetadata(noAir);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedTrackIndex]);
 
-  const onMintNft = () => {};
+  const onMintNft = async () => {
+    if (library) {
+      try {
+        const signer = library.getSigner();
+        const contract = new ethers.Contract(
+          process.env.REACT_APP_NO_AIR as string,
+          abi,
+          signer
+        );
+        const tx = await contract.mint(selectedSectionIndex.current + 1, 0, {
+          value: ethers.utils.parseEther("0.05"),
+        });
+        await tx.wait();
+        alert("You have successfully minted the token!");
+      } catch (e) {
+        console.log(e);
+        alert("error");
+      }
+    } else {
+      alert("Please connect your wallet.");
+    }
+  };
 
   const onSectionChipSelection = (sectionIndex: number): void => {
     selectedSectionIndex.current = sectionIndex;
     // setSelectedSectionIndexState(selectedSectionIndex.current);
     const { sectionStartBeatInSeconds, sectionEndBeatInSeconds } =
-      sectionsWithOffset[selectedSectionIndex.current];
+      sectionsWithOffset[selectedTrackIndex as 0 | 1][
+        selectedSectionIndex.current
+      ];
     //  Playing only in song mode
     // this.songOrStemMode = 0
     setMutes();
@@ -630,10 +758,10 @@ export const MarketPlace = () => {
                 </Box>
                 <Box ml={4}>
                   <Typography variant="h6" fontWeight="bold">
-                    {songMetadata?.albumName} - {songMetadata?.artistName}
+                    {songMetadata?.trackTitle}
                   </Typography>
                   <Typography variant="body2" fontWeight="bold">
-                    Limited Steven Russell ASCAP Royalties (US Market)
+                    {songMetadata?.artistName}
                   </Typography>
                   <Box mt={2} width="200px">
                     <Grid container>
@@ -677,14 +805,16 @@ export const MarketPlace = () => {
             gap={2}
             alignItems="center"
           >
-            {sectionsWithOffset.map(({ name }, i) => (
-              <Chip
-                label={name}
-                sx={{ bgcolor: colors[i] }}
-                clickable
-                onClick={() => onSectionChipSelection(i)}
-              ></Chip>
-            ))}
+            {sectionsWithOffset[selectedTrackIndex as 0 | 1].map(
+              ({ name }, i) => (
+                <Chip
+                  label={name}
+                  sx={{ bgcolor: colors[i] }}
+                  clickable
+                  onClick={() => onSectionChipSelection(i)}
+                ></Chip>
+              )
+            )}
           </Box>
         )}
       </Box>
@@ -713,6 +843,7 @@ export const MarketPlace = () => {
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
             onMintNft={onMintNft}
+            selectedTrackIndex={selectedTrackIndex}
           />
           <TonePlayerViz
             name="sound"
@@ -727,6 +858,7 @@ export const MarketPlace = () => {
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
             onMintNft={onMintNft}
+            selectedTrackIndex={selectedTrackIndex}
           />
           <TonePlayerViz
             name="bass"
@@ -756,6 +888,7 @@ export const MarketPlace = () => {
             isLoopOn={isLoopOn}
             transportProgress={transportProgress}
             onMintNft={onMintNft}
+            selectedTrackIndex={selectedTrackIndex}
           />
           {isSongModeState && (
             <TransportBar transportProgress={transportProgress} />
