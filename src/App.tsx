@@ -49,6 +49,7 @@ const musicKeys = [
   { key: "G minor", id: "GMi" },
   { key: "G# minor", id: "GshMi" },
   { key: "A minor", id: "AMi" },
+  { key: "A♭ minor", id: "AflMi" },
   { key: "B♭ minor", id: "BflMi" },
   { key: "B minor", id: "BMi" },
 ];
