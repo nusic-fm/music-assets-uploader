@@ -238,13 +238,13 @@ export const MarketPlace = () => {
     //   return
     // }
     await Tone.start();
-    Tone.Transport.bpm.value = 150;
+    Tone.Transport.bpm.value = songMetadata.bpm;
     // eslint-disable-next-line no-console
     console.log("🥁 Tone started");
     // Tone.Transport.start();
     Tone.Transport.cancel(0);
 
-    const startBeatOffset = 1;
+    const startBeatOffset = 0;
     bassPlayer.current?.start(0, startBeatOffset);
     drumsPlayer.current?.start(0, startBeatOffset);
     soundPlayer.current?.start(0, startBeatOffset);
