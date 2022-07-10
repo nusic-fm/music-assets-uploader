@@ -50,7 +50,7 @@ const TonePlayerViz = (props: {
   isPlaying: boolean;
   isLoopOn: boolean;
   transportProgress: number;
-  onMintNft: () => void;
+  onMintNft: (price: number) => Promise<void>;
   selectedTrackIndex?: number;
 }) => {
   const {

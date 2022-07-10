@@ -85,12 +85,12 @@ export const sectionsWithOffset = {
     {
       sectionStartBeatInSeconds: 0,
       sectionEndBeatInSeconds: 18,
-      name: "intro",
+      name: "Intro",
     },
     {
       sectionStartBeatInSeconds: 18,
       sectionEndBeatInSeconds: 42,
-      name: "verse",
+      name: "Verse",
     },
     {
       sectionStartBeatInSeconds: 42,
@@ -556,7 +556,7 @@ export const MarketPlace = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTrackIndex]);
 
-  const onMintNft = async () => {
+  const onMintNft = async (price: number) => {
     if (library) {
       try {
         const signer = library.getSigner();
@@ -566,7 +566,7 @@ export const MarketPlace = () => {
           signer
         );
         const tx = await contract.mint(selectedSectionIndex.current + 1, 0, {
-          value: ethers.utils.parseEther("0.05"),
+          value: ethers.utils.parseEther(price.toString()),
         });
         await tx.wait();
         alert("You have successfully minted the token!");

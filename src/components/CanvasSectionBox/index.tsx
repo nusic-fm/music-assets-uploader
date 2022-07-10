@@ -1,10 +1,19 @@
-import { Box, ButtonGroup, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  IconButton,
+  Popover,
+  TextField,
+  Typography,
+} from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 // import LoopIcon from "@mui/icons-material/Loop";
 import PauseIcon from "@mui/icons-material/Pause";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import ShopIcon from "@mui/icons-material/Shop";
+import { useState } from "react";
 
 const CanvasSectionBox = (props: {
   sectionLocation: { left: number; width: number };
@@ -13,9 +22,20 @@ const CanvasSectionBox = (props: {
   isPlaying: boolean;
   isLoopOn: boolean;
   isSongModeState: boolean;
-  onMintNft: () => void;
+  onMintNft: (price: number) => Promise<void>;
   selectedTrackIndex?: number;
 }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [askingPrice, setAskingPrice] = useState(1);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const open = Boolean(anchorEl);
+
   const {
     sectionLocation: { left, width },
     onPlayOrPause,
@@ -71,10 +91,51 @@ const CanvasSectionBox = (props: {
             )}
           </IconButton>
         )}
-        <IconButton size="small" onClick={onMintNft}>
+        <IconButton size="small" onClick={handleClick} disabled={open}>
           <ShopIcon />
         </IconButton>
       </ButtonGroup>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <Box p={2}>
+          <Box width="200px">
+            <TextField
+              type="number"
+              fullWidth
+              inputProps={{ min: 1, max: 5 }}
+              value={askingPrice}
+              onChange={(e) => setAskingPrice(parseInt(e.target.value))}
+              label="DAI"
+            ></TextField>
+          </Box>
+          <Box
+            mt={2}
+            display="flex"
+            justifyContent="space-around"
+            alignItems="center"
+          >
+            <Box>
+              <Typography variant="subtitle1">IRR</Typography>
+              <Box>
+                <Typography variant="caption">Estimate</Typography>
+              </Box>
+            </Box>
+            <Typography variant="h6">--.--%</Typography>
+          </Box>
+          <Box mt={2} display="flex" justifyContent="center">
+            <Button variant="contained" onClick={() => onMintNft(askingPrice)}>
+              Mint
+            </Button>
+          </Box>
+        </Box>
+      </Popover>
     </Box>
   );
 };
