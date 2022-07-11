@@ -107,12 +107,8 @@ const TransactionDialog = (props: any) => {
       </DialogContent>
       <DialogActions>
         {activeTxStep > 3 && (
-          <Button
-            variant="contained"
-            onClick={onTxDialogClose}
-            href="https://tqwswx.csb.app/"
-          >
-            Track Explorer
+          <Button variant="contained" onClick={onTxDialogClose}>
+            Marketplace
           </Button>
         )}
       </DialogActions>

@@ -32,8 +32,10 @@ const SectionNames = [
   "Verse",
   "Pre-Chorus",
   "Chorus",
+  "Post-Chorus",
   "Breakdown",
   "Bridge",
+  "Hook",
   "Outro",
 ];
 
@@ -376,8 +378,10 @@ const WaveForm = (props) => {
                     <MenuItem value={"Verse"}>Verse</MenuItem>
                     <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
                     <MenuItem value={"Chorus"}>Chorus</MenuItem>
+                    <MenuItem value={"Post-Chorus"}>Post-Chorus</MenuItem>
                     <MenuItem value={"Breakdown"}>Breakdown</MenuItem>
                     <MenuItem value={"Bridge"}>Bridge</MenuItem>
+                    <MenuItem value={"Hook"}>Hook</MenuItem>
                     <MenuItem value={"Outro"}>Outro</MenuItem>
                   </Select>
                 </Box>

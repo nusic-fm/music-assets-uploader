@@ -21,6 +21,7 @@ import { useDropzone } from "react-dropzone";
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import TransactionDialog from "./components/TransactionDialog";
 import { Web3Storage } from "web3.storage";
+import { useNavigate } from "react-router-dom";
 
 const CryptoJS = require("crypto-js");
 
@@ -96,6 +97,8 @@ function App() {
   const [stemsHash, setStemsHash] = useState<string[]>([]);
   const [sectionsHash, setSectionsHash] = useState<string[]>([]);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (acceptedFiles.length) {
       const obj = {} as StemsObj;
@@ -164,42 +167,65 @@ function App() {
 
     // const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
     // const account = keyring.addFromUri(PHRASE);
-    const titleWithoutSpace = getWithoutSpace(title as string);
-    const genreWithoutSpace = getWithoutSpace(title as string);
-    const fullTrackTxHash = await new Promise<string>((res) => {
-      api.tx.uploadModule
-        .createFulltrack(
-          `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-          cid,
-          artist,
-          title,
-          album,
-          genre,
-          bpm,
-          key,
-          timeSignature,
-          noOfBars,
-          noOfBeats,
-          duration,
-          startBeatOffsetMs.toString(),
-          Object.keys(sectionsObj).length,
-          Object.keys(stemsObj).length
-        )
-        .signAndSend(account, ({ events = [], status }) => {
-          if (status.isFinalized) {
-            console.log(
-              `Transaction included at blockHash ${status.asFinalized}`
-            );
+    const titleWithoutSpace = getWithoutSpace(title as string).slice(0, 10);
+    const genreWithoutSpace = getWithoutSpace(genre as string);
+    console.log(
+      `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+      cid,
+      artist,
+      title,
+      album,
+      genre,
+      bpm,
+      key,
+      timeSignature,
+      noOfBars,
+      noOfBeats,
+      duration,
+      startBeatOffsetMs.toString(),
+      Object.keys(sectionsObj).length,
+      Object.keys(stemsObj).length
+    );
+    console.log({ stemsObj });
+    console.log({ sectionsObj });
+    try {
+      const fullTrackTxHash = await new Promise<string>((res) => {
+        api.tx.uploadModule
+          .createFulltrack(
+            `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+            cid,
+            artist?.slice(0, 128),
+            title?.slice(0, 128),
+            album?.slice(0, 128),
+            genre,
+            bpm,
+            key,
+            timeSignature,
+            noOfBars,
+            noOfBeats,
+            duration,
+            startBeatOffsetMs.toString(),
+            Object.keys(sectionsObj).length,
+            Object.keys(stemsObj).length
+          )
+          .signAndSend(account, ({ events = [], status }) => {
+            if (status.isFinalized) {
+              console.log(
+                `Transaction included at blockHash ${status.asFinalized}`
+              );
 
-            // Loop through Vec<EventRecord> to display all events
-            events.forEach(({ phase, event: { data, method, section } }) => {
-              console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-            });
-            res(status.hash.toString());
-          }
-        });
-    });
-    setFullTrackHash(fullTrackTxHash);
+              // Loop through Vec<EventRecord> to display all events
+              events.forEach(({ phase, event: { data, method, section } }) => {
+                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+              });
+              res(status.hash.toString());
+            }
+          });
+      });
+      setFullTrackHash(fullTrackTxHash);
+    } catch (e) {
+      alert(e);
+    }
     setActiveTxStep(2);
     // Stems
     const stems = Object.values(stemsObj);
@@ -298,8 +324,8 @@ function App() {
       alert("Upload Full Track.");
       return;
     } else if (acceptedFiles.length === 0) {
-      alert("Submit PoC/stem files");
-      return;
+      // alert("Submit PoC/stem files");
+      // return;
     }
     setIsTxDialogOpen(true);
     const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
@@ -377,6 +403,7 @@ function App() {
   };
   const onTxDialogClose = () => {
     setIsTxDialogOpen(false);
+    navigate("/market");
   };
 
   return (

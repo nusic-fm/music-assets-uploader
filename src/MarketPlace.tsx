@@ -512,25 +512,39 @@ export const MarketPlace = () => {
   const fetchFulltracks = async () => {
     const graphqlQuery = {
       query: `query {
-                fullTrackRecords (first: 5) {
+                fullTrackRecords (last: 2) {
                   nodes {
-                      id
+                    musicId
+                    cid
+                    artistName
+                    trackTitle
+                    albumName
+                    genre
+                    bpm
+                    key
+                    timeSignature
+                    bars
+                    beats
+                    duration
+                    startBeatOffsetMs
+                    sectionsCount
+                    stemsCount
+                  }
+              }
+                sectionRecords (last: 30) {
+                    nodes {
                       musicId
-                      cid
-                      artistName
-                      trackTitle
-                      albumName
-                      genre
-                      bpm
-                      key
-                      timeSignature
-                      bars
-                      beats
-                      duration
-                      startBeatOffsetMs
-                      sectionsCount
-                      stemsCount
+                      name
+                      startTimeMs
                     }
+                }
+                stemRecords (last: 4) {
+                      nodes {
+                        musicId
+                        cid
+                        name
+                        type
+                      }
                   }
                 }`,
       variables: {},
@@ -627,7 +641,15 @@ export const MarketPlace = () => {
           </Button>
         )}
       </Box>
-      <Typography variant="h4">NUSIC Marketplace</Typography>
+      <Typography
+        variant="h4"
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          window.location.reload();
+        }}
+      >
+        NUSIC Marketplace
+      </Typography>
       <Box
         style={{ backgroundColor: "#2E2E44", borderRadius: "6px" }}
         mt={4}
@@ -735,9 +757,27 @@ export const MarketPlace = () => {
                     </Button>
                   </Box> */}
                 </Box>
-                <Box>
-                  <Box>
-                    <Typography>Coming Soon...</Typography>
+                <Box position="relative">
+                  <img
+                    src="/howie-B.webp"
+                    alt="no-air"
+                    width="185px"
+                    height="185px"
+                    style={{ borderRadius: "15px" }}
+                  ></img>
+                  <Typography align="center">Howie B</Typography>
+                  <Box
+                    position="absolute"
+                    style={{ background: "rgba(0,0,0,0.7)" }}
+                    top={0}
+                    width="185px"
+                    height="185px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="15px"
+                  >
+                    <Typography>Upcoming...</Typography>
                   </Box>
                 </Box>
               </Box>
