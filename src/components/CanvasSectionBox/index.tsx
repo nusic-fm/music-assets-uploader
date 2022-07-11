@@ -14,30 +14,20 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import ShopIcon from "@mui/icons-material/Shop";
 import { useState } from "react";
+import { SectionInfo } from "../../MarketPlace";
 
 const CanvasSectionBox = (props: {
-  sectionLocation: { left: number; width: number };
+  sectionLocation: SectionInfo;
   onPlayOrPause: () => void;
   toggleSongOrStemMode: () => void;
   isPlaying: boolean;
   isLoopOn: boolean;
   isSongModeState: boolean;
-  onMintNft: (price: number) => Promise<void>;
+  onMintNft: (price: number, sectionIndex: number) => Promise<void>;
   selectedTrackIndex?: number;
 }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [askingPrice, setAskingPrice] = useState(1);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const open = Boolean(anchorEl);
-
   const {
-    sectionLocation: { left, width },
+    sectionLocation: { left, width, index },
     onPlayOrPause,
     toggleSongOrStemMode,
     isPlaying,
@@ -46,6 +36,37 @@ const CanvasSectionBox = (props: {
     onMintNft,
     selectedTrackIndex,
   } = props;
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [askingPrice, setAskingPrice] = useState(1);
+  const minPrice = Number(process.env.REACT_APP_MIN);
+  const maxPrice = Number(Number(process.env.REACT_APP_MAX));
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (selectedTrackIndex === 0) {
+      onMintNft(askingPrice, index);
+      handleClose();
+    } else {
+      setAnchorEl(event.currentTarget);
+    }
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const open = Boolean(anchorEl);
+
+  const handleMint = () => {
+    if (askingPrice < minPrice) {
+      alert(`Investment should be heigher than ${minPrice} USDC`);
+      return;
+    }
+    if (askingPrice > maxPrice) {
+      alert(`Investment should be lower than ${maxPrice} USDC`);
+      return;
+    }
+    onMintNft(askingPrice, index);
+    handleClose();
+  };
 
   return (
     <Box
@@ -109,10 +130,10 @@ const CanvasSectionBox = (props: {
             <TextField
               type="number"
               fullWidth
-              inputProps={{ min: 1, max: 5 }}
+              inputProps={{ min: minPrice, max: maxPrice }}
               value={askingPrice}
-              onChange={(e) => setAskingPrice(parseInt(e.target.value))}
-              label="DAI"
+              onChange={(e) => setAskingPrice(parseFloat(e.target.value))}
+              label="USDC"
             ></TextField>
           </Box>
           <Box
@@ -130,7 +151,7 @@ const CanvasSectionBox = (props: {
             <Typography variant="h6">--.--%</Typography>
           </Box>
           <Box mt={2} display="flex" justifyContent="center">
-            <Button variant="contained" onClick={() => onMintNft(askingPrice)}>
+            <Button variant="contained" onClick={handleMint}>
               Mint
             </Button>
           </Box>

@@ -21,6 +21,8 @@ import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import BarChart from "./components/BarChart";
 import { ethers } from "ethers";
+import Erc20Abi from "./abis/Erc20.json";
+import YbNftAbi from "./abis/AtomicMusicYBNFT.json";
 
 export interface Section {
   name: string;
@@ -37,6 +39,7 @@ export interface Section {
 }
 export type SectionCoordinate = { left: number; right: number };
 export type PixelLocation = { offsetX: number; clientWidth: number };
+export type SectionInfo = { left: number; width: number; index: number };
 
 export const sectionsWithOffset = {
   0: [
@@ -159,11 +162,26 @@ const noAir = {
   artistName: "Steven Russell ASCAP Royalties (US Market)",
   trackTitle: "No Air - Jordin Sparks, Chris Brown",
 
-  albumName: "Mystery of the Floating Pagoda",
+  albumName: "-",
 
   genre: "Pop",
 
   bpm: 160,
+
+  key: "A♭ minor",
+
+  timeSignature: "4/4",
+};
+
+const raveCode = {
+  artistName: "Rave Code",
+  trackTitle: "Mystery of the Floating Pagoda",
+
+  albumName: "Mystery of the Floating Pagoda",
+
+  genre: "Electronic",
+
+  bpm: 150,
 
   key: "A♭ minor",
 
@@ -230,7 +248,8 @@ export const MarketPlace = () => {
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
     width: number;
-  }>({ left: -1, width: 0 });
+    index: number;
+  }>({ left: -1, width: 0, index: -1 });
 
   const setupTransportTimeline = async () => {
     // const song = songModel.value
@@ -360,7 +379,7 @@ export const MarketPlace = () => {
   };
   const transformPixelToSectionStartPixel = (
     coordinate: PixelLocation
-  ): SectionCoordinate => {
+  ): SectionInfo => {
     const offsetX = coordinate.offsetX;
     const clientWidth = coordinate.clientWidth;
     const songDurationInSeconds = bassPlayer.current?.buffer.duration ?? 1;
@@ -381,11 +400,11 @@ export const MarketPlace = () => {
       sectionsWithOffset[selectedTrackIndex as 0 | 1][
         selectedSectionIndex.current
       ];
-
-    return transformCoordinateSecondsIntoPixels(
+    const { left, right } = transformCoordinateSecondsIntoPixels(
       sectionStartBeatInSeconds,
       sectionEndBeatInSeconds
     );
+    return { left, width: right - left, index: sectionIndex };
   };
   const setMutes = () => {
     if (selectedTrackIndex === 0) {
@@ -414,13 +433,14 @@ export const MarketPlace = () => {
     setMutes();
     if (tonePlayers.current) tonePlayers.current.mute = false;
 
-    const sectionCoordinate = transformPixelToSectionStartPixel({
+    const { left, width, index } = transformPixelToSectionStartPixel({
       offsetX: calculatedOffsetLeft,
       clientWidth: event.currentTarget.clientWidth,
     });
     setSectionLocation({
-      left: sectionCoordinate.left,
-      width: sectionCoordinate.right - sectionCoordinate.left,
+      left,
+      width,
+      index,
     });
     // this.sectionCoordinate = sectionCoordinate
     // this.toneService.transport.progress.value = sectionCoordinate.left
@@ -561,7 +581,7 @@ export const MarketPlace = () => {
     );
     const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
     console.log({ raveCodeRecord });
-    setSongMetadata(raveCodeRecord);
+    setSongMetadata(raveCode);
   };
 
   useEffect(() => {
@@ -570,23 +590,44 @@ export const MarketPlace = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTrackIndex]);
 
-  const onMintNft = async (price: number) => {
+  const onMintNft = async (price: number, sectionIndex: number) => {
     if (library) {
       try {
         const signer = library.getSigner();
-        const contract = new ethers.Contract(
-          process.env.REACT_APP_NO_AIR as string,
-          abi,
-          signer
+        if (selectedTrackIndex === 0) {
+          const nftAddress = process.env.REACT_APP_YATTA as string;
+          const contract = new ethers.Contract(nftAddress, abi, signer);
+          // TODO
+          const stemIndex = ["bass", "drums", "synth", "sound"].indexOf(
+            stemPlayerName.current
+          );
+          const stemStartTokenIds = [1, 10, 19, 27][stemIndex];
+          debugger;
+          const tx = await contract.mint(stemStartTokenIds + sectionIndex, 0, {
+            value: ethers.utils.parseEther(price.toString()),
+          });
+          await tx.wait();
+        } else {
+          const nftAddress = process.env.REACT_APP_NO_AIR as string;
+          const contract = new ethers.Contract(nftAddress, YbNftAbi, signer);
+          const usdcContract = new ethers.Contract(
+            process.env.REACT_APP_USDC as string,
+            Erc20Abi,
+            signer
+          );
+          const amount = price * 1_000_000;
+          const approve = await usdcContract.approve(nftAddress, amount);
+          await approve.wait();
+          const tx = await contract.mint(sectionIndex + 1, 0, amount);
+          const receipt = await tx.wait();
+          console.log({ receipt });
+        }
+        alert(
+          "You have successfully minted the token! Check the metamask transactions for more information."
         );
-        const tx = await contract.mint(selectedSectionIndex.current + 1, 0, {
-          value: ethers.utils.parseEther(price.toString()),
-        });
-        await tx.wait();
-        alert("You have successfully minted the token!");
-      } catch (e) {
+      } catch (e: any) {
         console.log(e);
-        alert("error");
+        alert(e.data?.message || "Unable to process your tx at the moment.");
       }
     } else {
       alert("Please connect your wallet.");
@@ -613,7 +654,7 @@ export const MarketPlace = () => {
         sectionStartBeatInSeconds,
         sectionEndBeatInSeconds
       );
-      setSectionLocation({ left, width: right - left });
+      setSectionLocation({ left, width: right - left, index: sectionIndex });
       Tone.Transport.seconds = sectionStartBeatInSeconds;
       if (isPlaying === false) {
         toggleTransport();
@@ -641,15 +682,20 @@ export const MarketPlace = () => {
           </Button>
         )}
       </Box>
-      <Typography
-        variant="h4"
+      <Box
         style={{ cursor: "pointer" }}
+        position="relative"
         onClick={() => {
           window.location.reload();
         }}
+        display="flex"
+        alignItems="center"
       >
-        NUSIC Marketplace
-      </Typography>
+        <Typography variant="h4">NUSIC Marketplace</Typography>
+        <Box ml={2}>
+          <Chip label="BETA" size="small" sx={{ paddingX: "15px" }} />
+        </Box>
+      </Box>
       <Box
         style={{ backgroundColor: "#2E2E44", borderRadius: "6px" }}
         mt={4}
@@ -848,6 +894,7 @@ export const MarketPlace = () => {
             {sectionsWithOffset[selectedTrackIndex as 0 | 1].map(
               ({ name }, i) => (
                 <Chip
+                  key={i}
                   label={name}
                   sx={{ bgcolor: colors[i] }}
                   clickable
@@ -969,7 +1016,5 @@ export const MarketPlace = () => {
   );
 };
 // TODO:
-//   Fetch data and create sections class
-//   Mint NFTs
-//
-//
+//   USDC: 0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D
+//   Not allow sold tokens in UI

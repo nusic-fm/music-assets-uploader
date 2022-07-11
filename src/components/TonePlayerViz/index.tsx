@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { useEffect, useRef } from "react";
 import * as Tone from "tone";
-import { Section, sectionsWithOffset } from "../../MarketPlace";
+import { Section, SectionInfo, sectionsWithOffset } from "../../MarketPlace";
 import CanvasSectionBox from "../CanvasSectionBox";
 import TransportBar from "../TransportBar";
 
@@ -42,7 +42,7 @@ const TonePlayerViz = (props: {
   onMounted: (width: number) => void;
   tonePlayer: Tone.Player;
   name: string;
-  sectionLocation: { left: number; width: number };
+  sectionLocation: SectionInfo;
   onPlayOrPause: () => void;
   toggleSongOrStemMode: () => void;
   isSongModeState: boolean;
@@ -50,7 +50,7 @@ const TonePlayerViz = (props: {
   isPlaying: boolean;
   isLoopOn: boolean;
   transportProgress: number;
-  onMintNft: (price: number) => Promise<void>;
+  onMintNft: (price: number, sectionIndex: number) => Promise<void>;
   selectedTrackIndex?: number;
 }) => {
   const {
