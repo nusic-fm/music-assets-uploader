@@ -591,6 +591,7 @@ export const MarketPlace = () => {
   }, [selectedTrackIndex]);
 
   const onMintNft = async (price: number, sectionIndex: number) => {
+    debugger;
     if (library) {
       try {
         const signer = library.getSigner();
@@ -602,14 +603,19 @@ export const MarketPlace = () => {
             stemPlayerName.current
           );
           const stemStartTokenIds = [1, 10, 19, 27][stemIndex];
-          debugger;
           const tx = await contract.mint(stemStartTokenIds + sectionIndex, 0, {
             value: ethers.utils.parseEther(price.toString()),
           });
           await tx.wait();
         } else {
+          const tokenId = sectionIndex + 1;
           const nftAddress = process.env.REACT_APP_NO_AIR as string;
           const contract = new ethers.Contract(nftAddress, YbNftAbi, signer);
+          const isSold = await contract.tokenExists(tokenId);
+          if (isSold) {
+            alert("This piece of music is already sold.");
+            return;
+          }
           const usdcContract = new ethers.Contract(
             process.env.REACT_APP_USDC as string,
             Erc20Abi,
@@ -618,7 +624,7 @@ export const MarketPlace = () => {
           const amount = price * 1_000_000;
           const approve = await usdcContract.approve(nftAddress, amount);
           await approve.wait();
-          const tx = await contract.mint(sectionIndex + 1, 0, amount);
+          const tx = await contract.mint(tokenId, 0, amount);
           const receipt = await tx.wait();
           console.log({ receipt });
         }
