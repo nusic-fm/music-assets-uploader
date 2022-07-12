@@ -15,11 +15,7 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import ShopIcon from "@mui/icons-material/Shop";
 import { useState } from "react";
-import {
-  noAirPrices,
-  SectionInfo,
-  tempStemSectionPrices as stemSectionPrices,
-} from "../../MarketPlace";
+import { noAirPrices, SectionInfo, stemSectionPrices } from "../../MarketPlace";
 
 const getStemIndex = (name: string) =>
   ["bass", "sound", "drums", "synth"].indexOf(name);
