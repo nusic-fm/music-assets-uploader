@@ -191,6 +191,14 @@ const raveCode = {
 const abi = [
   "function mint(uint256 tokenId, uint256 parentTokenId) payable public",
 ];
+const stemSectionPrices = {
+  1: [0, 0.25, 0.3, 0.1, 0.2, 0.2, 0.3, 0], //BASS
+  10: [0.4, 0.25, 0.3, 0.4, 0.2, 0.2, 0.3, 0.4], //CHORDS
+  19: [0, 0.25, 0.3, 0.1, 0.2, 0.2, 0.3, 0], //PADS
+  28: [0.4, 0.25, 0.3, 0.4, 0.2, 0.2, 0.3, 0.4], //PERCUSSION
+  37: [0.8, 1, 1.2, 1, 0.8, 0.8, 1.2, 0.8], //FULLTRACK
+} as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
+const conversionRate = Number(process.env.REACT_APP_MOONRIVER_ETH_RATE);
 
 export const MarketPlace = () => {
   const { login } = useAuth();
@@ -244,6 +252,7 @@ export const MarketPlace = () => {
 
   useEffect(() => {
     login();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
@@ -607,33 +616,42 @@ export const MarketPlace = () => {
           const contract = new ethers.Contract(nftAddress, abi, signer);
           // TODO
           if (isSongMode.current) {
-            const stemIndex = ["bass", "drums", "synth", "sound"].indexOf(
-              stemPlayerName.current
-            );
-            const parentTokenId = [1, 10, 19, 28][stemIndex];
-            const tokenId = [1, 10, 19, 27][stemIndex] + sectionIndex + 1;
+            const parentTokenId = 37;
+            const _price = stemSectionPrices[parentTokenId][sectionIndex];
+            const tokenId = parentTokenId + sectionIndex + 1;
+            console.log(`Token ID: ${tokenId}`);
             const isSold = await contract.tokenExists(tokenId);
             if (isSold) {
               alert("This piece of music is already sold.");
               return;
             }
             const tx = await contract.mint(tokenId, parentTokenId, {
-              value: ethers.utils.parseEther(price.toString()),
+              value: ethers.utils.parseEther(_price.toString()),
             });
             await tx.wait();
           } else {
-            const stemIndex = ["bass", "drums", "synth", "sound"].indexOf(
+            // Contract order: Bass, Chords, Pads, Percussion
+            // Respective variables: bass, sound, drums, synth
+            const stemIndex = ["bass", "sound", "drums", "synth"].indexOf(
               stemPlayerName.current
             );
-            const parentTokenId = [1, 10, 19, 28][stemIndex];
-            const tokenId = [1, 10, 19, 27][stemIndex] + sectionIndex + 1;
+            const parentTokenId = [1, 10, 19, 28][stemIndex] as
+              | 1
+              | 10
+              | 19
+              | 28;
+            const _price =
+              stemSectionPrices[parentTokenId][sectionIndex] * conversionRate;
+            const tokenId = parentTokenId + sectionIndex + 1;
+            console.log(`Token ID: ${tokenId}, Price ${_price}`);
             const tx = await contract.mint(tokenId, parentTokenId, {
-              value: ethers.utils.parseEther(price.toString()),
+              value: ethers.utils.parseEther(_price.toString()),
             });
             await tx.wait();
           }
         } else {
           const tokenId = sectionIndex + 1;
+          console.log(`Token ID: ${tokenId}`);
           const nftAddress = process.env.REACT_APP_NO_AIR as string;
           const contract = new ethers.Contract(nftAddress, YbNftAbi, signer);
           const isSold = await contract.tokenExists(tokenId);

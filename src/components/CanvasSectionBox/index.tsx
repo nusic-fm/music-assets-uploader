@@ -148,7 +148,7 @@ const CanvasSectionBox = (props: {
                 <Typography variant="caption">Estimate</Typography>
               </Box>
             </Box>
-            <Typography variant="h6">--.--%</Typography>
+            <Typography variant="h6">5.89%</Typography>
           </Box>
           <Box mt={2} display="flex" justifyContent="center">
             <Button variant="contained" onClick={handleMint}>
