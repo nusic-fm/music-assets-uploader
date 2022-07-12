@@ -173,7 +173,7 @@ const CanvasSectionBox = (props: {
                 </Grid>
                 <Grid item xs={2}></Grid>
                 <Grid mt={2} item xs={4}>
-                  5.89%"
+                  5.89%
                 </Grid>
               </>
             )}
