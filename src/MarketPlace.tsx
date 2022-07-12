@@ -1128,15 +1128,7 @@ export const MarketPlace = () => {
       )}
       {isLoaded && (
         <Box mt={5} display="flex" justifyContent="center">
-          <Box width="70%">
-            {selectedTrackIndex === 1 ? (
-              <BarChart />
-            ) : (
-              <Typography variant="body2" color="info" align="center">
-                Royalty data not available.
-              </Typography>
-            )}
-          </Box>
+          <Box width="70%">{selectedTrackIndex === 1 && <BarChart />}</Box>
         </Box>
       )}
       {selectedTrackIndex !== -1 && isLoaded === false && (
