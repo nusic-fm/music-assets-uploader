@@ -174,7 +174,7 @@ const noAir = {
 };
 
 const raveCode = {
-  artistName: "Rave Code",
+  artistName: "YATTA",
   trackTitle: "Mystery of the Floating Pagoda",
 
   albumName: "Mystery of the Floating Pagoda",
@@ -243,7 +243,7 @@ export const MarketPlace = () => {
   };
 
   useEffect(() => {
-    // const audioBuffers = {}
+    login();
   }, []);
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
@@ -591,22 +591,47 @@ export const MarketPlace = () => {
   }, [selectedTrackIndex]);
 
   const onMintNft = async (price: number, sectionIndex: number) => {
-    debugger;
     if (library) {
       try {
         const signer = library.getSigner();
         if (selectedTrackIndex === 0) {
+          if (
+            !isSongMode.current &&
+            ["bass", "drums"].includes(stemPlayerName.current) &&
+            [0, 7].includes(sectionIndex)
+          ) {
+            alert("This NFT is not open for sale at the moment");
+            return;
+          }
           const nftAddress = process.env.REACT_APP_YATTA as string;
           const contract = new ethers.Contract(nftAddress, abi, signer);
           // TODO
-          const stemIndex = ["bass", "drums", "synth", "sound"].indexOf(
-            stemPlayerName.current
-          );
-          const stemStartTokenIds = [1, 10, 19, 27][stemIndex];
-          const tx = await contract.mint(stemStartTokenIds + sectionIndex, 0, {
-            value: ethers.utils.parseEther(price.toString()),
-          });
-          await tx.wait();
+          if (isSongMode.current) {
+            const stemIndex = ["bass", "drums", "synth", "sound"].indexOf(
+              stemPlayerName.current
+            );
+            const parentTokenId = [1, 10, 19, 28][stemIndex];
+            const tokenId = [1, 10, 19, 27][stemIndex] + sectionIndex + 1;
+            const isSold = await contract.tokenExists(tokenId);
+            if (isSold) {
+              alert("This piece of music is already sold.");
+              return;
+            }
+            const tx = await contract.mint(tokenId, parentTokenId, {
+              value: ethers.utils.parseEther(price.toString()),
+            });
+            await tx.wait();
+          } else {
+            const stemIndex = ["bass", "drums", "synth", "sound"].indexOf(
+              stemPlayerName.current
+            );
+            const parentTokenId = [1, 10, 19, 28][stemIndex];
+            const tokenId = [1, 10, 19, 27][stemIndex] + sectionIndex + 1;
+            const tx = await contract.mint(tokenId, parentTokenId, {
+              value: ethers.utils.parseEther(price.toString()),
+            });
+            await tx.wait();
+          }
         } else {
           const tokenId = sectionIndex + 1;
           const nftAddress = process.env.REACT_APP_NO_AIR as string;
@@ -752,13 +777,13 @@ export const MarketPlace = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <img
-                      src="/rave-code.jpg"
+                      src="/pagoda.jpg"
                       alt="no-air"
                       width="185px"
                       height="185px"
                       style={{ borderRadius: "15px" }}
                     ></img>
-                    <Typography align="center">Rave Code</Typography>
+                    <Typography align="center">YATTA</Typography>
                   </Box>
                   {/* <Box mt={2} display="flex" justifyContent="center">
                     <Button
@@ -838,9 +863,7 @@ export const MarketPlace = () => {
                 <Box>
                   <img
                     src={
-                      selectedTrackIndex === 0
-                        ? "/rave-code.jpg"
-                        : "/no-air.png"
+                      selectedTrackIndex === 0 ? "/pagoda.jpg" : "/no-air.png"
                     }
                     alt="no-air"
                     width="185px"
