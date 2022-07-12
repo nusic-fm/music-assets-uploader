@@ -158,16 +158,21 @@ const CanvasSectionBox = (props: {
             <Grid item xs={4}>
               {price}
             </Grid>
-            <Grid mt={2} item xs={6}>
-              <Typography variant="subtitle1">IRR</Typography>
-              <Box>
-                <Typography variant="caption">Estimate</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={2}></Grid>
-            <Grid mt={2} item xs={4}>
-              {selectedTrackIndex === 0 ? "NA" : "5.89%"}
-            </Grid>
+            {selectedTrackIndex === 1 && (
+              <>
+                {" "}
+                <Grid mt={2} item xs={6}>
+                  <Typography variant="subtitle1">IRR</Typography>
+                  <Box>
+                    <Typography variant="caption">Estimate</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={2}></Grid>
+                <Grid mt={2} item xs={4}>
+                  5.89%"
+                </Grid>
+              </>
+            )}
           </Grid>
           {/* <Box
             mt={2}

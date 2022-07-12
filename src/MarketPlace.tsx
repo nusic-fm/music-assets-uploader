@@ -45,41 +45,41 @@ export const sectionsWithOffset = {
   0: [
     {
       sectionStartBeatInSeconds: 0,
-      sectionEndBeatInSeconds: 25.6,
+      sectionEndBeatInSeconds: 25,
       name: "Intro",
     },
     {
-      sectionStartBeatInSeconds: 25.6,
-      sectionEndBeatInSeconds: 51.2,
+      sectionStartBeatInSeconds: 25,
+      sectionEndBeatInSeconds: 51,
       name: "Verse",
     },
     {
-      sectionStartBeatInSeconds: 51.2,
-      sectionEndBeatInSeconds: 78.41,
+      sectionStartBeatInSeconds: 51,
+      sectionEndBeatInSeconds: 78,
       name: "Chorus",
     },
     {
-      sectionStartBeatInSeconds: 78.41,
+      sectionStartBeatInSeconds: 78,
       sectionEndBeatInSeconds: 104,
       name: "Verse",
     },
     {
       sectionStartBeatInSeconds: 104,
-      sectionEndBeatInSeconds: 129.61,
+      sectionEndBeatInSeconds: 129,
       name: "Breakdown",
     },
     {
-      sectionStartBeatInSeconds: 129.61,
-      sectionEndBeatInSeconds: 155.21,
+      sectionStartBeatInSeconds: 129,
+      sectionEndBeatInSeconds: 155,
       name: "Pre-Chorus",
     },
     {
-      sectionStartBeatInSeconds: 155.21,
-      sectionEndBeatInSeconds: 180.81,
+      sectionStartBeatInSeconds: 155,
+      sectionEndBeatInSeconds: 180,
       name: "Chorus",
     },
     {
-      sectionStartBeatInSeconds: 180.81,
+      sectionStartBeatInSeconds: 180,
       sectionEndBeatInSeconds: 214,
       name: "Outro",
     },
@@ -804,7 +804,7 @@ export const MarketPlace = () => {
                       alt="no-air"
                       width="185px"
                       height="185px"
-                      style={{ borderRadius: "15px" }}
+                      style={{ borderRadius: "15px", objectFit: "cover" }}
                     ></img>
                     <Typography align="center">YATTA</Typography>
                   </Box>
@@ -841,7 +841,7 @@ export const MarketPlace = () => {
                       alt="no-air"
                       width="185px"
                       height="185px"
-                      style={{ borderRadius: "15px" }}
+                      style={{ borderRadius: "15px", objectFit: "cover" }}
                     ></img>
                     <Typography align="center">No Air</Typography>
                   </Box>
@@ -863,7 +863,7 @@ export const MarketPlace = () => {
                     alt="no-air"
                     width="185px"
                     height="185px"
-                    style={{ borderRadius: "15px" }}
+                    style={{ borderRadius: "15px", objectFit: "cover" }}
                   ></img>
                   <Typography align="center">Howie B</Typography>
                   <Box
