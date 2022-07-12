@@ -200,7 +200,7 @@ export const stemSectionPrices = {
 } as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
 
 export const noAirPrices = [
-  241.81, 330.42, 165.21, 344.18, 151.44, 330.42, 165.21, 330.42, 165.21,
+  247.81, 330.42, 165.21, 344.18, 151.44, 330.42, 165.21, 330.42, 165.21,
   330.42, 330.42, 165.21, 330.42, 289.11,
 ];
 
@@ -672,7 +672,7 @@ export const MarketPlace = () => {
           const amount = price * 1_000_000;
           const approve = await usdcContract.approve(nftAddress, amount);
           await approve.wait();
-          const tx = await contract.mint(tokenId, 0, amount);
+          const tx = await contract.mint(tokenId, 0);
           const receipt = await tx.wait();
           console.log({ receipt });
         }

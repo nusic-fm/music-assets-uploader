@@ -12,16 +12,6 @@
           "type": "string"
         },
         {
-          "internalType": "uint256",
-          "name": "_minPrice",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_maxPrice",
-          "type": "uint256"
-        },
-        {
           "internalType": "address",
           "name": "_usdcAddress",
           "type": "address"
@@ -197,6 +187,11 @@
           "internalType": "bool",
           "name": "isMinted",
           "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -226,6 +221,11 @@
           "internalType": "bool",
           "name": "isMinted",
           "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -258,6 +258,11 @@
           "type": "uint256"
         },
         {
+          "internalType": "uint256",
+          "name": "rootTokenPrice",
+          "type": "uint256"
+        },
+        {
           "components": [
             {
               "internalType": "uint256",
@@ -273,6 +278,11 @@
               "internalType": "bool",
               "name": "isMinted",
               "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
             }
           ],
           "internalType": "struct AtomicMusicYBNFT.TokenInfo[]",
@@ -406,11 +416,40 @@
               "internalType": "bool",
               "name": "isMinted",
               "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
             }
           ],
           "internalType": "struct AtomicMusicYBNFT.TokenInfo[]",
           "name": "",
           "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "parentTokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -492,32 +531,6 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "maxPrice",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "minPrice",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -527,11 +540,6 @@
         {
           "internalType": "uint256",
           "name": "parentTokenId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -545,11 +553,6 @@
         {
           "internalType": "uint256",
           "name": "tokenId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -742,11 +745,21 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "_maxPrice",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "parentTokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
           "type": "uint256"
         }
       ],
-      "name": "setMaxPrice",
+      "name": "setPrice",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -755,11 +768,16 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "_minPrice",
+          "name": "rootTokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
           "type": "uint256"
         }
       ],
-      "name": "setMinPrice",
+      "name": "setRootPrice",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
