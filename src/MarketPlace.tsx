@@ -23,6 +23,7 @@ import BarChart from "./components/BarChart";
 import { ethers } from "ethers";
 import Erc20Abi from "./abis/Erc20.json";
 import YbNftAbi from "./abis/AtomicMusicYBNFT.json";
+import NftAbi from "./abis/AtomicMusicYBNFT.json";
 
 export interface Section {
   name: string;
@@ -188,15 +189,20 @@ const raveCode = {
   timeSignature: "4/4",
 };
 
-const abi = [
-  "function mint(uint256 tokenId, uint256 parentTokenId) payable public",
-];
 export const stemSectionPrices = {
   1: [0, 50, 60, 10, 10, 40, 60, 0], //BASS
   10: [80, 50, 60, 90, 50, 40, 60, 80], //CHORDS
   19: [0, 50, 60, 10, 50, 40, 60, 0], //PADS
   28: [80, 50, 60, 90, 50, 40, 60, 80], //PERCUSSION
   37: [160, 200, 240, 200, 160, 160, 240, 160], //FULLTRACK
+} as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
+
+export const tempStemSectionPrices = {
+  1: [0.4, 0.25, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //BASS
+  10: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //CHORDS
+  19: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //PADS
+  28: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //PERCUSSION
+  37: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //FULLTRACK
 } as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
 
 export const noAirPrices = [
@@ -618,20 +624,23 @@ export const MarketPlace = () => {
             return;
           }
           const nftAddress = process.env.REACT_APP_YATTA as string;
-          const contract = new ethers.Contract(nftAddress, abi, signer);
+          const contract = new ethers.Contract(nftAddress, NftAbi, signer);
           // TODO
           if (isSongMode.current) {
             const parentTokenId = 37;
             // const _price = stemSectionPrices[parentTokenId][sectionIndex];
             const tokenId = parentTokenId + sectionIndex + 1;
-            console.log(`Token ID: ${tokenId}`);
+            console.log(
+              `Token ID: ${tokenId}, Parent Token ID: ${parentTokenId}`
+            );
             const isSold = await contract.tokenExists(tokenId);
             if (isSold) {
               alert("This piece of music is already sold.");
               return;
             }
+            const value = ethers.utils.parseEther(price.toString());
             const tx = await contract.mint(tokenId, parentTokenId, {
-              value: ethers.utils.parseEther(price.toString()),
+              value,
             });
             await tx.wait();
           } else {
@@ -648,7 +657,9 @@ export const MarketPlace = () => {
             // const _price =
             //   stemSectionPrices[parentTokenId][sectionIndex] * conversionRate;
             const tokenId = parentTokenId + sectionIndex + 1;
-            console.log(`Token ID: ${tokenId}, Price ${price}`);
+            console.log(
+              `Token ID: ${tokenId}, Parent Token ID: ${parentTokenId}, Price ${price}`
+            );
             const tx = await contract.mint(tokenId, parentTokenId, {
               value: ethers.utils.parseEther(price.toString()),
             });
