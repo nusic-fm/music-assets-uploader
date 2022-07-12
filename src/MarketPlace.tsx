@@ -863,16 +863,23 @@ export const MarketPlace = () => {
                   <Typography align="center">Howie B</Typography>
                   <Box
                     position="absolute"
-                    style={{ background: "rgba(0,0,0,0.7)" }}
-                    top={0}
+                    style={{ background: "rgba(0,0,0,0)" }}
+                    top={-10}
+                    left={-20}
+                    // right={-100}
                     width="185px"
                     height="185px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
+                    // display="flex"
+                    // alignItems="center"
+                    // justifyContent="flex-end"
                     borderRadius="15px"
                   >
-                    <Typography>Upcoming...</Typography>
+                    <Chip
+                      label="Upcoming"
+                      variant="filled"
+                      color="warning"
+                      size="small"
+                    ></Chip>
                   </Box>
                 </Box>
               </Box>
