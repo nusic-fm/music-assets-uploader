@@ -225,6 +225,7 @@ const TonePlayerViz = (props: {
           isSongModeState={isSongModeState}
           onMintNft={onMintNft}
           selectedTrackIndex={selectedTrackIndex}
+          selectedStemPlayerName={selectedStemPlayerName}
         ></CanvasSectionBox>
       )}
     </Box>

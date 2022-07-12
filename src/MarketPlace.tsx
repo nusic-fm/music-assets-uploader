@@ -191,14 +191,18 @@ const raveCode = {
 const abi = [
   "function mint(uint256 tokenId, uint256 parentTokenId) payable public",
 ];
-const stemSectionPrices = {
-  1: [0, 0.25, 0.3, 0.1, 0.2, 0.2, 0.3, 0], //BASS
-  10: [0.4, 0.25, 0.3, 0.4, 0.2, 0.2, 0.3, 0.4], //CHORDS
-  19: [0, 0.25, 0.3, 0.1, 0.2, 0.2, 0.3, 0], //PADS
-  28: [0.4, 0.25, 0.3, 0.4, 0.2, 0.2, 0.3, 0.4], //PERCUSSION
-  37: [0.8, 1, 1.2, 1, 0.8, 0.8, 1.2, 0.8], //FULLTRACK
+export const stemSectionPrices = {
+  1: [0, 50, 60, 10, 10, 40, 60, 0], //BASS
+  10: [80, 50, 60, 90, 50, 40, 60, 80], //CHORDS
+  19: [0, 50, 60, 10, 50, 40, 60, 0], //PADS
+  28: [80, 50, 60, 90, 50, 40, 60, 80], //PERCUSSION
+  37: [160, 200, 240, 200, 160, 160, 240, 160], //FULLTRACK
 } as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
-const conversionRate = Number(process.env.REACT_APP_MOONRIVER_ETH_RATE);
+
+export const noAirPrices = [
+  241.81, 330.42, 165.21, 344.18, 151.44, 330.42, 165.21, 330.42, 165.21,
+  330.42, 330.42, 165.21, 330.42, 289.11,
+];
 
 export const MarketPlace = () => {
   const { login } = useAuth();
@@ -318,14 +322,15 @@ export const MarketPlace = () => {
     setSelectedTrackIndex(trackIndex);
     let stemPlayers;
     if (trackIndex === 0) {
+      // Synth, Sound, Bass, Drums
       stemPlayers = {
+        synth:
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/percussion.mp3",
+        sound:
+          "https://storage.googleapis.com/nusic-mashup-content/Yatta/chords.mp3",
         bass: "https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3",
         drums:
           "https://storage.googleapis.com/nusic-mashup-content/Yatta/pads.mp3",
-        sound:
-          "https://storage.googleapis.com/nusic-mashup-content/Yatta/chords.mp3",
-        synth:
-          "https://storage.googleapis.com/nusic-mashup-content/Yatta/percussion.mp3",
       };
     } else {
       // setIsSongModeState(false);
@@ -617,7 +622,7 @@ export const MarketPlace = () => {
           // TODO
           if (isSongMode.current) {
             const parentTokenId = 37;
-            const _price = stemSectionPrices[parentTokenId][sectionIndex];
+            // const _price = stemSectionPrices[parentTokenId][sectionIndex];
             const tokenId = parentTokenId + sectionIndex + 1;
             console.log(`Token ID: ${tokenId}`);
             const isSold = await contract.tokenExists(tokenId);
@@ -626,7 +631,7 @@ export const MarketPlace = () => {
               return;
             }
             const tx = await contract.mint(tokenId, parentTokenId, {
-              value: ethers.utils.parseEther(_price.toString()),
+              value: ethers.utils.parseEther(price.toString()),
             });
             await tx.wait();
           } else {
@@ -640,12 +645,12 @@ export const MarketPlace = () => {
               | 10
               | 19
               | 28;
-            const _price =
-              stemSectionPrices[parentTokenId][sectionIndex] * conversionRate;
+            // const _price =
+            //   stemSectionPrices[parentTokenId][sectionIndex] * conversionRate;
             const tokenId = parentTokenId + sectionIndex + 1;
-            console.log(`Token ID: ${tokenId}, Price ${_price}`);
+            console.log(`Token ID: ${tokenId}, Price ${price}`);
             const tx = await contract.mint(tokenId, parentTokenId, {
-              value: ethers.utils.parseEther(_price.toString()),
+              value: ethers.utils.parseEther(price.toString()),
             });
             await tx.wait();
           }
@@ -905,10 +910,33 @@ export const MarketPlace = () => {
                   </Typography>
                   <Box mt={2} width="200px">
                     <Grid container>
+                      {selectedTrackIndex === 1 && (
+                        <>
+                          <Grid item xs={6}>
+                            <Typography
+                              align="right"
+                              textTransform="capitalize"
+                              fontSize="small"
+                            >
+                              Contract ID:
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={2}></Grid>
+                          <Grid item xs={4}>
+                            <Typography
+                              align="left"
+                              fontWeight="bold"
+                              fontSize="small"
+                            >
+                              1514244
+                            </Typography>
+                          </Grid>
+                        </>
+                      )}
                       {["genre", "bpm", "key"].map((prop) => {
                         return (
                           <>
-                            <Grid item xs={4}>
+                            <Grid item xs={6}>
                               <Typography
                                 align="right"
                                 textTransform="capitalize"
@@ -918,7 +946,7 @@ export const MarketPlace = () => {
                               </Typography>
                             </Grid>
                             <Grid item xs={2}></Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={4}>
                               <Typography
                                 align="left"
                                 fontWeight="bold"
@@ -932,6 +960,44 @@ export const MarketPlace = () => {
                       })}
                     </Grid>
                   </Box>
+                  {selectedTrackIndex === 0 && (
+                    <Box mt={2}>
+                      <Grid container>
+                        {/* <Grid item xs={4}>
+                          <Typography
+                            align="right"
+                            textTransform="capitalize"
+                            fontSize="small"
+                          >
+                            Description:
+                          </Typography>
+                        </Grid> */}
+                        {/* <Grid item xs={2}></Grid> */}
+                        <Grid item xs={12}>
+                          <Typography
+                            align="left"
+                            fontWeight="bold"
+                            fontSize="small"
+                          >
+                            In the 1990’s a mad scientist kidnapped a young
+                            woman, connected her brain to a machine and
+                            transferred her soul inside a 8 bit videogame. The
+                            process turned her into a cyber geisha. Many years
+                            later, the geisha’s soul managed to escape through
+                            the internet and the blockchain eventually
+                            re-emerging in the metaverse as a 3D avatar. As she
+                            seeks to heal her soul and tell the story of her
+                            long lost love, the geisha uses softwares and
+                            virtual instruments to compose music. Her first
+                            music album is a collection of short compositions
+                            called HAIKU, where traditional Asian instruments
+                            and electronic music are blended together into a
+                            unique soundtrack.
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             )}
@@ -1044,6 +1110,7 @@ export const MarketPlace = () => {
               isSongModeState={isSongModeState}
               onMintNft={onMintNft}
               selectedTrackIndex={selectedTrackIndex}
+              selectedStemPlayerName={selectedStemPlayerName}
             />
           )}
         </div>
