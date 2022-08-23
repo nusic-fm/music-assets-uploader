@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Box,
   Button,
@@ -143,34 +144,42 @@ function App() {
     // a.play();
   };
 
+  const download = (content: any, fileName: string, contentType: string) => {
+    var a = document.createElement("a");
+    var file = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+  };
+
   const onTx = async () => {
     //wss://rpc.polkadot.io
-    let wsProvider;
-    let api: ApiPromise;
-    try {
-      wsProvider = new WsProvider(
-        "wss://node-6948493832736464896.rz.onfinality.io/ws?apikey=78d805ee-1473-4737-a764-1b9fece4dd60"
-      );
-      api = await ApiPromise.create({
-        provider: wsProvider,
-        throwOnConnect: true,
-      });
-    } catch (e) {
-      setFullTrackHash("error");
-      setActiveTxStep(4);
-      return;
-    }
-    // // Do something
-    // console.log(api.genesisHash.toHex());
-    const keyring = new Keyring({ type: "sr25519" });
-    const account = keyring.addFromUri("//Alice", { name: "Alice default" });
+    // let wsProvider;
+    // let api: ApiPromise;
+    // try {
+    //   wsProvider = new WsProvider(
+    //     "wss://node-6948493832736464896.rz.onfinality.io/ws?apikey=78d805ee-1473-4737-a764-1b9fece4dd60"
+    //   );
+    //   api = await ApiPromise.create({
+    //     provider: wsProvider,
+    //     throwOnConnect: true,
+    //   });
+    // } catch (e) {
+    //   setFullTrackHash("error");
+    //   setActiveTxStep(4);
+    //   return;
+    // }
+    // // // Do something
+    // // console.log(api.genesisHash.toHex());
+    // const keyring = new Keyring({ type: "sr25519" });
+    // const account = keyring.addFromUri("//Alice", { name: "Alice default" });
 
     // const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
     // const account = keyring.addFromUri(PHRASE);
     const titleWithoutSpace = getWithoutSpace(title as string).slice(0, 10);
     const genreWithoutSpace = getWithoutSpace(genre as string);
-    console.log(
-      `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+    const fullTrackContent = {
+      id: `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
       cid,
       artist,
       title,
@@ -182,113 +191,134 @@ function App() {
       noOfBars,
       noOfBeats,
       duration,
-      startBeatOffsetMs.toString(),
-      Object.keys(sectionsObj).length,
-      Object.keys(stemsObj).length
-    );
-    console.log({ stemsObj });
-    console.log({ sectionsObj });
-    try {
-      const fullTrackTxHash = await new Promise<string>((res) => {
-        api.tx.uploadModule
-          .createFulltrack(
-            `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-            cid,
-            artist?.slice(0, 128),
-            title?.slice(0, 128),
-            album?.slice(0, 128),
-            genre,
-            bpm,
-            key,
-            timeSignature,
-            noOfBars,
-            noOfBeats,
-            duration,
-            startBeatOffsetMs.toString(),
-            Object.keys(sectionsObj).length,
-            Object.keys(stemsObj).length
-          )
-          .signAndSend(account, ({ events = [], status }) => {
-            if (status.isFinalized) {
-              console.log(
-                `Transaction included at blockHash ${status.asFinalized}`
-              );
+      startBeatOffsetMs: startBeatOffsetMs.toString(),
+      sections: Object.keys(sectionsObj).length,
+      stems: Object.keys(stemsObj).length,
+    };
+    // try {
+    //   const fullTrackTxHash = await new Promise<string>((res) => {
+    //     api.tx.uploadModule
+    //       .createFulltrack(
+    //         `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+    //         cid,
+    //         artist?.slice(0, 128),
+    //         title?.slice(0, 128),
+    //         album?.slice(0, 128),
+    //         genre,
+    //         bpm,
+    //         key,
+    //         timeSignature,
+    //         noOfBars,
+    //         noOfBeats,
+    //         duration,
+    //         startBeatOffsetMs.toString(),
+    //         Object.keys(sectionsObj).length,
+    //         Object.keys(stemsObj).length
+    //       )
+    //       .signAndSend(account, ({ events = [], status }) => {
+    //         if (status.isFinalized) {
+    //           console.log(
+    //             `Transaction included at blockHash ${status.asFinalized}`
+    //           );
 
-              // Loop through Vec<EventRecord> to display all events
-              events.forEach(({ phase, event: { data, method, section } }) => {
-                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-              });
-              res(status.hash.toString());
-            }
-          });
-      });
-      setFullTrackHash(fullTrackTxHash);
-    } catch (e) {
-      alert(e);
-    }
+    //           // Loop through Vec<EventRecord> to display all events
+    //           events.forEach(({ phase, event: { data, method, section } }) => {
+    //             console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+    //           });
+    //           res(status.hash.toString());
+    //         }
+    //       });
+    //   });
+    //   setFullTrackHash(fullTrackTxHash);
+    // } catch (e) {
+    //   alert(e);
+    // }
     setActiveTxStep(2);
     // Stems
     const stems = Object.values(stemsObj);
+    const stemsContent = [];
     for (let i = 0; i < stems.length; i++) {
       const stemObj = stems[i];
-      const stemHash = await new Promise<string>((res) => {
-        api.tx.uploadModule
-          .createStem(
-            `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-            cid,
-            stemObj.name,
-            stemObj.type
-          )
-          .signAndSend(account, ({ events = [], status }) => {
-            if (status.isFinalized) {
-              console.log(
-                `Transaction included at blockHash ${status.asFinalized}`
-              );
-
-              // Loop through Vec<EventRecord> to display all events
-              events.forEach(({ phase, event: { data, method, section } }) => {
-                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-              });
-              res(status.hash.toString());
-            }
-          });
+      stemsContent.push({
+        id: `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+        cid,
+        name: stemObj.name,
+        type: stemObj.type,
       });
-      setStemsHash([...stemsHash, stemHash]);
+      // const stemHash = await new Promise<string>((res) => {
+      //   api.tx.uploadModule
+      //     .createStem(
+      //       `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+      //       cid,
+      //       stemObj.name,
+      //       stemObj.type
+      //     )
+      //     .signAndSend(account, ({ events = [], status }) => {
+      //       if (status.isFinalized) {
+      //         console.log(
+      //           `Transaction included at blockHash ${status.asFinalized}`
+      //         );
+
+      //         // Loop through Vec<EventRecord> to display all events
+      //         events.forEach(({ phase, event: { data, method, section } }) => {
+      //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+      //         });
+      //         res(status.hash.toString());
+      //       }
+      //     });
+      // });
+      // setStemsHash([...stemsHash, stemHash]);
     }
     setActiveTxStep(3);
 
     // Section
     const sections = Object.values(sectionsObj);
+    const sectionsContent = [];
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
-      const sectionHash = await new Promise<string>((res) => {
-        api.tx.uploadModule
-          .createSection(
-            `section${
-              i + 1
-            }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-            section.name,
-            section.start * 1000,
-            section.end * 1000,
-            section.bars,
-            section.bars * noOfBeatsPerBar
-          )
-          .signAndSend(account, ({ events = [], status }) => {
-            if (status.isFinalized) {
-              console.log(
-                `Transaction included at blockHash ${status.asFinalized}`
-              );
-
-              // Loop through Vec<EventRecord> to display all events
-              events.forEach(({ phase, event: { data, method, section } }) => {
-                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-              });
-              res(status.hash.toString());
-            }
-          });
+      sectionsContent.push({
+        id: `section${
+          i + 1
+        }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+        name: section.name,
+        startMs: section.start * 1000,
+        endMs: section.end * 1000,
+        bars: section.bars,
+        beats: section.bars * noOfBeatsPerBar,
       });
-      setSectionsHash([...sectionsHash, sectionHash]);
+      // const sectionHash = await new Promise<string>((res) => {
+      //   api.tx.uploadModule
+      //     .createSection(
+      //       `section${
+      //         i + 1
+      //       }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+      //       section.name,
+      //       section.start * 1000,
+      //       section.end * 1000,
+      //       section.bars,
+      //       section.bars * noOfBeatsPerBar
+      //     )
+      //     .signAndSend(account, ({ events = [], status }) => {
+      //       if (status.isFinalized) {
+      //         console.log(
+      //           `Transaction included at blockHash ${status.asFinalized}`
+      //         );
+
+      //         // Loop through Vec<EventRecord> to display all events
+      //         events.forEach(({ phase, event: { data, method, section } }) => {
+      //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+      //         });
+      //         res(status.hash.toString());
+      //       }
+      //     });
+      // });
+      // setSectionsHash([...sectionsHash, sectionHash]);
     }
+    download(
+      JSON.stringify({ fullTrackContent, stemsContent, sectionsContent }),
+      "NUSIC-song-metadata.json",
+      "text/plain"
+    );
     setActiveTxStep(4);
     // const sectionTxs = await Promise.all(sectionsTxPromises);
     // console.log({ sectionTxs });
@@ -403,7 +433,7 @@ function App() {
   };
   const onTxDialogClose = () => {
     setIsTxDialogOpen(false);
-    navigate("/market");
+    navigate("/");
   };
 
   return (
