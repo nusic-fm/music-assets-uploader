@@ -44,6 +44,13 @@ const NonVisualizer = () => {
       .filter((data: any) => data.isMinted)
       .map((data: any) => data.tokenId.toString());
     setMintedTokenIds(tokenIds);
+    const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
+    Array.from(buyButtons).map((btn: any) => {
+      const icon = btn?.firstChild;
+      if (btn.children[1]) btn.children[1].innerText = "Buy";
+      btn?.removeChild(icon);
+      return "";
+    });
   };
   useEffect(() => {
     if (library) {
