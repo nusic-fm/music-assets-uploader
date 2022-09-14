@@ -22,7 +22,7 @@ const sections: string[] = [
   "16",
 ];
 const NonVisualizer = () => {
-  const [showDownload, setShowDownload] = useState(false);
+  const [showDownloadIdx, setShowDownloadIdx] = useState("01");
 
   const downloadFile = () => {
     fetch("https://assets.nusic.fm/bg.mp4")
@@ -75,13 +75,6 @@ const NonVisualizer = () => {
               <Typography> Bpm: 190 </Typography>
               <Typography>Key: A</Typography>
             </Box>
-            {showDownload && (
-              <Box mt={2}>
-                <Button variant="contained" onClick={downloadFile}>
-                  Download
-                </Button>
-              </Box>
-            )}
           </Box>
         </Box>
       </Box>
@@ -122,25 +115,33 @@ const NonVisualizer = () => {
                 justifyContent="space-between"
                 p={1}
                 onClick={() => {
-                  setShowDownload(true);
+                  setShowDownloadIdx(section);
                 }}
               >
                 <Box m={1}>
                   <Typography variant="body2">Choc #{section}</Typography>
                 </Box>
-                <CrossmintPayButton
-                  collectionTitle="DemoMT"
-                  collectionDescription="DemoMT"
-                  clientId="17780ee7-0d48-463b-8ba7-c06750e404db"
-                  mintConfig={{
-                    type: "erc-721",
-                    totalPrice: "0.01",
-                    tokenId: Number(section).toString(),
-                    parentTokenId: "0",
-                    uri: "https://gateway.pinata.cloud/ipfs/QmbY9oktxxq4Sq4jD4KY3fhsgXQawsLTdWdjrN22jjsGQF/1.json",
-                  }}
-                  environment="staging"
-                />
+                {section === showDownloadIdx ? (
+                  <Box mt={2} display="flex" justifyContent="center">
+                    <Button variant="contained" onClick={downloadFile}>
+                      Download
+                    </Button>
+                  </Box>
+                ) : (
+                  <CrossmintPayButton
+                    collectionTitle="DemoMT"
+                    collectionDescription="DemoMT"
+                    clientId="17780ee7-0d48-463b-8ba7-c06750e404db"
+                    mintConfig={{
+                      type: "erc-721",
+                      totalPrice: "0.01",
+                      tokenId: Number(section).toString(),
+                      parentTokenId: "0",
+                      uri: "https://gateway.pinata.cloud/ipfs/QmbY9oktxxq4Sq4jD4KY3fhsgXQawsLTdWdjrN22jjsGQF/1.json",
+                    }}
+                    environment="staging"
+                  />
+                )}
                 <Box>
                   <Typography variant="subtitle2" align="right">
                     Price
