@@ -13,6 +13,7 @@ import { MarketPlace } from "./MarketPlace";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
+import NonVisualizer from "./NonVisualizer";
 
 WebFont.load({
   google: {
@@ -78,6 +79,7 @@ root.render(
           <Routes>
             <Route path="/" element={<MarketPlace />} />
             <Route path="/upload" element={<App />} />
+            <Route path="/mackenzie" element={<NonVisualizer />} />
           </Routes>
         </Router>
       </Web3ReactProvider>
