@@ -22,9 +22,11 @@ const sections: string[] = [
   "16",
 ];
 const NonVisualizer = () => {
+  const [firstClick, setFirstClick] = useState(false);
   const [showDownloadIdx, setShowDownloadIdx] = useState("01");
 
   const downloadFile = () => {
+    setFirstClick(false);
     fetch("https://assets.nusic.fm/bg.mp4")
       .then((resp) => resp.blob())
       .then((blob) => {
@@ -115,7 +117,11 @@ const NonVisualizer = () => {
                 justifyContent="space-between"
                 p={1}
                 onClick={() => {
-                  setShowDownloadIdx(section);
+                  if (!firstClick) {
+                    setFirstClick(true);
+                  } else {
+                    setShowDownloadIdx(section);
+                  }
                 }}
               >
                 <Box m={1}>
@@ -147,7 +153,7 @@ const NonVisualizer = () => {
                     Price
                   </Typography>
                   <Typography variant="h6" align="right">
-                    $10
+                    ~$20
                   </Typography>
                 </Box>
               </Box>
