@@ -2,12 +2,7 @@
 
 import { StdFee } from "@cosmjs/launchpad";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
-import {
-  Registry,
-  OfflineSigner,
-  EncodeObject,
-  DirectSecp256k1HdWallet,
-} from "@cosmjs/proto-signing";
+import { Registry, OfflineSigner, EncodeObject } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
 import { MsgCreateSection } from "./types/metadatalayercosmos/tx";
 import { MsgCreateStem } from "./types/metadatalayercosmos/tx";
@@ -31,6 +26,7 @@ const types = [
 ];
 export const MissingWalletError = new Error("wallet is required");
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 export const registry = new Registry(<any>types);
 
 const defaultFee = {
@@ -49,7 +45,7 @@ interface SignAndBroadcastOptions {
 
 const txClient = async (
   wallet: OfflineSigner,
-  { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }
+  { addr }: TxClientOptions = { addr: "http://localhost:26657" }
 ) => {
   if (!wallet) throw MissingWalletError;
   let client: SigningStargateClient;
@@ -110,7 +106,7 @@ interface QueryClientOptions {
 }
 
 const queryClient = async (
-  { addr: addr }: QueryClientOptions = { addr: "http://localhost:1317" }
+  { addr }: QueryClientOptions = { addr: "http://localhost:1317" }
 ) => {
   return new Api({ baseUrl: addr });
 };

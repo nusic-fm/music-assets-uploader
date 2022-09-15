@@ -19,10 +19,94 @@ import CachedIcon from "@mui/icons-material/Cached";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
 // import axios from "axios";
-import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
+// import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import TransactionDialog from "./components/TransactionDialog";
 import { Web3Storage } from "web3.storage";
 import { useNavigate } from "react-router-dom";
+import {
+  DirectSecp256k1HdWallet,
+  OfflineDirectSigner,
+} from "@cosmjs/proto-signing";
+import { getSigningStargateClient, txClient } from "./module";
+import {
+  MsgCreateFullTrack,
+  MsgCreateSection,
+  MsgCreateStem,
+} from "./module/types/metadatalayercosmos/tx";
+import { ChainInfo } from "@keplr-wallet/types";
+
+export const checkersChainId = "metadatalayercosmos";
+
+export const getCheckersChainInfo = (): ChainInfo => ({
+  chainId: checkersChainId,
+  chainName: "nusic-layer",
+  rpc: "http://localhost:26657",
+  rest: "http://0.0.0.0:1317",
+  bip44: {
+    coinType: 118,
+  },
+  bech32Config: {
+    bech32PrefixAccAddr: "nusic",
+    // eslint-disable-next-line no-useless-concat
+    bech32PrefixAccPub: "nusic" + "pub",
+    // eslint-disable-next-line no-useless-concat
+    bech32PrefixValAddr: "nusic" + "valoper",
+    // eslint-disable-next-line no-useless-concat
+    bech32PrefixValPub: "nusic" + "valoperpub",
+    // eslint-disable-next-line no-useless-concat
+    bech32PrefixConsAddr: "nusic" + "valcons",
+    // eslint-disable-next-line no-useless-concat
+    bech32PrefixConsPub: "nusic" + "valconspub",
+  },
+  currencies: [
+    {
+      coinDenom: "STAKE",
+      coinMinimalDenom: "stake",
+      coinDecimals: 0,
+      coinGeckoId: "stake",
+    },
+    {
+      coinDenom: "TOKEN",
+      coinMinimalDenom: "token",
+      coinDecimals: 0,
+    },
+  ],
+  feeCurrencies: [
+    {
+      coinDenom: "STAKE",
+      coinMinimalDenom: "stake",
+      coinDecimals: 0,
+      coinGeckoId: "stake",
+    },
+  ],
+  stakeCurrency: {
+    coinDenom: "STAKE",
+    coinMinimalDenom: "stake",
+    coinDecimals: 0,
+    coinGeckoId: "stake",
+  },
+  coinType: 118,
+  gasPriceStep: {
+    low: 1,
+    average: 1,
+    high: 1,
+  },
+  features: ["stargate", "ibc-transfer", "no-legacy-stdTx"],
+});
+
+const getAliceSignerFromMnemonic = async (): Promise<OfflineDirectSigner> => {
+  return DirectSecp256k1HdWallet.fromMnemonic(aliceMnemonic, {
+    prefix: "nusic",
+  });
+  // return new Promise((resolve) => {
+  //     readFile("./testnet.alice.mnemonic.key", (err, data) => {
+  //         const wallet = DirectSecp256k1HdWallet.fromMnemonic(data.toString(), {
+  //             prefix: "cosmos",
+  //         })
+  //         resolve(wallet);
+  //     })
+  // })
+};
 
 const CryptoJS = require("crypto-js");
 
@@ -66,6 +150,8 @@ type SectionsObj = {
 };
 
 const getWithoutSpace = (str: string) => str.split(" ").join("");
+const aliceMnemonic =
+  "army bone catalog aisle harbor unfair situate text shop pony fiscal cover grid doctor clarify buffalo canyon peace change gallery memory music stairs often";
 
 function App() {
   const [fullTrackFile, setFullTrackFile] = useState<File>();
@@ -195,6 +281,41 @@ function App() {
       sections: Object.keys(sectionsObj).length,
       stems: Object.keys(stemsObj).length,
     };
+    const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic();
+    const alice = (await aliceSigner.getAccounts())[0].address;
+    console.log("Alice's address from signer", alice);
+    const {
+      signAndBroadcast,
+      msgCreateFullTrack,
+      msgCreateSection,
+      msgCreateStem,
+    } = await txClient(aliceSigner);
+    try {
+      const fromJson = MsgCreateFullTrack.fromJSON({
+        creator: alice,
+        cid,
+        artistName: artist,
+        trackTitle: title,
+        album,
+        bpm,
+        key,
+        bars: noOfBars,
+        beats: noOfBeats,
+        genre,
+        timeSignature,
+        durationMs: (duration || 0) * 1000,
+        startBeatOffsetMs: startBeatOffsetMs.toString(),
+        sectionsCount: Object.keys(sectionsObj).length,
+        stemsCount: Object.keys(stemsObj).length,
+      });
+      const msgEncoded = msgCreateFullTrack(fromJson);
+      const broadCast = await signAndBroadcast([msgEncoded]);
+      console.log({ msgEncoded });
+      console.log(broadCast);
+    } catch (err) {
+      console.log("error: ", err);
+      alert("Error creating fulltrack tx.");
+    }
     // try {
     //   const fullTrackTxHash = await new Promise<string>((res) => {
     //     api.tx.uploadModule
@@ -237,6 +358,7 @@ function App() {
     // Stems
     const stems = Object.values(stemsObj);
     const stemsContent = [];
+    const broadCastStemsMsgs = [];
     for (let i = 0; i < stems.length; i++) {
       const stemObj = stems[i];
       stemsContent.push({
@@ -245,6 +367,15 @@ function App() {
         name: stemObj.name,
         type: stemObj.type,
       });
+      const fromJson = MsgCreateStem.fromJSON({
+        creator: alice,
+        fullTrackID: 0, //TODO
+        stemCid: cid, //TODO
+        stemName: stemObj.name,
+        stemType: stemObj.type,
+      });
+      const msgEncoded = msgCreateStem(fromJson);
+      broadCastStemsMsgs.push(msgEncoded);
       // const stemHash = await new Promise<string>((res) => {
       //   api.tx.uploadModule
       //     .createStem(
@@ -269,13 +400,31 @@ function App() {
       // });
       // setStemsHash([...stemsHash, stemHash]);
     }
+    try {
+      const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
+      console.log({ broadCastStemsMsgs });
+      console.log({ broadCastedStems });
+    } catch (err) {
+      console.log("error: ", err);
+      alert("Error creating stems tx.");
+    }
     setActiveTxStep(3);
 
     // Section
     const sections = Object.values(sectionsObj);
     const sectionsContent = [];
+    const broadCastSectionsMsgs = [];
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
+      const fromJson = MsgCreateSection.fromJSON({
+        creator: alice,
+        fullTrackID: 0, //TODO
+        sectionName: section.name,
+        sectionStartTimeMs: section.start * 1000,
+        sectionEndTimeMs: section.end * 1000,
+      });
+      const msgEncoded = msgCreateSection(fromJson);
+      broadCastSectionsMsgs.push(msgEncoded);
       sectionsContent.push({
         id: `section${
           i + 1
@@ -313,6 +462,14 @@ function App() {
       //     });
       // });
       // setSectionsHash([...sectionsHash, sectionHash]);
+    }
+    try {
+      const broadCastedStems = await signAndBroadcast(broadCastSectionsMsgs);
+      console.log({ broadCastSectionsMsgs });
+      console.log(broadCastedStems);
+    } catch (err) {
+      console.log("error: ", err);
+      alert("Error creating sections tx.");
     }
     download(
       JSON.stringify({ fullTrackContent, stemsContent, sectionsContent }),
@@ -436,12 +593,35 @@ function App() {
     navigate("/");
   };
 
+  const testTx = async () => {
+    const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic();
+    const alice = (await aliceSigner.getAccounts())[0].address;
+    console.log("Alice's address from signer", alice);
+    const { creator, signingClient } = await getSigningStargateClient();
+    const { msgCreateSection } = await txClient(aliceSigner);
+    const fromJson = MsgCreateSection.fromJSON({
+      creator: alice,
+      fullTrackID: 0, //TODO
+      sectionName: "testTx",
+      sectionStartTimeMs: 1000,
+      sectionEndTimeMs: 2000,
+    });
+    const msgEncoded = msgCreateSection(fromJson);
+    const tx = await signingClient.signAndBroadcast(
+      creator,
+      [msgEncoded],
+      "auto"
+    );
+    debugger;
+  };
+
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
       <Box p={{ xs: 4, md: 10 }}>
         <Typography variant="h4" fontWeight="600" align="left">
           Music Metadata Information
         </Typography>
+        <Button onClick={testTx}>Test</Button>
         <Grid container mt={8} gap={{ xs: 2 }}>
           <Grid item xs={12} md={7}>
             <Grid container gap={2}>

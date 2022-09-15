@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@cosmjs/launchpad": "^0.27.1",
+    "@cosmjs/proto-signing": "^0.28.13",
+    "@cosmjs/stargate": "^0.28.13",
+    "@crossmint/client-sdk-react-ui": "^0.1.8-alpha.0",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.6.2",
@@ -21,6 +25,7 @@
     "axios": "^0.27.2",
     "chart.js": "^3.8.0",
     "colormap": "^2.3.2",
+    "cosmjs-types": "^0.5.1",
     "crypto-js": "^4.1.1",
     "ethers": "^5.6.9",
     "react": "^18.1.0",
@@ -37,9 +42,9 @@
     "webfontloader": "^1.6.28"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -63,7 +68,9 @@
     ]
   },
   "devDependencies": {
+    "@keplr-wallet/types": "0.10.2",
     "@types/wavesurfer.js": "^6.0.3",
-    "@types/webfontloader": "^1.6.34"
+    "@types/webfontloader": "^1.6.34",
+    "react-app-rewired": "2.2.1"
   }
 }
