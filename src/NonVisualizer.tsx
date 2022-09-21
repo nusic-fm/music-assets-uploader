@@ -49,7 +49,7 @@ const tracks: TrackMetadata[] = [
     genre: "Pop",
     bpm: 190,
     key: "A",
-    coverUrl: "/artist-covers/cherry.jpeg",
+    coverUrl: "/artist-covers/cherry-test.jpg",
   },
 ];
 const NonVisualizer = (props: { trackIdx: number }) => {
