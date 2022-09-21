@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import {
   DirectSecp256k1HdWallet,
   OfflineDirectSigner,
+  OfflineSigner,
 } from "@cosmjs/proto-signing";
 import { getSigningStargateClient, txClient } from "./module";
 import {
@@ -39,7 +40,7 @@ export const checkersChainId = "metadatalayercosmos";
 
 export const getCheckersChainInfo = (): ChainInfo => ({
   chainId: checkersChainId,
-  chainName: "nusic-layer",
+  chainName: "nusic L1",
   rpc: "http://localhost:26657",
   rest: "http://0.0.0.0:1317",
   bip44: {
@@ -60,30 +61,25 @@ export const getCheckersChainInfo = (): ChainInfo => ({
   },
   currencies: [
     {
-      coinDenom: "STAKE",
-      coinMinimalDenom: "stake",
+      coinDenom: "NUSIC",
+      coinMinimalDenom: "nusic",
       coinDecimals: 0,
-      coinGeckoId: "stake",
-    },
-    {
-      coinDenom: "TOKEN",
-      coinMinimalDenom: "token",
-      coinDecimals: 0,
+      coinGeckoId: "nusic",
     },
   ],
   feeCurrencies: [
     {
-      coinDenom: "STAKE",
-      coinMinimalDenom: "stake",
+      coinDenom: "NUSIC",
+      coinMinimalDenom: "nusic",
       coinDecimals: 0,
-      coinGeckoId: "stake",
+      coinGeckoId: "nusic",
     },
   ],
   stakeCurrency: {
-    coinDenom: "STAKE",
-    coinMinimalDenom: "stake",
+    coinDenom: "NUSIC",
+    coinMinimalDenom: "nusic",
     coinDecimals: 0,
-    coinGeckoId: "stake",
+    coinGeckoId: "nusic",
   },
   coinType: 118,
   gasPriceStep: {
@@ -594,25 +590,34 @@ function App() {
   };
 
   const testTx = async () => {
-    const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic();
-    const alice = (await aliceSigner.getAccounts())[0].address;
-    console.log("Alice's address from signer", alice);
+    // const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic();
+    // const alice = (await aliceSigner.getAccounts())[0].address;
+    // console.log("Alice's address from signer", alice);
     const { creator, signingClient } = await getSigningStargateClient();
-    const { msgCreateSection } = await txClient(aliceSigner);
-    const fromJson = MsgCreateSection.fromJSON({
-      creator: alice,
-      fullTrackID: 0, //TODO
-      sectionName: "testTx",
-      sectionStartTimeMs: 1000,
-      sectionEndTimeMs: 2000,
+    const { keplr } = window;
+    if (!keplr) {
+      alert("You need to install Keplr");
+      return;
+    }
+    const offlineSigner: OfflineSigner =
+      keplr.getOfflineSigner!(checkersChainId);
+    const { msgCreateFullTrack, signAndBroadcast } = await txClient(
+      offlineSigner
+    );
+    const fromJson = MsgCreateFullTrack.fromJSON({
+      creator,
+      cid: "cid",
+      artistName: "artist",
+      trackTitle: "title",
+      album: "album",
     });
-    const msgEncoded = msgCreateSection(fromJson);
+    const msgEncoded = msgCreateFullTrack(fromJson);
     const tx = await signingClient.signAndBroadcast(
       creator,
       [msgEncoded],
       "auto"
     );
-    debugger;
+    // const receipt = await signAndBroadcast([msgEncoded]);
   };
 
   return (

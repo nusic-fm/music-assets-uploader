@@ -90,12 +90,15 @@ const getSigningStargateClient = async (): Promise<{
   await keplr.experimentalSuggestChain(getCheckersChainInfo());
   const offlineSigner: OfflineSigner = keplr.getOfflineSigner!(checkersChainId);
   const creator = (await offlineSigner.getAccounts())[0].address;
+  console.log("Creator: ", creator);
   const client: SigningStargateClient =
     await SigningStargateClient.connectWithSigner(
       "http://localhost:26657",
       offlineSigner,
       {
         gasPrice: GasPrice.fromString("1stake"),
+        registry,
+        prefix: "nusic",
       }
     );
   return { creator: creator, signingClient: client };
