@@ -33,6 +33,7 @@ interface TrackMetadata {
   bpm: number;
   key: string;
   coverUrl: string;
+  profileUrl: string;
 }
 const tracks: TrackMetadata[] = [
   {
@@ -42,6 +43,7 @@ const tracks: TrackMetadata[] = [
     bpm: 190,
     key: "A",
     coverUrl: "/artist-covers/sol.png",
+    profileUrl: "/artist-covers/sol.png",
   },
   {
     artist: "GWEN X MmmCherry",
@@ -50,6 +52,7 @@ const tracks: TrackMetadata[] = [
     bpm: 190,
     key: "A",
     coverUrl: "/artist-covers/cherry-test.jpg",
+    profileUrl: "/artist-covers/cherry.jpeg",
   },
 ];
 const NonVisualizer = (props: { trackIdx: number }) => {
@@ -137,7 +140,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         >
           <Box>
             <img
-              src={trackDetails?.coverUrl}
+              src={trackDetails?.profileUrl}
               alt=""
               width="150px"
               height="150px"
