@@ -79,7 +79,11 @@ root.render(
           <Routes>
             <Route path="/" element={<MarketPlace />} />
             <Route path="/upload" element={<App />} />
-            <Route path="/mackenzie" element={<NonVisualizer />} />
+            <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} />
+            <Route
+              path="/gwenxmmmcherry"
+              element={<NonVisualizer trackIdx={1} />}
+            />
           </Routes>
         </Router>
       </Web3ReactProvider>

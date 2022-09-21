@@ -26,11 +26,43 @@ const sections: string[] = [
   "15",
   "16",
 ];
-const NonVisualizer = () => {
+interface TrackMetadata {
+  artist: string;
+  title: string;
+  genre: string;
+  bpm: number;
+  key: string;
+  coverUrl: string;
+}
+const tracks: TrackMetadata[] = [
+  {
+    artist: "Mackenzie Sol",
+    title: "Happy Ever After All",
+    genre: "Pop",
+    bpm: 190,
+    key: "A",
+    coverUrl: "/artist-covers/sol.png",
+  },
+  {
+    artist: "GWEN X MmmCherry",
+    title: "Sacrifice",
+    genre: "Pop",
+    bpm: 190,
+    key: "A",
+    coverUrl: "/artist-covers/cherry.jpeg",
+  },
+];
+const NonVisualizer = (props: { trackIdx: number }) => {
+  const { trackIdx } = props;
   const [firstClick, setFirstClick] = useState(false);
   const [showDownloadIdx, setShowDownloadIdx] = useState("01");
   const { library, activate } = useWeb3React();
   const [mintedTokenIds, setMintedTokenIds] = useState<string[]>([]);
+  const [trackDetails, setTrackDetails] = useState<TrackMetadata>();
+
+  useEffect(() => {
+    setTrackDetails(tracks[trackIdx]);
+  }, [trackIdx]);
 
   const setListOfMintedTokens = async () => {
     const signer = library.getSigner();
@@ -89,7 +121,7 @@ const NonVisualizer = () => {
         justifyContent="center"
         p={5}
         style={{
-          backgroundImage: "url('sol.png')",
+          backgroundImage: `url('${trackDetails?.coverUrl}')`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundPosition: "10% 60%",
@@ -104,22 +136,35 @@ const NonVisualizer = () => {
           flexWrap="wrap"
         >
           <Box>
-            <img src="sol.png" alt=""></img>
+            <img
+              src={trackDetails?.coverUrl}
+              alt=""
+              width="150px"
+              height="150px"
+              style={{ borderRadius: "50%" }}
+            ></img>
           </Box>
           <Box>
             <Box>
-              <Typography fontWeight="bold">Mackenzie Sol</Typography>
-              <Typography>Happy Ever After All</Typography>
+              <Typography fontWeight="bold">{trackDetails?.artist}</Typography>
+              <Typography>{trackDetails?.title}</Typography>
             </Box>
             <Box mt={3}>
-              <Typography>Genre: Pop</Typography>
-              <Typography> Bpm: 190 </Typography>
-              <Typography>Key: A</Typography>
+              <Typography>Genre: {trackDetails?.genre}</Typography>
+              <Typography> Bpm: {trackDetails?.bpm} </Typography>
+              <Typography>Key: {trackDetails?.key}</Typography>
             </Box>
           </Box>
         </Box>
       </Box>
-      <Box m={6} display="flex" flexWrap="wrap" gap={4} justifyContent="center">
+      <Box
+        mt={6}
+        pb={6}
+        display="flex"
+        flexWrap="wrap"
+        gap={4}
+        justifyContent="center"
+      >
         {sections.map((section: string, i: number) => (
           <Box width={200} height={200} position="relative" borderRadius="6px">
             <video
