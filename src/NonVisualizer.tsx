@@ -58,7 +58,7 @@ const tracks: TrackMetadata[] = [
 const NonVisualizer = (props: { trackIdx: number }) => {
   const { trackIdx } = props;
   const [firstClick, setFirstClick] = useState(false);
-  const [showDownloadIdx, setShowDownloadIdx] = useState("01");
+  const [showDownloadIdx, setShowDownloadIdx] = useState("");
   const { library, activate } = useWeb3React();
   const [mintedTokenIds, setMintedTokenIds] = useState<string[]>([]);
   const [trackDetails, setTrackDetails] = useState<TrackMetadata>();
@@ -70,7 +70,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const setListOfMintedTokens = async () => {
     const signer = library.getSigner();
     const contract = new ethers.Contract(
-      "0xb144c577106469da6428e8fe612c3f2bb39e7a28",
+      "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
       SolAbi,
       signer
     );
@@ -93,7 +93,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     } else {
       activate(
         new InjectedConnector({
-          supportedChainIds: [4],
+          supportedChainIds: [1],
         })
       );
     }
@@ -225,9 +225,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     </Box>
                   ) : (
                     <CrossmintPayButton
-                      collectionTitle="DemoMT"
-                      collectionDescription="DemoMT"
-                      clientId="17780ee7-0d48-463b-8ba7-c06750e404db"
+                      clientId="6e9abed3-b7d4-432c-90c2-c652ad1859a1"
                       mintConfig={{
                         type: "erc-721",
                         totalPrice: "0.01",
@@ -235,7 +233,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         parentTokenId: "0",
                         uri: "https://gateway.pinata.cloud/ipfs/QmbY9oktxxq4Sq4jD4KY3fhsgXQawsLTdWdjrN22jjsGQF/1.json",
                       }}
-                      environment="staging"
+                      //   environment="staging"
                     />
                   ))}
                 {mintedTokenIds.includes((i + 1).toString()) === false && (
