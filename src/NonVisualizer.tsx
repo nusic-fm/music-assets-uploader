@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
-import { Button, Typography } from "@mui/material";
+import { Button, Chip, IconButton, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useWeb3React } from "@web3-react/core";
-import { InjectedConnector } from "@web3-react/injected-connector";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import SolAbi from "./abis/SolAbi.json";
+import { useSignInWithFacebook } from "react-firebase-hooks/auth";
+import { auth } from "./services/firebase.service";
 
 const sections: string[] = [
   "01",
@@ -34,6 +34,8 @@ interface TrackMetadata {
   key: string;
   coverUrl: string;
   profileUrl: string;
+  tiktokProfileUrl: string;
+  noOfSections: number;
 }
 const tracks: TrackMetadata[] = [
   {
@@ -44,6 +46,8 @@ const tracks: TrackMetadata[] = [
     key: "A",
     coverUrl: "/artist-covers/sol.png",
     profileUrl: "/artist-covers/sol.png",
+    tiktokProfileUrl: "",
+    noOfSections: 16,
   },
   {
     artist: "GWEN X MmmCherry",
@@ -53,31 +57,41 @@ const tracks: TrackMetadata[] = [
     key: "A",
     coverUrl: "/artist-covers/cherry-test.jpg",
     profileUrl: "/artist-covers/cherry.jpeg",
+    tiktokProfileUrl: "https://www.tiktok.com/@mmmcherry",
+    noOfSections: 12,
   },
 ];
 const NonVisualizer = (props: { trackIdx: number }) => {
   const { trackIdx } = props;
-  const [firstClick, setFirstClick] = useState(false);
-  const [showDownloadIdx, setShowDownloadIdx] = useState("");
-  const { library, activate } = useWeb3React();
+  // const [firstClick, setFirstClick] = useState(false);
+  // const [showDownloadIdx, setShowDownloadIdx] = useState("");
+  const [ownTokenIds, setOwnTokenIds] = useState<string[]>([]);
   const [mintedTokenIds, setMintedTokenIds] = useState<string[]>([]);
   const [trackDetails, setTrackDetails] = useState<TrackMetadata>();
+  const [signInWithFacebook, user] = useSignInWithFacebook(auth);
 
   useEffect(() => {
     setTrackDetails(tracks[trackIdx]);
   }, [trackIdx]);
 
   const setListOfMintedTokens = async () => {
-    const signer = library.getSigner();
+    const provider = new ethers.providers.AlchemyProvider(
+      process.env.REACT_APP_CHAIN_NAME as string,
+      process.env.REACT_APP_ALCHEMY as string
+    );
     const contract = new ethers.Contract(
-      "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
+      process.env.REACT_APP_CONTRACT_ADDRESS as string,
       SolAbi,
-      signer
+      provider
     );
     const listOfData = await contract.getChildrenMetadata(0);
     const tokenIds = listOfData
       .filter((data: any) => data.isMinted)
       .map((data: any) => data.tokenId.toString());
+    const _ownTokenIds = listOfData
+      .filter((data: any) => data.isMinted && data.uid === "")
+      .map((data: any) => data.tokenId.toString());
+    setOwnTokenIds(_ownTokenIds);
     setMintedTokenIds(tokenIds);
     const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
     Array.from(buyButtons).map((btn: any) => {
@@ -88,19 +102,13 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     });
   };
   useEffect(() => {
-    if (library) {
+    if (user?.user) {
       setListOfMintedTokens();
-    } else {
-      activate(
-        new InjectedConnector({
-          supportedChainIds: [1],
-        })
-      );
     }
-  }, [library]);
+  }, [user]);
 
   const downloadFile = () => {
-    setFirstClick(false);
+    // setFirstClick(false);
     fetch("https://assets.nusic.fm/bg.mp4")
       .then((resp) => resp.blob())
       .then((blob) => {
@@ -117,8 +125,22 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       })
       .catch(() => alert("oh no!"));
   };
+
+  const onSignInWithFb = async () => {
+    signInWithFacebook();
+  };
+
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
+      <Box p={2} display="flex" justifyContent="end">
+        {user?.user ? (
+          <Chip label={user.user.displayName} />
+        ) : (
+          <Button variant="contained" onClick={onSignInWithFb}>
+            Sign In with Facebook
+          </Button>
+        )}
+      </Box>
       <Box
         display="flex"
         justifyContent="center"
@@ -144,19 +166,29 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               alt=""
               width="150px"
               height="150px"
-              style={{ borderRadius: "50%" }}
+              style={{ borderRadius: "6px" }}
             ></img>
           </Box>
           <Box>
             <Box>
-              <Typography fontWeight="bold">{trackDetails?.artist}</Typography>
-              <Typography>{trackDetails?.title}</Typography>
+              <Typography variant="h5" fontWeight="bold">
+                {trackDetails?.title}
+              </Typography>
+              <Typography variant="caption">{trackDetails?.artist}</Typography>
             </Box>
             <Box mt={3}>
+              <IconButton
+                href={`//${trackDetails?.tiktokProfileUrl}`}
+                target="_blank"
+              >
+                <img src="/tiktok.png" alt="tiktok" />
+              </IconButton>
+            </Box>
+            {/* <Box mt={3}>
               <Typography>Genre: {trackDetails?.genre}</Typography>
               <Typography> Bpm: {trackDetails?.bpm} </Typography>
               <Typography>Key: {trackDetails?.key}</Typography>
-            </Box>
+            </Box> */}
           </Box>
         </Box>
       </Box>
@@ -168,93 +200,104 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         gap={4}
         justifyContent="center"
       >
-        {sections.map((section: string, i: number) => (
-          <Box width={200} height={200} position="relative" borderRadius="6px">
-            <video
-              width="100%"
-              height="100%"
-              autoPlay
-              muted
-              loop
-              id="15"
-              style={{ borderRadius: "6px" }}
-            >
-              <source src="bg.mp4" type="video/mp4" />
-            </video>
+        {sections
+          .slice(0, trackDetails?.noOfSections)
+          .map((section: string, i: number) => (
             <Box
-              position="absolute"
-              top={0}
-              width="100%"
-              height="100%"
-              sx={{
-                opacity: "0",
-                transition: "opacity 0.2s",
-                background: "rgba(0,0,0,0.6)",
-                "&:hover": {
-                  opacity: "1",
-                },
-              }}
+              width={200}
+              height={200}
+              position="relative"
+              borderRadius="6px"
             >
-              <Box
-                boxSizing="border-box"
+              <video
                 width="100%"
                 height="100%"
-                display="flex"
-                flexDirection="column"
-                justifyContent="space-between"
-                p={1}
-                onClick={() => {
-                  if (!firstClick) {
-                    setFirstClick(true);
-                  } else {
-                    setShowDownloadIdx(section);
-                  }
+                autoPlay
+                muted
+                loop
+                id="15"
+                style={{ borderRadius: "6px" }}
+              >
+                <source src="bg.mp4" type="video/mp4" />
+              </video>
+              <Box
+                position="absolute"
+                top={0}
+                width="100%"
+                height="100%"
+                sx={{
+                  opacity: "0",
+                  transition: "opacity 0.2s",
+                  background: "rgba(0,0,0,0.6)",
+                  "&:hover": {
+                    opacity: "1",
+                  },
                 }}
               >
-                {mintedTokenIds.includes((i + 1).toString()) === false && (
-                  <Box m={1}>
-                    <Typography variant="body2">Choc #{section}</Typography>
-                  </Box>
-                )}
-                {mintedTokenIds.includes((i + 1).toString()) === false &&
-                  (section === showDownloadIdx ? (
-                    <Box mt={2} display="flex" justifyContent="center">
-                      <Button variant="contained" onClick={downloadFile}>
-                        Download
-                      </Button>
+                <Box
+                  boxSizing="border-box"
+                  width="100%"
+                  height="100%"
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-between"
+                  p={1}
+                  // onClick={() => {
+                  //   if (!firstClick) {
+                  //     setFirstClick(true);
+                  //   } else {
+                  //     setShowDownloadIdx(section);
+                  //   }
+                  // }}
+                >
+                  {mintedTokenIds.includes((i + 1).toString()) === false && (
+                    <Box m={1}>
+                      <Typography variant="body2">Choc #{section}</Typography>
                     </Box>
-                  ) : (
-                    <CrossmintPayButton
-                      clientId="6e9abed3-b7d4-432c-90c2-c652ad1859a1"
-                      mintConfig={{
-                        type: "erc-721",
-                        totalPrice: "0.01",
-                        tokenId: Number(section).toString(),
-                        parentTokenId: "0",
-                        uri: "https://gateway.pinata.cloud/ipfs/QmbY9oktxxq4Sq4jD4KY3fhsgXQawsLTdWdjrN22jjsGQF/1.json",
-                      }}
-                      //   environment="staging"
-                    />
-                  ))}
-                {mintedTokenIds.includes((i + 1).toString()) === false && (
-                  <Box>
-                    <Typography variant="subtitle2" align="right">
-                      Price
-                    </Typography>
-                    <Typography variant="h6" align="right">
-                      ~$20
-                    </Typography>
-                  </Box>
-                )}
-                {mintedTokenIds.includes((i + 1).toString()) && (
-                  <Box position="absolute" bottom={0} right={0} m={1}>
-                    <Typography>Minted</Typography>
-                  </Box>
-                )}
+                  )}
+                  {mintedTokenIds.includes((i + 1).toString()) === false &&
+                    (ownTokenIds.includes(section) ? (
+                      <Box mt={2} display="flex" justifyContent="center">
+                        <Button variant="contained" onClick={downloadFile}>
+                          Download
+                        </Button>
+                      </Box>
+                    ) : user?.user ? (
+                      <CrossmintPayButton
+                        clientId="6e9abed3-b7d4-432c-90c2-c652ad1859a1"
+                        mintConfig={{
+                          type: "erc-721",
+                          totalPrice: "0.01",
+                          tokenId: Number(section).toString(),
+                          parentTokenId: "0",
+                          uri: "https://gateway.pinata.cloud/ipfs/QmbY9oktxxq4Sq4jD4KY3fhsgXQawsLTdWdjrN22jjsGQF/1.json",
+                        }}
+                        //   environment="staging"
+                      />
+                    ) : (
+                      <Button variant="contained" onClick={onSignInWithFb}>
+                        Login
+                      </Button>
+                    ))}
+                  {mintedTokenIds.includes((i + 1).toString()) === false && (
+                    <Box>
+                      <Typography variant="subtitle2" align="right">
+                        Price
+                      </Typography>
+                      <Typography variant="h6" align="right">
+                        ~$20
+                      </Typography>
+                    </Box>
+                  )}
+                  {mintedTokenIds.includes((i + 1).toString()) && (
+                    <Box position="absolute" bottom={0} right={0} m={1}>
+                      <Typography>Minted</Typography>
+                    </Box>
+                  )}
+                </Box>
               </Box>
             </Box>
-          </Box>
-        ))}
+          ))}
       </Box>
     </Box>
   );
