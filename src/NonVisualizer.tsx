@@ -22,6 +22,9 @@ const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
 const redirectUri = process.env.REACT_APP_REDIRECT_URL as string;
 const responseType = "token";
 const scope = "identify";
+const localStorageAccessTokenKey = "nusic_discord_access_token";
+const localStorageTokenTypeKey = "nusic_discord_token_type";
+
 const sections: string[] = [
   "01",
   "02",
@@ -95,7 +98,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   }>();
   const location = useLocation();
 
-  const fetchUser = async (_tokenType: string, _accessToken: string) => {
+  const fetchUser = async (
+    _tokenType: string,
+    _accessToken: string,
+    isAlertOnFail: boolean = true
+  ) => {
     const url = "https://discord.com/api/users/@me";
     try {
       const response = await axios.get(url, {
@@ -104,16 +111,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       const { username, id, avatar } = response.data;
       // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
       setUser({ name: username, id, avatar });
+      window.history.replaceState(null, "", window.location.origin);
     } catch (e) {
-      alert("Please click Sign In to continue");
+      if (isAlertOnFail) alert("Please click Sign In to continue");
     }
   };
 
   useEffect(() => {
+    debugger;
     const searchParams = new URLSearchParams(location.hash.slice(1));
     const _accessToken = searchParams.get("access_token");
     const _tokenType = searchParams.get("token_type");
     if (_accessToken && _tokenType) {
+      window.localStorage.setItem(localStorageAccessTokenKey, _accessToken);
+      window.localStorage.setItem(localStorageTokenTypeKey, _tokenType);
       fetchUser(_tokenType, _accessToken);
       setTokenType(_tokenType);
       setAccessToken(_accessToken);
@@ -169,6 +180,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   useEffect(() => {
     if (user) {
       setListOfMintedTokens();
+    } else {
+      const _accessToken = window.localStorage.getItem(
+        localStorageAccessTokenKey
+      );
+      const _tokenType = window.localStorage.getItem(localStorageTokenTypeKey);
+      if (_accessToken && _tokenType) {
+        fetchUser(_tokenType, _accessToken, false);
+      }
     }
   }, [user]);
 
@@ -189,21 +208,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         window.URL.revokeObjectURL(url);
         alert("your file has downloaded!"); // or you know, something with better UX...
       })
-      .catch(() => alert("oh no!"));
+      .catch(() => alert("Download failed. Please try again"));
   };
 
-  const onSignInWithFb = async () => {
-    // http%3A%2F%2Flocalhost%3A3000
-    window.open(
-      `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`
-    );
-    // clientId: "1024216691749695519",
-    // clientSecret: "zaCRkLwCHbE5Y4kk3D5Q1oWq02T43PkW",
-    // code: "query code",
-    // scope: "identify",
-    // grantType: "authorization_code",
-    // redirectUri: "http://localhost:3000/#/gwenxmmmcherry",
-  };
+  // const onSignInWithFb = async () => {
+  //   window.open(
+  //     `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`
+  //   );
+  // };
   const isTokenAlreadyMinted = (id: number) =>
     mintedTokenIds.includes(id.toString());
   const isTokenMintedByUser = (id: number) =>
