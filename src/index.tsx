@@ -6,11 +6,11 @@ import {
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./App";
+// import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import WebFont from "webfontloader";
-import { MarketPlace } from "./MarketPlace";
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+// import { MarketPlace } from "./MarketPlace";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
 import NonVisualizer from "./NonVisualizer";
@@ -77,13 +77,10 @@ root.render(
       <Web3ReactProvider getLibrary={getLibrary}>
         <Router>
           <Routes>
-            <Route path="/" element={<MarketPlace />} />
+            {/* <Route path="/" element={<MarketPlace />} />
             <Route path="/upload" element={<App />} />
-            <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} />
-            <Route
-              path="/gwenxmmmcherry"
-              element={<NonVisualizer trackIdx={1} />}
-            />
+            <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} /> */}
+            <Route path="/" element={<NonVisualizer trackIdx={1} />} />
           </Routes>
         </Router>
       </Web3ReactProvider>
