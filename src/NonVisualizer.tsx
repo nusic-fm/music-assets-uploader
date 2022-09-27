@@ -340,6 +340,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         onClick={() => {
                           setIsListening(true);
                         }}
+                        showOverlay={false}
                         clientId="a8a1099c-4dcf-40ff-8179-4c701101604a"
                         mintConfig={{
                           type: "erc-721",
@@ -388,7 +389,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 Waiting for the tx to complete...
               </Typography>
               <Typography variant="h6">
-                Your download will begin once the tx is successfull
+                Your download will begin once the tx is successful
               </Typography>
             </Box>
           )}
