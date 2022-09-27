@@ -95,12 +95,16 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
   const fetchUser = async (_tokenType: string, _accessToken: string) => {
     const url = "https://discord.com/api/users/@me";
-    const response = await axios.get(url, {
-      headers: { Authorization: `${_tokenType} ${_accessToken}` },
-    });
-    const { username, id, avatar } = response.data;
-    // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
-    setUser({ name: username, id, avatar });
+    try {
+      const response = await axios.get(url, {
+        headers: { Authorization: `${_tokenType} ${_accessToken}` },
+      });
+      const { username, id, avatar } = response.data;
+      // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
+      setUser({ name: username, id, avatar });
+    } catch (e) {
+      alert("Please click Sign In to continue");
+    }
   };
 
   useEffect(() => {
