@@ -1,6 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
-import { Button, Chip, IconButton, Typography } from "@mui/material";
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
@@ -76,6 +84,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [trackDetails, setTrackDetails] = useState<TrackMetadata>();
   const [, setAccessToken] = useState<string>();
   const [, setTokenType] = useState<string>();
+  const [isListening, setIsListening] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [user, setUser] = useState<{
     name: string;
     id: string;
@@ -119,6 +129,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       provider
     );
     contract.on("Minted", (to, id, parentTokenId, tokenId) => {
+      setIsListening(false);
       if (id === user?.id) {
         downloadFile();
       }
@@ -150,10 +161,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   }, [user]);
 
   const downloadFile = () => {
-    // setFirstClick(false);
+    setIsDownloading(true);
     fetch("https://assets.nusic.fm/bg.mp4")
       .then((resp) => resp.blob())
       .then((blob) => {
+        setIsDownloading(false);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.style.display = "none";
@@ -325,6 +337,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   {isTokenAlreadyMinted(i + 1) === false &&
                     (user ? (
                       <CrossmintPayButton
+                        onClick={() => {
+                          setIsListening(true);
+                        }}
                         clientId="a8a1099c-4dcf-40ff-8179-4c701101604a"
                         mintConfig={{
                           type: "erc-721",
@@ -365,6 +380,26 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             </Box>
           ))}
       </Box>
+      <Dialog open={isListening || isDownloading}>
+        <DialogContent>
+          {isListening && (
+            <Box>
+              <Typography variant="h6">
+                Waiting for the tx to complete...
+              </Typography>
+              <Typography variant="h6">
+                Your download will begin once the tx is successfull
+              </Typography>
+            </Box>
+          )}
+          {isDownloading && (
+            <Box>
+              {/* <Typography variant="h5">Downloding the file...</Typography> */}
+              <CircularProgress />
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
