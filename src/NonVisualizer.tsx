@@ -86,6 +86,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [, setTokenType] = useState<string>();
   const [isListening, setIsListening] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
+
   const [user, setUser] = useState<{
     name: string;
     id: string;
@@ -119,10 +121,17 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   }, []);
 
   useEffect(() => {
+    if (newlyMintedToken) {
+      downloadFile();
+      setListOfMintedTokens(false);
+    }
+  }, [newlyMintedToken]);
+
+  useEffect(() => {
     setTrackDetails(tracks[trackIdx]);
   }, [trackIdx]);
 
-  const setListOfMintedTokens = async () => {
+  const setListOfMintedTokens = async (isAttachListener: boolean = true) => {
     const provider = new ethers.providers.AlchemyProvider(
       process.env.REACT_APP_CHAIN_NAME as string,
       process.env.REACT_APP_ALCHEMY as string
@@ -132,13 +141,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       SolAbi,
       provider
     );
-    contract.on("Minted", (to, id, parentTokenId, tokenId) => {
-      setIsListening(false);
-      if (id === user?.id) {
-        downloadFile();
-      }
-      setListOfMintedTokens();
-    });
+    if (isAttachListener) {
+      contract.on("Minted", (to, id, parentTokenId, tokenId) => {
+        setIsListening(false);
+        if (id === user?.id) setNewlyMintedToken(tokenId.toString());
+      });
+    }
     const listOfData = await contract.getChildrenMetadata(0);
     const tokenIds = listOfData
       .filter((data: any) => data.isMinted)
@@ -359,7 +367,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     ) : (
                       <Button
                         variant="contained"
-                        onClick={onSignInWithFb}
+                        // onClick={onSignInWithFb}
+                        href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
                         startIcon={<img src="/discord.webp" alt="" />}
                       >
                         Sign in
