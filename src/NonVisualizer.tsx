@@ -231,7 +231,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             variant="contained"
             // onClick={onSignInWithFb}
             href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-            startIcon={<img src="/discord.webp" alt="" />}
+            startIcon={<img src="/discord.png" alt="" width={"22px"} />}
           >
             Sign In
           </Button>
@@ -381,7 +381,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         variant="contained"
                         // onClick={onSignInWithFb}
                         href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-                        startIcon={<img src="/discord.webp" alt="" />}
+                        startIcon={
+                          <img src="/discord.png" alt="" width={"22px"} />
+                        }
                       >
                         Sign in
                       </Button>
