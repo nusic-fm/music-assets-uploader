@@ -13,7 +13,7 @@ import WebFont from "webfontloader";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
-import NonVisualizer from "./NonVisualizer";
+import App from "./App";
 
 WebFont.load({
   google: {
@@ -77,10 +77,11 @@ root.render(
       <Web3ReactProvider getLibrary={getLibrary}>
         <Router>
           <Routes>
+            <Route path="/" element={<App />} />
             {/* <Route path="/" element={<MarketPlace />} />
             <Route path="/upload" element={<App />} />
             <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} /> */}
-            <Route path="/" element={<NonVisualizer trackIdx={1} />} />
+            {/* <Route path="/" element={<NonVisualizer trackIdx={1} />} /> */}
           </Routes>
         </Router>
       </Web3ReactProvider>
