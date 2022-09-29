@@ -580,6 +580,17 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           )}
         </DialogContent>
       </Dialog>
+      <Box mt={4} pb={8}>
+        <Typography variant="h6" align="center">
+          Powered By
+        </Typography>
+        <Typography variant="h3" align="center">
+          NUSIC
+        </Typography>
+        {/* <Box display="flex" justifyContent="center" p={2}>
+          <img src="/NUSIC.png" alt="nusic" width="250px"></img>/
+        </Box> */}
+      </Box>
     </Box>
   );
 };
