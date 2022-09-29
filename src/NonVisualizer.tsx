@@ -67,8 +67,8 @@ const tracks: TrackMetadata[] = [
     noOfSections: 16,
   },
   {
-    artist: "GWEN X MmmCherry",
-    title: "Sacrifice",
+    artist: "mmmCherry",
+    title: "The Ferel Asset(nGenesis)",
     genre: "Pop",
     bpm: 190,
     key: "A",
@@ -90,6 +90,41 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [isListening, setIsListening] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
+  // const timer = useRef<NodeJS.Timer | null>(null);
+  const [timerObj, setTimerObj] = useState(() => {
+    var countDownDate = new Date("Oct 12, 2022 00:00:00").getTime();
+    const timeleft = countDownDate - Date.now();
+    const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+    return { days, hours, minutes, seconds };
+  });
+
+  // const countDown = () => {
+  //   const newSeconds = seconds - 1;
+  //   console.log({ seconds, newSeconds });
+  //   setSeconds(newSeconds);
+  // };
+
+  useEffect(() => {
+    let myInterval = setInterval(() => {
+      if (timerObj.seconds > 0) {
+        setTimerObj({ ...timerObj, seconds: timerObj.seconds - 1 });
+      } else if (timerObj.seconds === 0) {
+        setTimerObj({
+          ...timerObj,
+          minutes: timerObj.minutes - 1,
+          seconds: 60,
+        });
+      }
+    }, 1000);
+    return () => {
+      clearInterval(myInterval);
+    };
+  });
 
   const [user, setUser] = useState<{
     name: string;
@@ -118,7 +153,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   };
 
   useEffect(() => {
-    debugger;
     const searchParams = new URLSearchParams(location.hash.slice(1));
     const _accessToken = searchParams.get("access_token");
     const _tokenType = searchParams.get("token_type");
@@ -231,7 +265,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             variant="contained"
             // onClick={onSignInWithFb}
             href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-            startIcon={<img src="/discord.png" alt="" width={"22px"} />}
+            startIcon={<img src="/social/discord.png" alt="" width={"22px"} />}
           >
             Sign In
           </Button>
@@ -239,7 +273,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       </Box>
       <Box
         display="flex"
-        justifyContent="center"
+        gap={6}
+        justifyContent="space-around"
+        flexWrap="wrap"
         p={5}
         style={{
           backgroundImage: `url('${trackDetails?.coverUrl}')`,
@@ -270,14 +306,50 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               <Typography variant="h5" fontWeight="bold">
                 {trackDetails?.title}
               </Typography>
-              <Typography variant="caption">{trackDetails?.artist}</Typography>
+              <Typography variant="body1">{trackDetails?.artist}</Typography>
             </Box>
-            <Box mt={3}>
+            <Box mt={3} display="flex">
               <IconButton
+                sx={{ p: 0 }}
                 href={`//${trackDetails?.tiktokProfileUrl}`}
                 target="_blank"
               >
-                <img src="/tiktok.png" alt="tiktok" />
+                <img src="/social/tiktok.png" alt="tiktok" />
+              </IconButton>
+              <IconButton
+                sx={{ p: 0 }}
+                href={`//${trackDetails?.tiktokProfileUrl}`}
+                target="_blank"
+              >
+                <img src="/social/twitter.png" alt="tiktok" />
+              </IconButton>
+              <IconButton
+                sx={{ p: 0 }}
+                href={`//${trackDetails?.tiktokProfileUrl}`}
+                target="_blank"
+              >
+                <img src="/social/discord-icon.png" alt="tiktok" />
+              </IconButton>
+              <IconButton
+                sx={{ p: 0 }}
+                href={`//${trackDetails?.tiktokProfileUrl}`}
+                target="_blank"
+              >
+                <img src="/social/instagram.png" alt="tiktok" />
+              </IconButton>
+              <IconButton
+                sx={{ p: 0 }}
+                href={`//${trackDetails?.tiktokProfileUrl}`}
+                target="_blank"
+              >
+                <img src="/social/youtube.png" alt="tiktok" />
+              </IconButton>
+              <IconButton
+                sx={{ p: 0 }}
+                href={`//${trackDetails?.tiktokProfileUrl}`}
+                target="_blank"
+              >
+                <img src="/social/spotify.png" alt="tiktok" />
               </IconButton>
             </Box>
             {/* <Box mt={3}>
@@ -286,6 +358,82 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               <Typography>Key: {trackDetails?.key}</Typography>
             </Box> */}
           </Box>
+        </Box>
+        <Box>
+          <Box>
+            <Typography fontWeight="bold" variant="h5">
+              nGenesis Begins In...
+            </Typography>
+          </Box>
+          <Box display="flex">
+            <Box
+              mr={2}
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+              width="35px"
+              fontWeight="bold"
+            >
+              <Typography fontWeight="bold" variant="h4" align="center">
+                {timerObj.days}
+              </Typography>
+              <Typography variant="body2" align="center">
+                days
+              </Typography>
+            </Box>
+            <Box
+              mr={2}
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+              width="35px"
+            >
+              <Typography fontWeight="bold" variant="h4" align="center">
+                {timerObj.hours}
+              </Typography>
+              <Typography variant="body2" align="center">
+                hrs
+              </Typography>
+            </Box>
+            <Box
+              mr={2}
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+              width="35px"
+            >
+              <Typography fontWeight="bold" variant="h4" align="center">
+                {timerObj.minutes}
+              </Typography>
+              <Typography variant="body2" align="center">
+                min
+              </Typography>
+            </Box>
+            <Box
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+              width="35px"
+            >
+              <Typography fontWeight="bold" variant="h4" align="center">
+                {timerObj.seconds}
+              </Typography>
+              <Typography variant="body2" align="center">
+                sec
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+        <Box>
+          <iframe
+            // width="1280"
+            // height="720"
+            src="https://www.youtube.com/embed/Q82uTulAS-0"
+            title="My PERFECT 2022 Home Recording Studio Setup Tour"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
         </Box>
       </Box>
       <Box
@@ -382,7 +530,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         // onClick={onSignInWithFb}
                         href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
                         startIcon={
-                          <img src="/discord.png" alt="" width={"22px"} />
+                          <img
+                            src="/social/discord.png"
+                            alt=""
+                            width={"22px"}
+                          />
                         }
                       >
                         Sign in
