@@ -51,8 +51,16 @@ interface TrackMetadata {
   key: string;
   coverUrl: string;
   profileUrl: string;
-  tiktokProfileUrl: string;
+  tiktokProfileUrl?: string;
   noOfSections: number;
+  socials?: {
+    tiktok: string;
+    twitter: string;
+    discord: string;
+    instagram: string;
+    youtube: string;
+    spotify: string;
+  };
 }
 const tracks: TrackMetadata[] = [
   {
@@ -74,7 +82,14 @@ const tracks: TrackMetadata[] = [
     key: "A",
     coverUrl: "/cherry/banner.jpeg",
     profileUrl: "/cherry/feral.jpeg",
-    tiktokProfileUrl: "https://www.tiktok.com/@mmmcherry",
+    socials: {
+      tiktok: "https://www.tiktok.com/@mmmcherry",
+      twitter: "https://twitter.com/mmmcherry",
+      discord: "https://discord.gg/N8kPyFVavQ",
+      instagram: "https://www.instagram.com/mmmcherrymusic",
+      youtube: "https://www.youtube.com/channel/UCcfGu5v511FNCsrcBqwTafw",
+      spotify: "https://open.spotify.com/artist/2pjOLjJD4lElSnRaeYad57",
+    },
     noOfSections: 12,
   },
 ];
@@ -306,45 +321,45 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             <Box mt={3} display="flex" flexWrap="wrap">
               <IconButton
                 sx={{ p: 0 }}
-                href={`//${trackDetails?.tiktokProfileUrl}`}
+                href={`//${trackDetails?.socials?.tiktok}`}
                 target="_blank"
               >
                 <img src="/social/tiktok.png" alt="tiktok" />
               </IconButton>
               <IconButton
                 sx={{ p: 0 }}
-                href={`//${trackDetails?.tiktokProfileUrl}`}
+                href={`//${trackDetails?.socials?.twitter}`}
                 target="_blank"
               >
-                <img src="/social/twitter.png" alt="tiktok" />
+                <img src="/social/twitter.png" alt="twitter" />
               </IconButton>
               <IconButton
                 sx={{ p: 0 }}
-                href={`//${trackDetails?.tiktokProfileUrl}`}
+                href={`//${trackDetails?.socials?.discord}`}
                 target="_blank"
               >
-                <img src="/social/discord-icon.png" alt="tiktok" />
+                <img src="/social/discord-icon.png" alt="discord" />
               </IconButton>
               <IconButton
                 sx={{ p: 0 }}
-                href={`//${trackDetails?.tiktokProfileUrl}`}
+                href={`//${trackDetails?.socials?.instagram}`}
                 target="_blank"
               >
-                <img src="/social/instagram.png" alt="tiktok" />
+                <img src="/social/instagram.png" alt="instagram" />
               </IconButton>
               <IconButton
                 sx={{ p: 0 }}
-                href={`//${trackDetails?.tiktokProfileUrl}`}
+                href={`//${trackDetails?.socials?.youtube}`}
                 target="_blank"
               >
-                <img src="/social/youtube.png" alt="tiktok" />
+                <img src="/social/youtube.png" alt="youtube" />
               </IconButton>
               <IconButton
                 sx={{ p: 0 }}
-                href={`//${trackDetails?.tiktokProfileUrl}`}
+                href={`//${trackDetails?.socials?.spotify}`}
                 target="_blank"
               >
-                <img src="/social/spotify.png" alt="tiktok" />
+                <img src="/social/spotify.png" alt="spotify" />
               </IconButton>
             </Box>
             {/* <Box mt={3}>
@@ -475,7 +490,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 sx={{
                   opacity: "0",
                   transition: "opacity 0.2s",
-                  background: "rgba(0,0,0,0.6)",
+                  background: "rgba(0,0,0,0.8)",
+                  borderRadius: "6px",
                   "&:hover": {
                     opacity: "1",
                   },
@@ -499,7 +515,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 >
                   {isTokenAlreadyMinted(i + 1) === false && (
                     <Box m={1}>
-                      <Typography variant="body2">Choc #{section}</Typography>
+                      <Typography variant="body2">Feral #{section}</Typography>
                     </Box>
                   )}
                   {isTokenAlreadyMinted(i + 1) && isTokenMintedByUser(i + 1) && (
@@ -549,7 +565,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         Price
                       </Typography>
                       <Typography variant="h6" align="right">
-                        ~$20
+                        {/* ~$20 */}
+                        TBA
                       </Typography>
                     </Box>
                   )}
@@ -587,12 +604,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         <Typography variant="h6" align="center">
           Powered By
         </Typography>
-        <Typography variant="h3" align="center">
+        {/* <Typography variant="h3" align="center">
           NUSIC
-        </Typography>
-        {/* <Box display="flex" justifyContent="center" p={2}>
-          <img src="/NUSIC.png" alt="nusic" width="250px"></img>/
-        </Box> */}
+        </Typography> */}
+        <Box display="flex" justifyContent="center" p={2}>
+          <Button href="//nusic.fm" target="_blank">
+            <img src="/nusic-white.png" alt="nusic" width="250px"></img>
+          </Button>
+        </Box>
       </Box>
     </Box>
   );
