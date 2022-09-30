@@ -83,12 +83,12 @@ const tracks: TrackMetadata[] = [
     coverUrl: "/cherry/banner.jpeg",
     profileUrl: "/cherry/feral.jpeg",
     socials: {
-      tiktok: "https://www.tiktok.com/@mmmcherry",
-      twitter: "https://twitter.com/mmmcherry",
-      discord: "https://discord.gg/N8kPyFVavQ",
-      instagram: "https://www.instagram.com/mmmcherrymusic",
-      youtube: "https://www.youtube.com/channel/UCcfGu5v511FNCsrcBqwTafw",
-      spotify: "https://open.spotify.com/artist/2pjOLjJD4lElSnRaeYad57",
+      tiktok: "tiktok.com/@mmmcherry",
+      twitter: "twitter.com/mmmcherry",
+      discord: "discord.gg/N8kPyFVavQ",
+      instagram: "instagram.com/mmmcherrymusic",
+      youtube: "youtube.com/channel/UCcfGu5v511FNCsrcBqwTafw",
+      spotify: "open.spotify.com/artist/2pjOLjJD4lElSnRaeYad57",
     },
     noOfSections: 12,
   },
@@ -513,13 +513,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   //   }
                   // }}
                 >
-                  {isTokenAlreadyMinted(i + 1) === false && (
-                    <Box m={1}>
-                      <Typography variant="body2">Feral #{section}</Typography>
-                    </Box>
-                  )}
+                  {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
+                  <Box m={1}>
+                    <Typography variant="h6" fontFamily='"BenchNine"'>
+                      Feral #{section}
+                    </Typography>
+                  </Box>
                   {isTokenAlreadyMinted(i + 1) && isTokenMintedByUser(i + 1) && (
-                    <Box m="auto">
+                    <Box display="flex" justifyContent="center">
                       <Button variant="contained" onClick={downloadFile}>
                         Download
                       </Button>
@@ -571,8 +572,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     </Box>
                   )}
                   {isTokenAlreadyMinted(i + 1) && (
-                    <Box position="absolute" bottom={0} right={0} m={1}>
-                      <Typography fontWeight={"bold"}>Minted</Typography>
+                    <Box>
+                      <Typography align="right" fontWeight={"bold"}>
+                        Minted
+                      </Typography>
                     </Box>
                   )}
                 </Box>
@@ -601,7 +604,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         </DialogContent>
       </Dialog>
       <Box mt={4} pb={8}>
-        <Typography variant="h6" align="center">
+        <Typography variant="h5" align="center">
           Powered By
         </Typography>
         {/* <Typography variant="h3" align="center">

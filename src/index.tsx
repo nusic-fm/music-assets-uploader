@@ -17,7 +17,7 @@ import NonVisualizer from "./NonVisualizer";
 
 WebFont.load({
   google: {
-    families: ["Tenor Sans"],
+    families: ["BenchNine", "Space Mono", "Tenor Sans"],
   },
 });
 
@@ -60,10 +60,16 @@ const themeSettings = createTheme({
     background: { paper: "#16162A" },
   },
   typography: {
+    button: {
+      fontFamily: '"Space Mono" , sans-serif',
+    },
+    h5: {
+      fontFamily: '"BenchNine"',
+    },
     allVariants: {
       color: "#ffffff",
     },
-    fontFamily: `"Tenor Sans" , sans-serif`,
+    fontFamily: `"Space Mono" , sans-serif`,
   },
 });
 const theme = responsiveFontSizes(themeSettings);
