@@ -68,7 +68,7 @@ const tracks: TrackMetadata[] = [
   },
   {
     artist: "mmmCherry",
-    title: "The Ferel Asset(nGenesis)",
+    title: "The Ferel Asset (nGenesis)",
     genre: "Pop",
     bpm: 190,
     key: "A",
@@ -90,9 +90,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [isListening, setIsListening] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
-  // const timer = useRef<NodeJS.Timer | null>(null);
-  const [timerObj, setTimerObj] = useState(() => {
-    var countDownDate = new Date("Oct 12, 2022 00:00:00").getTime();
+
+  const getTimerObj = () => {
+    const countDownDate = new Date("Oct 12, 2022 00:00:00").getTime();
     const timeleft = countDownDate - Date.now();
     const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
@@ -101,7 +101,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
     return { days, hours, minutes, seconds };
-  });
+  };
+  // const timer = useRef<NodeJS.Timer | null>(null);
+  const [timerObj, setTimerObj] = useState(getTimerObj);
 
   // const countDown = () => {
   //   const newSeconds = seconds - 1;
@@ -110,21 +112,13 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   // };
 
   useEffect(() => {
-    let myInterval = setInterval(() => {
-      if (timerObj.seconds > 0) {
-        setTimerObj({ ...timerObj, seconds: timerObj.seconds - 1 });
-      } else if (timerObj.seconds === 0) {
-        setTimerObj({
-          ...timerObj,
-          minutes: timerObj.minutes - 1,
-          seconds: 60,
-        });
-      }
+    const myInterval = setInterval(() => {
+      setTimerObj(getTimerObj());
     }, 1000);
     return () => {
       clearInterval(myInterval);
     };
-  });
+  }, [timerObj]);
 
   const [user, setUser] = useState<{
     name: string;
@@ -276,7 +270,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         gap={6}
         justifyContent="space-around"
         flexWrap="wrap"
-        p={5}
+        p={{ xs: 2, sm: 5 }}
         style={{
           backgroundImage: `url('${trackDetails?.coverUrl}')`,
           backgroundRepeat: "no-repeat",
@@ -308,7 +302,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               </Typography>
               <Typography variant="body1">{trackDetails?.artist}</Typography>
             </Box>
-            <Box mt={3} display="flex">
+            <Box mt={3} display="flex" flexWrap="wrap">
               <IconButton
                 sx={{ p: 0 }}
                 href={`//${trackDetails?.tiktokProfileUrl}`}
@@ -365,9 +359,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               nGenesis Begins In...
             </Typography>
           </Box>
-          <Box display="flex">
+          <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
             <Box
-              mr={2}
+              // mr={2}
               mt={2}
               p={2}
               sx={{ border: "2px solid white", borderRadius: "6px" }}
@@ -382,7 +376,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               </Typography>
             </Box>
             <Box
-              mr={2}
+              // mr={2}
               mt={2}
               p={2}
               sx={{ border: "2px solid white", borderRadius: "6px" }}
@@ -396,7 +390,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               </Typography>
             </Box>
             <Box
-              mr={2}
+              // mr={2}
               mt={2}
               p={2}
               sx={{ border: "2px solid white", borderRadius: "6px" }}
@@ -426,7 +420,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         </Box>
         <Box>
           <iframe
-            // width="1280"
+            width="100%"
             // height="720"
             src="https://www.youtube.com/embed/Q82uTulAS-0"
             title="My PERFECT 2022 Home Recording Studio Setup Tour"
