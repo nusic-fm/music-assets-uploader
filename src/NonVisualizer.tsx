@@ -543,7 +543,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     </Box>
                   )} */}
                   <Button disabled variant="contained">
-                    Coming soon
+                    Reveal soon
                   </Button>
                   {/* {isTokenAlreadyMinted(i + 1) === false &&
                     (user ? (
