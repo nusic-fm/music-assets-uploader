@@ -260,10 +260,10 @@ export const MarketPlace = () => {
     };
   };
 
-  useEffect(() => {
-    login();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   login();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
     width: number;
