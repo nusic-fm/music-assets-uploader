@@ -181,6 +181,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       provider
     );
     if (isAttachListener) {
+      console.log("Listening");
       contract.on("Minted", (to, id, parentTokenId, tokenId) => {
         setIsListening(false);
         if (id === user?.id) setNewlyMintedToken(tokenId.toString());
@@ -442,6 +443,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           .slice(0, trackDetails?.noOfSections)
           .map((section: string, i: number) => (
             <Box
+              key={i}
               width={200}
               height={200}
               position="relative"
