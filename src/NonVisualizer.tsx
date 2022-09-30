@@ -76,7 +76,7 @@ const tracks: TrackMetadata[] = [
   },
   {
     artist: "mmmCherry",
-    title: "The Ferel Asset (nGenesis)",
+    title: "The Feral Asset (nGenesis)",
     genre: "Pop",
     bpm: 190,
     key: "A",
@@ -387,7 +387,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               <Typography fontWeight="bold" variant="h4" align="center">
                 {timerObj.days}
               </Typography>
-              <Typography variant="body2" align="center">
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
                 days
               </Typography>
             </Box>
@@ -401,7 +401,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               <Typography fontWeight="bold" variant="h4" align="center">
                 {timerObj.hours}
               </Typography>
-              <Typography variant="body2" align="center">
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
                 hrs
               </Typography>
             </Box>
@@ -415,7 +415,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               <Typography fontWeight="bold" variant="h4" align="center">
                 {timerObj.minutes}
               </Typography>
-              <Typography variant="body2" align="center">
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
                 min
               </Typography>
             </Box>
@@ -428,7 +428,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               <Typography fontWeight="bold" variant="h4" align="center">
                 {timerObj.seconds}
               </Typography>
-              <Typography variant="body2" align="center">
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
                 sec
               </Typography>
             </Box>
@@ -438,7 +438,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           <iframe
             width="100%"
             // height="720"
-            src="https://www.youtube.com/embed/Q82uTulAS-0"
+            src="https://www.youtube.com/embed/mqdVtek28_Q"
             title="My PERFECT 2022 Home Recording Studio Setup Tour"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -488,6 +488,21 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 width="100%"
                 height="100%"
                 sx={{
+                  opacity: "0.6",
+                  // transition: "opacity 0.2s",
+                  background: "rgba(0,0,0,0.8)",
+                  borderRadius: "6px",
+                  "&:hover": {
+                    opacity: "0",
+                  },
+                }}
+              />
+              <Box
+                position="absolute"
+                top={0}
+                width="100%"
+                height="100%"
+                sx={{
                   opacity: "0",
                   transition: "opacity 0.2s",
                   background: "rgba(0,0,0,0.8)",
@@ -515,18 +530,21 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 >
                   {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
                   <Box m={1}>
-                    <Typography variant="h6" fontFamily='"BenchNine"'>
+                    <Typography variant="h6" fontFamily="BenchNine">
                       Feral #{section}
                     </Typography>
                   </Box>
-                  {isTokenAlreadyMinted(i + 1) && isTokenMintedByUser(i + 1) && (
+                  {/* {isTokenAlreadyMinted(i + 1) && isTokenMintedByUser(i + 1) && (
                     <Box display="flex" justifyContent="center">
                       <Button variant="contained" onClick={downloadFile}>
                         Download
                       </Button>
                     </Box>
-                  )}
-                  {isTokenAlreadyMinted(i + 1) === false &&
+                  )} */}
+                  <Button disabled variant="contained">
+                    Coming soon
+                  </Button>
+                  {/* {isTokenAlreadyMinted(i + 1) === false &&
                     (user ? (
                       <CrossmintPayButton
                         onClick={() => {
@@ -559,25 +577,24 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                       >
                         Sign in
                       </Button>
-                    ))}
-                  {isTokenAlreadyMinted(i + 1) === false && (
-                    <Box>
-                      <Typography variant="subtitle2" align="right">
-                        Price
-                      </Typography>
-                      <Typography variant="h6" align="right">
-                        {/* ~$20 */}
-                        TBA
-                      </Typography>
-                    </Box>
-                  )}
-                  {isTokenAlreadyMinted(i + 1) && (
+                    ))} */}
+                  {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
+                  <Box>
+                    <Typography variant="subtitle2" align="right">
+                      Price
+                    </Typography>
+                    <Typography variant="h6" align="right">
+                      {/* ~$20 */}
+                      TBA
+                    </Typography>
+                  </Box>
+                  {/* {isTokenAlreadyMinted(i + 1) && (
                     <Box>
                       <Typography align="right" fontWeight={"bold"}>
                         Minted
                       </Typography>
                     </Box>
-                  )}
+                  )} */}
                 </Box>
               </Box>
             </Box>
