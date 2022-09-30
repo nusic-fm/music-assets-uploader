@@ -72,8 +72,8 @@ const tracks: TrackMetadata[] = [
     genre: "Pop",
     bpm: 190,
     key: "A",
-    coverUrl: "/artist-covers/cherry-test.jpg",
-    profileUrl: "/artist-covers/cherry.jpeg",
+    coverUrl: "/cherry/banner.jpeg",
+    profileUrl: "/cherry/feral.jpeg",
     tiktokProfileUrl: "https://www.tiktok.com/@mmmcherry",
     noOfSections: 12,
   },
@@ -92,7 +92,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
 
   const getTimerObj = () => {
-    const countDownDate = new Date("Oct 12, 2022 00:00:00").getTime();
+    const countDownDate = new Date("2022-10-14T20:00:00.000-07:00").getTime();
     const timeleft = countDownDate - Date.now();
     const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
@@ -276,7 +276,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           backgroundImage: `url('${trackDetails?.coverUrl}')`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
-          backgroundPosition: "10% 60%",
+          backgroundPosition: "top right",
           boxShadow: "inset 0 0 0 1000px rgba(67,50,152,65%)",
         }}
       >
@@ -449,7 +449,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               position="relative"
               borderRadius="6px"
             >
-              <video
+              <img
+                src={`/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`}
+                alt=""
+                width="100%"
+                height="100%"
+                style={{ borderRadius: "6px" }}
+              ></img>
+              {/* <video
                 width="100%"
                 height="100%"
                 autoPlay
@@ -459,7 +466,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 style={{ borderRadius: "6px" }}
               >
                 <source src="bg.mp4" type="video/mp4" />
-              </video>
+              </video> */}
               <Box
                 position="absolute"
                 top={0}
