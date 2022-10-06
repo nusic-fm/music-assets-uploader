@@ -268,7 +268,23 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
-      <Box p={2} display="flex" justifyContent="end">
+      <Box
+        p={2}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Box
+          style={{
+            background: `url(/cherry/logo.png)`,
+            objectFit: "cover",
+            width: "130px",
+            height: "50px",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transform: "scale(2)",
+          }}
+        ></Box>
         {user ? (
           <Chip label={user.name} />
         ) : (
