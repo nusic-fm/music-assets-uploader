@@ -8,6 +8,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -16,6 +17,7 @@ import { useEffect, useState } from "react";
 import SolAbi from "./abis/SolAbi.json";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { logFirebaseEvent } from "./services/firebase.service";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -108,15 +110,19 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
 
   const getTimerObj = () => {
-    const countDownDate = new Date("2022-10-14T20:00:00.000-07:00").getTime();
+    const revealDate = "2022-10-14T20:00:00.000-07:00";
+    const countDownDate = new Date(revealDate).getTime();
     const timeleft = countDownDate - Date.now();
+    if (timeleft <= 0) {
+      return { isRevealed: true };
+    }
     const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
       (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
     );
     const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-    return { days, hours, minutes, seconds };
+    return { days, hours, minutes, seconds, isRevealed: false };
   };
   // const timer = useRef<NodeJS.Timer | null>(null);
   const [timerObj, setTimerObj] = useState(getTimerObj);
@@ -266,6 +272,13 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const isTokenMintedByUser = (id: number) =>
     ownTokenIds.includes(id.toString());
 
+  const onSpotifyId = (e: any) => {
+    logFirebaseEvent("select_content", {
+      content_type: "spotifyId",
+      content_id: e.target.value,
+    });
+  };
+
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
       <Box
@@ -314,144 +327,189 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       >
         <Box
           display="flex"
-          gap={6}
-          alignItems="center"
-          justifyContent="center"
-          flexWrap="wrap"
+          flexDirection="column"
+          justifyContent="space-between"
         >
-          <Box>
-            <img
-              src={trackDetails?.profileUrl}
-              alt=""
-              width="150px"
-              height="150px"
-              style={{ borderRadius: "6px" }}
-            ></img>
-          </Box>
-          <Box>
+          <Box
+            display="flex"
+            gap={6}
+            alignItems="center"
+            justifyContent="center"
+            flexWrap="wrap"
+          >
             <Box>
-              <Typography variant="h5" fontWeight="bold">
-                {trackDetails?.title}
-              </Typography>
-              <Typography variant="body1">{trackDetails?.artist}</Typography>
+              <img
+                src={trackDetails?.profileUrl}
+                alt=""
+                width="150px"
+                height="150px"
+                style={{ borderRadius: "6px" }}
+              ></img>
             </Box>
-            <Box mt={3} display="flex" flexWrap="wrap">
-              <IconButton
-                sx={{ p: 0 }}
-                href={`//${trackDetails?.socials?.tiktok}`}
-                target="_blank"
-              >
-                <img src="/social/tiktok.png" alt="tiktok" />
-              </IconButton>
-              <IconButton
-                sx={{ p: 0 }}
-                href={`//${trackDetails?.socials?.twitter}`}
-                target="_blank"
-              >
-                <img src="/social/twitter.png" alt="twitter" />
-              </IconButton>
-              <IconButton
-                sx={{ p: 0 }}
-                href={`//${trackDetails?.socials?.discord}`}
-                target="_blank"
-              >
-                <img src="/social/discord-icon.png" alt="discord" />
-              </IconButton>
-              <IconButton
-                sx={{ p: 0 }}
-                href={`//${trackDetails?.socials?.instagram}`}
-                target="_blank"
-              >
-                <img src="/social/instagram.png" alt="instagram" />
-              </IconButton>
-              <IconButton
-                sx={{ p: 0 }}
-                href={`//${trackDetails?.socials?.youtube}`}
-                target="_blank"
-              >
-                <img src="/social/youtube.png" alt="youtube" />
-              </IconButton>
-              <IconButton
-                sx={{ p: 0 }}
-                href={`//${trackDetails?.socials?.spotify}`}
-                target="_blank"
-              >
-                <img src="/social/spotify.png" alt="spotify" />
-              </IconButton>
-            </Box>
-            {/* <Box mt={3}>
+            <Box>
+              <Box>
+                <Typography variant="h5" fontWeight="bold">
+                  {trackDetails?.title}
+                </Typography>
+                <Typography variant="body1">{trackDetails?.artist}</Typography>
+              </Box>
+              <Box mt={3} display="flex" flexWrap="wrap">
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.tiktok}`}
+                  target="_blank"
+                >
+                  <img src="/social/tiktok.png" alt="tiktok" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.twitter}`}
+                  target="_blank"
+                >
+                  <img src="/social/twitter.png" alt="twitter" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.discord}`}
+                  target="_blank"
+                >
+                  <img src="/social/discord-icon.png" alt="discord" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.instagram}`}
+                  target="_blank"
+                >
+                  <img src="/social/instagram.png" alt="instagram" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.youtube}`}
+                  target="_blank"
+                >
+                  <img src="/social/youtube.png" alt="youtube" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.spotify}`}
+                  target="_blank"
+                >
+                  <img src="/social/spotify.png" alt="spotify" />
+                </IconButton>
+              </Box>
+              {/* <Box mt={3}>
               <Typography>Genre: {trackDetails?.genre}</Typography>
               <Typography> Bpm: {trackDetails?.bpm} </Typography>
               <Typography>Key: {trackDetails?.key}</Typography>
             </Box> */}
+            </Box>
           </Box>
-        </Box>
-        <Box>
           <Box>
-            <Typography fontWeight="bold" variant="h5">
-              nGenesis Begins In...
+            <Typography variant="caption" fontWeight="bold">
+              Web-3 Music Developer // Epistemologist // Producer // Engineer //
+              Artist
             </Typography>
           </Box>
-          <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
-            <Box
-              // mr={2}
-              mt={2}
-              p={2}
-              sx={{ border: "2px solid white", borderRadius: "6px" }}
-              width="35px"
-              fontWeight="bold"
-            >
-              <Typography fontWeight="bold" variant="h4" align="center">
-                {timerObj.days}
-              </Typography>
-              <Typography variant="body2" align="center" fontFamily="BenchNine">
-                days
+        </Box>
+
+        {timerObj.isRevealed === false && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="space-between"
+          >
+            <Box>
+              <Typography fontWeight="bold" variant="h5">
+                nGenesis Begins In...
               </Typography>
             </Box>
-            <Box
-              // mr={2}
-              mt={2}
-              p={2}
-              sx={{ border: "2px solid white", borderRadius: "6px" }}
-              width="35px"
-            >
-              <Typography fontWeight="bold" variant="h4" align="center">
-                {timerObj.hours}
-              </Typography>
-              <Typography variant="body2" align="center" fontFamily="BenchNine">
-                hrs
-              </Typography>
+            <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
+              <Box
+                // mr={2}
+                mt={2}
+                p={2}
+                sx={{ border: "2px solid white", borderRadius: "6px" }}
+                width="35px"
+                fontWeight="bold"
+              >
+                <Typography fontWeight="bold" variant="h4" align="center">
+                  {timerObj.days}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  align="center"
+                  fontFamily="BenchNine"
+                >
+                  days
+                </Typography>
+              </Box>
+              <Box
+                // mr={2}
+                mt={2}
+                p={2}
+                sx={{ border: "2px solid white", borderRadius: "6px" }}
+                width="35px"
+              >
+                <Typography fontWeight="bold" variant="h4" align="center">
+                  {timerObj.hours}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  align="center"
+                  fontFamily="BenchNine"
+                >
+                  hrs
+                </Typography>
+              </Box>
+              <Box
+                // mr={2}
+                mt={2}
+                p={2}
+                sx={{ border: "2px solid white", borderRadius: "6px" }}
+                width="35px"
+              >
+                <Typography fontWeight="bold" variant="h4" align="center">
+                  {timerObj.minutes}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  align="center"
+                  fontFamily="BenchNine"
+                >
+                  min
+                </Typography>
+              </Box>
+              <Box
+                mt={2}
+                p={2}
+                sx={{ border: "2px solid white", borderRadius: "6px" }}
+                width="35px"
+              >
+                <Typography fontWeight="bold" variant="h4" align="center">
+                  {timerObj.seconds}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  align="center"
+                  fontFamily="BenchNine"
+                >
+                  sec
+                </Typography>
+              </Box>
             </Box>
-            <Box
-              // mr={2}
-              mt={2}
-              p={2}
-              sx={{ border: "2px solid white", borderRadius: "6px" }}
-              width="35px"
-            >
-              <Typography fontWeight="bold" variant="h4" align="center">
-                {timerObj.minutes}
-              </Typography>
-              <Typography variant="body2" align="center" fontFamily="BenchNine">
-                min
-              </Typography>
-            </Box>
-            <Box
-              mt={2}
-              p={2}
-              sx={{ border: "2px solid white", borderRadius: "6px" }}
-              width="35px"
-            >
-              <Typography fontWeight="bold" variant="h4" align="center">
-                {timerObj.seconds}
-              </Typography>
-              <Typography variant="body2" align="center" fontFamily="BenchNine">
-                sec
+            <Box>
+              <Typography variant="caption" fontWeight="bold">
+                nGenesis is the foundational Web3 label, powering the evolution
+                of music
               </Typography>
             </Box>
           </Box>
-        </Box>
-        <Box>
+        )}
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+        >
           <iframe
             width="100%"
             // height="720"
@@ -461,6 +519,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
+
+          <Box>
+            <Typography variant="caption" fontWeight="bold">
+              Be the first to hear & publish clips from mmmCherry's track
+            </Typography>
+          </Box>
         </Box>
       </Box>
       <Box
@@ -537,13 +601,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   flexDirection="column"
                   justifyContent="space-between"
                   p={1}
-                  // onClick={() => {
-                  //   if (!firstClick) {
-                  //     setFirstClick(true);
-                  //   } else {
-                  //     setShowDownloadIdx(section);
-                  //   }
-                  // }}
                 >
                   {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
                   <Box m={1}>
@@ -551,17 +608,22 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                       Feral #{section}
                     </Typography>
                   </Box>
-                  {/* {isTokenAlreadyMinted(i + 1) && isTokenMintedByUser(i + 1) && (
-                    <Box display="flex" justifyContent="center">
-                      <Button variant="contained" onClick={downloadFile}>
-                        Download
-                      </Button>
-                    </Box>
-                  )} */}
-                  <Button disabled variant="contained">
-                    Reveal soon
-                  </Button>
-                  {/* {isTokenAlreadyMinted(i + 1) === false &&
+                  {timerObj.isRevealed &&
+                    isTokenAlreadyMinted(i + 1) &&
+                    isTokenMintedByUser(i + 1) && (
+                      <Box display="flex" justifyContent="center">
+                        <Button variant="contained" onClick={downloadFile}>
+                          Download
+                        </Button>
+                      </Box>
+                    )}
+                  {timerObj.isRevealed === false && (
+                    <Button disabled variant="contained">
+                      Reveal soon
+                    </Button>
+                  )}
+                  {timerObj.isRevealed &&
+                    isTokenAlreadyMinted(i + 1) === false &&
                     (user ? (
                       <CrossmintPayButton
                         onClick={() => {
@@ -594,24 +656,25 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                       >
                         Sign in
                       </Button>
-                    ))} */}
+                    ))}
                   {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                  <Box>
-                    <Typography variant="subtitle2" align="right">
-                      Price
-                    </Typography>
-                    <Typography variant="h6" align="right">
-                      {/* ~$20 */}
-                      TBA
-                    </Typography>
-                  </Box>
-                  {/* {isTokenAlreadyMinted(i + 1) && (
+                  {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
                     <Box>
                       <Typography align="right" fontWeight={"bold"}>
                         Minted
                       </Typography>
                     </Box>
-                  )} */}
+                  ) : (
+                    <Box>
+                      <Typography variant="subtitle2" align="right">
+                        Price
+                      </Typography>
+                      <Typography variant="h6" align="right">
+                        {/* ~$20 */}
+                        TBA
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             </Box>
@@ -648,6 +711,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           <Button href="//nusic.fm" target="_blank">
             <img src="/nusic-white.png" alt="nusic" width="250px"></img>
           </Button>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="h5">
+            The decentralized financial rails for music
+          </Typography>
+          <Box my={2}>
+            <TextField placeholder="Spotify Artist ID" onChange={onSpotifyId} />
+          </Box>
+          <Typography variant="h5">Plug in your music now</Typography>
         </Box>
       </Box>
     </Box>
