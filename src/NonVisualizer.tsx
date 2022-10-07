@@ -18,6 +18,7 @@ import SolAbi from "./abis/SolAbi.json";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { logFirebaseEvent } from "./services/firebase.service";
+import { createUser, updateUser } from "./services/db/users.service";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -160,6 +161,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         headers: { Authorization: `${_tokenType} ${_accessToken}` },
       });
       const { username, id, avatar } = response.data;
+      await createUser(id, { name: username, uid: id, avatar });
       // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
       setUser({ name: username, id, avatar });
       window.history.replaceState(null, "", window.location.origin);
@@ -273,9 +275,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     ownTokenIds.includes(id.toString());
 
   const onSpotifyId = (e: any) => {
+    if (!user?.id) {
+      alert("Please sign in and try again.");
+      return;
+    }
+    updateUser(user.id, { artistId: e.clipboardData.getData("text") });
     logFirebaseEvent("select_content", {
       content_type: "spotifyId",
-      content_id: e.target.value,
+      content_id: e.clipboardData.getData("text"),
     });
   };
 
@@ -722,7 +729,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             The decentralized financial rails for music
           </Typography>
           <Box my={2}>
-            <TextField placeholder="Spotify Artist ID" onChange={onSpotifyId} />
+            <TextField
+              placeholder="Spotify Artist ID"
+              // onChange={onSpotifyId}
+              onPaste={onSpotifyId}
+            />
           </Box>
           <Typography variant="h5">Plug in your music now</Typography>
         </Box>
