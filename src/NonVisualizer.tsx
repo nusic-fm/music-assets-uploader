@@ -19,6 +19,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { logFirebaseEvent } from "./services/firebase.service";
 import { createUser, updateUser } from "./services/db/users.service";
+import SaveIcon from "@mui/icons-material/Save";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -109,6 +110,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [isListening, setIsListening] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
+  const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
 
   const getTimerObj = () => {
     const revealDate = "2022-10-14T20:00:00.000-07:00";
@@ -279,11 +281,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       alert("Please sign in and try again.");
       return;
     }
-    updateUser(user.id, { artistId: e.clipboardData.getData("text") });
+    updateUser(user.id, { artistId: spotifyArtistId });
     logFirebaseEvent("select_content", {
-      content_type: "spotifyId",
-      content_id: e.clipboardData.getData("text"),
+      content_type: "spotifyArtistId",
+      content_id: spotifyArtistId,
     });
+    alert("successfully submitted");
   };
 
   return (
@@ -336,6 +339,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           display="flex"
           flexDirection="column"
           justifyContent="space-between"
+          gap={2}
         >
           <Box
             display="flex"
@@ -412,7 +416,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             </Box>
           </Box>
           <Box>
-            <Typography variant="caption" fontWeight="bold">
+            <Typography
+              // variant="caption"
+              // fontWeight="bold"
+              fontFamily="BenchNine"
+            >
               Web-3 Music Developer // Epistemologist // Producer // Engineer //
               Artist
             </Typography>
@@ -424,6 +432,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             display="flex"
             flexDirection="column"
             justifyContent="space-between"
+            gap={2}
           >
             <Box>
               <Typography fontWeight="bold" variant="h5">
@@ -505,7 +514,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               </Box>
             </Box>
             <Box>
-              <Typography variant="caption" fontWeight="bold">
+              <Typography
+                // variant="caption"
+                // fontWeight="bold"
+                fontFamily="BenchNine"
+              >
                 nGenesis is the foundational Web3 label, powering the evolution
                 of music
               </Typography>
@@ -516,6 +529,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           display="flex"
           flexDirection="column"
           justifyContent="space-between"
+          gap={2}
         >
           <iframe
             width="100%"
@@ -528,7 +542,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           ></iframe>
 
           <Box>
-            <Typography variant="caption" fontWeight="bold">
+            <Typography
+              // variant="caption"
+              // fontWeight="bold"
+              fontFamily="BenchNine"
+            >
               Be the first to hear & publish clips from mmmCherry's track
             </Typography>
           </Box>
@@ -731,8 +749,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           <Box my={2}>
             <TextField
               placeholder="Spotify Artist ID"
-              // onChange={onSpotifyId}
-              onPaste={onSpotifyId}
+              onChange={(e) => setSpotifyArtistId(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton onClick={onSpotifyId} size="small">
+                    <SaveIcon />
+                  </IconButton>
+                ),
+              }}
             />
           </Box>
           <Typography variant="h5">Plug in your music now</Typography>
