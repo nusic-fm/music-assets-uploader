@@ -18,8 +18,13 @@ import SolAbi from "./abis/SolAbi.json";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { logFirebaseEvent } from "./services/firebase.service";
-import { createUser, updateUser } from "./services/db/users.service";
+import {
+  createUser,
+  getUserDocsFromIds,
+  updateUser,
+} from "./services/db/users.service";
 import SaveIcon from "@mui/icons-material/Save";
+import { User } from "./models/User";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -98,6 +103,23 @@ const tracks: TrackMetadata[] = [
     noOfSections: 12,
   },
 ];
+
+const getTimerObj = () => {
+  const revealDate = "2022-10-14T20:00:00.000-07:00";
+  const countDownDate = new Date(revealDate).getTime();
+  const timeleft = countDownDate - Date.now();
+  if (timeleft <= 0) {
+    return { isRevealed: true };
+  }
+  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+  return { days, hours, minutes, seconds, isRevealed: false };
+};
+
 const NonVisualizer = (props: { trackIdx: number }) => {
   const { trackIdx } = props;
   // const [firstClick, setFirstClick] = useState(false);
@@ -111,22 +133,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
   const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
+  const [mintedTokenUserDetails, setMintedTokenUserDetails] = useState<{
+    [key: string]: User;
+  }>({});
 
-  const getTimerObj = () => {
-    const revealDate = "2022-10-14T20:00:00.000-07:00";
-    const countDownDate = new Date(revealDate).getTime();
-    const timeleft = countDownDate - Date.now();
-    if (timeleft <= 0) {
-      return { isRevealed: true };
-    }
-    const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-    return { days, hours, minutes, seconds, isRevealed: false };
-  };
   // const timer = useRef<NodeJS.Timer | null>(null);
   const [timerObj, setTimerObj] = useState(getTimerObj);
 
@@ -214,14 +224,32 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       });
     }
     const listOfData = await contract.getChildrenMetadata(0);
-    const tokenIds = listOfData
-      .filter((data: any) => data.isMinted)
-      .map((data: any) => data.tokenId.toString());
-    const _ownTokenIds = listOfData
-      .filter((data: any) => data.isMinted && data.id === user?.id)
+    const _mintedTokens = listOfData.filter(
+      (data: any) => data.isMinted
+    ) as any;
+
+    const userIds = listOfData
+      .map((data: any) => data.id)
+      .filter((data: any) => data.length);
+
+    const usersDetails = await getUserDocsFromIds(userIds);
+    const _ownTokenIds = _mintedTokens
+      .filter((data: any) => data.id === user?.id)
       .map((data: any) => data.tokenId.toString());
     setOwnTokenIds(_ownTokenIds);
+
+    const tokenIds = _mintedTokens.map((data: any) => data.tokenId.toString());
     setMintedTokenIds(tokenIds);
+
+    const userDetailsObj: { [key: string]: User } = {};
+    usersDetails.map((user) => {
+      const tokenDetails = _mintedTokens.filter(
+        (data: any) => data.id === user.uid
+      )[0];
+      if (tokenDetails) userDetailsObj[tokenDetails.tokenId.toString()] = user;
+      return "";
+    });
+    setMintedTokenUserDetails(userDetailsObj);
     const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
     Array.from(buyButtons).map((btn: any) => {
       const icon = btn?.firstChild;
@@ -279,6 +307,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const onSpotifyId = (e: any) => {
     if (!user?.id) {
       alert("Please sign in and try again.");
+      return;
+    }
+    if (!spotifyArtistId?.length) {
+      alert("Please enter valid Spotify Artist ID");
       return;
     }
     updateUser(user.id, { artistId: spotifyArtistId });
@@ -685,8 +717,21 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
                   {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
                     <Box>
-                      <Typography align="right" fontWeight={"bold"}>
-                        Minted
+                      <Typography align="right">Minted by:</Typography>
+                      <Box display="flex" justifyContent="end" mt={1}>
+                        <img
+                          src={`https://cdn.discordapp.com/avatars/${
+                            mintedTokenUserDetails[(i + 1).toString()]?.uid
+                          }/${
+                            mintedTokenUserDetails[(i + 1).toString()]?.avatar
+                          }.png`}
+                          alt="profile"
+                          width={45}
+                          style={{ borderRadius: "50%" }}
+                        />
+                      </Box>
+                      <Typography align="right" fontFamily="BenchNine">
+                        {mintedTokenUserDetails[(i + 1).toString()]?.name}
                       </Typography>
                     </Box>
                   ) : (
@@ -750,16 +795,21 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             <TextField
               placeholder="Spotify Artist ID"
               onChange={(e) => setSpotifyArtistId(e.target.value)}
-              InputProps={{
-                endAdornment: (
-                  <IconButton onClick={onSpotifyId} size="small">
-                    <SaveIcon />
-                  </IconButton>
-                ),
-              }}
             />
           </Box>
-          <Typography variant="h5">Plug in your music now</Typography>
+          <Button
+            variant="contained"
+            onClick={onSpotifyId}
+            // size="small"
+            sx={{
+              fontFamily: "BenchNine",
+              borderRadius: "18px",
+              // textTransform: "unset",
+              // fontWeight: "900",
+            }}
+          >
+            Plug in your music now
+          </Button>
         </Box>
       </Box>
     </Box>

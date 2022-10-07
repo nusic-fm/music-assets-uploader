@@ -1,4 +1,13 @@
-import { doc, updateDoc, setDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  setDoc,
+  getDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { User } from "../../models/User";
 import { db } from "../firebase.service";
 
@@ -18,4 +27,14 @@ const updateUser = async (uid: string, obj: Partial<User>): Promise<void> => {
   await updateDoc(userRef, obj);
 };
 
-export { createUser, updateUser };
+const getUserDocsFromIds = async (ids: string[]) => {
+  const q = query(collection(db, "users"), where("uid", "in", ids));
+  const querySnapshots = await getDocs(q);
+  const users: User[] = [];
+  querySnapshots.forEach((doc) => {
+    users.push(doc.data() as User);
+  });
+  return users;
+};
+
+export { createUser, updateUser, getUserDocsFromIds };
