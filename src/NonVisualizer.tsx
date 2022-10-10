@@ -243,10 +243,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
     const userDetailsObj: { [key: string]: User } = {};
     usersDetails.map((user) => {
-      const tokenDetails = _mintedTokens.filter(
+      const tokensDetails = _mintedTokens.filter(
         (data: any) => data.id === user.uid
-      )[0];
-      if (tokenDetails) userDetailsObj[tokenDetails.tokenId.toString()] = user;
+      );
+      if (tokensDetails.length)
+        tokensDetails.map(
+          (tokenDetails: any) =>
+            (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+        );
       return "";
     });
     setMintedTokenUserDetails(userDetailsObj);
