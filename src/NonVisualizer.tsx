@@ -197,7 +197,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
   useEffect(() => {
     if (newlyMintedToken) {
-      downloadFile();
+      downloadFile(newlyMintedToken);
       setListOfMintedTokens(false);
     }
   }, [newlyMintedToken]);
@@ -274,8 +274,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     }
   }, [user]);
 
-  const downloadFile = () => {
+  const downloadFile = (tokenId: string) => {
     setIsDownloading(true);
+    // TODO:
     fetch("https://assets.nusic.fm/bg.mp4")
       .then((resp) => resp.blob())
       .then((blob) => {
@@ -669,7 +670,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     isTokenAlreadyMinted(i + 1) &&
                     isTokenMintedByUser(i + 1) && (
                       <Box display="flex" justifyContent="center">
-                        <Button variant="contained" onClick={downloadFile}>
+                        <Button
+                          variant="contained"
+                          onClick={() => downloadFile((i + 1).toString())}
+                        >
                           Download
                         </Button>
                       </Box>
@@ -717,22 +721,34 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
                   {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
                     <Box>
-                      <Typography align="right">Minted by:</Typography>
-                      <Box display="flex" justifyContent="end" mt={1}>
-                        <img
-                          src={`https://cdn.discordapp.com/avatars/${
-                            mintedTokenUserDetails[(i + 1).toString()]?.uid
-                          }/${
-                            mintedTokenUserDetails[(i + 1).toString()]?.avatar
-                          }.png`}
-                          alt="profile"
-                          width={45}
-                          style={{ borderRadius: "50%" }}
-                        />
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="end"
+                        mt={1}
+                      >
+                        <Typography>Minted by:</Typography>
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="center"
+                          mt={0.5}
+                        >
+                          <img
+                            src={`https://cdn.discordapp.com/avatars/${
+                              mintedTokenUserDetails[(i + 1).toString()]?.uid
+                            }/${
+                              mintedTokenUserDetails[(i + 1).toString()]?.avatar
+                            }.png`}
+                            alt="profile"
+                            width={45}
+                            style={{ borderRadius: "50%" }}
+                          />
+                          <Typography fontFamily="BenchNine">
+                            {mintedTokenUserDetails[(i + 1).toString()]?.name}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Typography align="right" fontFamily="BenchNine">
-                        {mintedTokenUserDetails[(i + 1).toString()]?.name}
-                      </Typography>
                     </Box>
                   ) : (
                     <Box>
