@@ -565,7 +565,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         >
           <iframe
             width="100%"
-            // height="720"
+            height="100%"
             src="https://www.youtube.com/embed/mqdVtek28_Q"
             title="My PERFECT 2022 Home Recording Studio Setup Tour"
             frameBorder="0"
