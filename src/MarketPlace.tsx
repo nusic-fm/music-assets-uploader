@@ -756,7 +756,7 @@ export const MarketPlace = () => {
         display="flex"
         alignItems="center"
       >
-        <Typography variant="h4">NUSIC Marketplace</Typography>
+        <Typography variant="h4">NUSIC</Typography>
         <Box ml={2}>
           <Chip label="BETA" size="small" sx={{ paddingX: "15px" }} />
         </Box>

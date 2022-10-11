@@ -7,12 +7,12 @@ export const injectedConnector = new InjectedConnector({
   supportedChainIds: [
     // 1, // Mainet
     // 3, // Ropsten
-    4, // Rinkeby
+    // 4, // Rinkeby
     // 5, // Goerli
     // 42, // Kovan
     // 137, // Polygon
     // parseInt(process.env.REACT_APP_MATIC_CHAIN_ID as string),
-    // 1287, //Moonbase albha
+    1287, //Moonbase albha
     // 1285, //Moonriver
   ],
 });
@@ -25,10 +25,10 @@ const useAuth = () => {
       if (error.name === "UnsupportedChainIdError") {
         console.log(
           "error",
-          "Unsupported chain, Please connect Moonriver Network to continue."
+          "Unsupported chain, Please connect Moonbase Alpha Network to continue."
         );
         alert(
-          "Unsupported chain, Please connect Moonriver Network to continue."
+          "Unsupported chain, Please connect Moonbase Alpha Network to continue."
         );
       } else {
         console.log("error", error.name || error.message);
