@@ -105,7 +105,7 @@ const tracks: TrackMetadata[] = [
 ];
 
 const getTimerObj = () => {
-  const revealDate = "Fri, 14 Oct 2022 07:00:00 GMT";
+  const revealDate = "Tue, 11 Oct 2022 13:30:00 GMT";
   const countDownDate = new Date(revealDate).getTime();
   const timeleft = countDownDate - Date.now();
   if (timeleft <= 0) {
@@ -231,29 +231,32 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     const userIds = listOfData
       .map((data: any) => data.id)
       .filter((data: any) => data.length);
+    if (userIds.length) {
+      const usersDetails = await getUserDocsFromIds(userIds);
+      const _ownTokenIds = _mintedTokens
+        .filter((data: any) => data.id === user?.id)
+        .map((data: any) => data.tokenId.toString());
+      setOwnTokenIds(_ownTokenIds);
 
-    const usersDetails = await getUserDocsFromIds(userIds);
-    const _ownTokenIds = _mintedTokens
-      .filter((data: any) => data.id === user?.id)
-      .map((data: any) => data.tokenId.toString());
-    setOwnTokenIds(_ownTokenIds);
-
-    const tokenIds = _mintedTokens.map((data: any) => data.tokenId.toString());
-    setMintedTokenIds(tokenIds);
-
-    const userDetailsObj: { [key: string]: User } = {};
-    usersDetails.map((user) => {
-      const tokensDetails = _mintedTokens.filter(
-        (data: any) => data.id === user.uid
+      const tokenIds = _mintedTokens.map((data: any) =>
+        data.tokenId.toString()
       );
-      if (tokensDetails.length)
-        tokensDetails.map(
-          (tokenDetails: any) =>
-            (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+      setMintedTokenIds(tokenIds);
+
+      const userDetailsObj: { [key: string]: User } = {};
+      usersDetails.map((user) => {
+        const tokensDetails = _mintedTokens.filter(
+          (data: any) => data.id === user.uid
         );
-      return "";
-    });
-    setMintedTokenUserDetails(userDetailsObj);
+        if (tokensDetails.length)
+          tokensDetails.map(
+            (tokenDetails: any) =>
+              (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+          );
+        return "";
+      });
+      setMintedTokenUserDetails(userDetailsObj);
+    }
     const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
     Array.from(buyButtons).map((btn: any) => {
       const icon = btn?.firstChild;
@@ -695,14 +698,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           setIsListening(true);
                         }}
                         showOverlay={false}
-                        clientId="a8a1099c-4dcf-40ff-8179-4c701101604a"
+                        clientId="27338060-350f-40e7-91e8-d97d8feb377e"
                         mintConfig={{
                           type: "erc-721",
                           totalPrice: "0.01",
                           tokenId: Number(section).toString(),
                           parentTokenId: "0",
                           _id: user.id,
-                          uri: "https://gateway.pinata.cloud/ipfs/QmQ89xevkyDy1Nn99ennYEYRhXoswBkfafozqNdYhQT4PN/3.json%22%7D%7D",
+                          uri: "https://gateway.pinata.cloud/ipfs/QmbY9oktxxq4Sq4jD4KY3fhsgXQawsLTdWdjrN22jjsGQF/1.json",
                         }}
                         environment="staging"
                       />
@@ -774,18 +777,46 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         <DialogContent>
           {isListening && (
             <Box>
-              <Typography variant="h6">
-                Waiting for the tx to complete...
-              </Typography>
-              <Typography variant="h6">
-                Your download will begin once the tx is successful
-              </Typography>
+              {/* <Typography variant="body1">
+                Waiting for the transaction to complete...
+              </Typography> */}
+              <Box display="flex" justifyContent="center">
+                <CircularProgress size={"2rem"} />
+              </Box>
+              <Box mt={2}>
+                <Typography variant="body2">
+                  Download will begin once the transaction is successful...
+                </Typography>
+              </Box>
+              <Box mt={2}>
+                <Typography variant="caption" color="#FFCC00">
+                  Please refresh the page and try again if the tx is declined
+                </Typography>
+              </Box>
+              {/* <Box mt={2}>
+                <Button
+                  variant="outlined"
+                  color="info"
+                  onClick={() => setIsListening(false)}
+                >
+                  Close
+                </Button>
+                <Typography variant="caption" sx={{ pl: 1 }}>
+                  You can comeback anytime to download the music
+                </Typography>
+              </Box> */}
             </Box>
           )}
           {isDownloading && (
             <Box>
-              {/* <Typography variant="h5">Downloding the file...</Typography> */}
-              <CircularProgress />
+              <Box display="flex" justifyContent="center">
+                <CircularProgress size="2rem" />
+              </Box>
+              <Box mt={2}>
+                <Typography variant="body2">
+                  Downloading in progress...
+                </Typography>
+              </Box>
             </Box>
           )}
         </DialogContent>
