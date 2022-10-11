@@ -105,7 +105,7 @@ const tracks: TrackMetadata[] = [
 ];
 
 const getTimerObj = () => {
-  const revealDate = "Tue, 11 Oct 2022 13:30:00 GMT";
+  const revealDate = "Tue, 11 Oct 2022 14:00:00 GMT";
   const countDownDate = new Date(revealDate).getTime();
   const timeleft = countDownDate - Date.now();
   if (timeleft <= 0) {
