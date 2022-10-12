@@ -452,7 +452,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             </Box> */}
             </Box>
           </Box>
-          {/* <Box>
+          <Box>
             <Typography
               // variant="caption"
               // fontWeight="bold"
@@ -461,7 +461,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               Web-3 Music Developer // Epistemologist // Producer // Engineer //
               Artist
             </Typography>
-          </Box> */}
+          </Box>
         </Box>
 
         {timerObj.isRevealed === false && (
@@ -588,7 +588,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             </Typography>
           </Box>
         </Box>
-        <Box>
+        {/* <Box>
           <Typography
             // variant="caption"
             // fontWeight="bold"
@@ -604,7 +604,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             projects. Recently dropping his latest EP in l.a. he is set to focus
             on his connection to music, and release new music in 2022.
           </Typography>
-        </Box>
+        </Box> */}
       </Box>
 
       <Box
