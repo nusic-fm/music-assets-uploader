@@ -452,7 +452,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             </Box> */}
             </Box>
           </Box>
-          <Box>
+          {/* <Box>
             <Typography
               // variant="caption"
               // fontWeight="bold"
@@ -461,7 +461,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               Web-3 Music Developer // Epistemologist // Producer // Engineer //
               Artist
             </Typography>
-          </Box>
+          </Box> */}
         </Box>
 
         {timerObj.isRevealed === false && (
@@ -571,8 +571,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           <iframe
             width="100%"
             height="100%"
-            src="https://www.youtube.com/embed/mqdVtek28_Q"
-            title="My PERFECT 2022 Home Recording Studio Setup Tour"
+            src="https://www.youtube.com/embed/pUxg0zaCa2s"
+            title="“The Point of No Return” Music Nft Drop Announcement"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -588,7 +588,25 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             </Typography>
           </Box>
         </Box>
+        <Box>
+          <Typography
+            // variant="caption"
+            // fontWeight="bold"
+            fontFamily="BenchNine"
+          >
+            Cherry is a twenty-two year old artist from Pittsburgh, Pennsylvania
+            currently based out of Los Angeles. Pushing forward the sounds of
+            indie pop, trap & electronic. After an introduction to making beats
+            4 years ago, Cherry started to focus on creating music, and has been
+            working. Being around music his whole life, becoming a creative was
+            the outlet Cherry needed to find his own path. Cherry is a producer,
+            engineer, mix&master, singer/songwriter and composes all of his own
+            projects. Recently dropping his latest EP in l.a. he is set to focus
+            on his connection to music, and release new music in 2022.
+          </Typography>
+        </Box>
       </Box>
+
       <Box
         mt={6}
         pb={6}
