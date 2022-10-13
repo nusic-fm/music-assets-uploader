@@ -473,20 +473,22 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           </Box>
         </Box>
 
-        {timerObj.isRevealed === false && (
-          <Box
-            display="flex"
-            flexDirection="column"
-            justifyContent="space-between"
-            gap={2}
-            maxWidth={{ md: "30%" }}
-          >
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          gap={2}
+          maxWidth={{ md: "30%" }}
+        >
+          <Box>
             <Box>
-              <Box>
+              {timerObj.isRevealed === false && (
                 <Typography fontWeight="bold" variant="h5">
                   nGenesis Begins In...
                 </Typography>
-              </Box>
+              )}
+            </Box>
+            {timerObj.isRevealed === false ? (
               <Box
                 display="flex"
                 flexWrap="wrap"
@@ -566,26 +568,38 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   </Typography>
                 </Box>
               </Box>
-            </Box>
-            <Box>
-              <Typography
-                // variant="caption"
-                // fontWeight="bold"
-                fontFamily="BenchNine"
+            ) : (
+              <Box
+                my={2}
+                // mx={4}
+                p={2}
+                sx={{ border: "2px solid white", borderRadius: "6px" }}
               >
-                {/* nGenesis is the foundational Web3 label, powering the evolution
-                of music */}
-                Cherry’s alter-ego Feral has become assimilated with the
-                prototypical Web 3 label nGenesis, that is set to start on his
-                twenty-third birthday. In order to assemble his forces to
-                prepare for the flight to Sovereignty, Cherry is offering 14
-                early access passes to the Feral Kitty Tribe to devotees. Each
-                of these passes grants access to Feral Kitty Lodge on
-                Petrichor’s outer moon, Feldspar.
-              </Typography>
-            </Box>
+                <Typography variant="h4" align="center" fontWeight="bold">
+                  nGenesis Live 🎧
+                </Typography>
+              </Box>
+            )}
           </Box>
-        )}
+          <Box>
+            <Typography
+              // variant="caption"
+              // fontWeight="bold"
+              fontFamily="BenchNine"
+            >
+              {/* nGenesis is the foundational Web3 label, powering the evolution
+                of music */}
+              Cherry’s alter-ego Feral has become assimilated with the
+              prototypical Web 3 label nGenesis, that is set to start on his
+              twenty-third birthday. In order to assemble his forces to prepare
+              for the flight to Sovereignty, Cherry is offering 14 early access
+              passes to join the Kitty Kat Gang to devotees. Each of these
+              passes grants access to Kitty Kat Lodge on Petrichor’s outer moon,
+              Feldspar.
+            </Typography>
+          </Box>
+        </Box>
+
         <Box
           display="flex"
           flexDirection="column"
@@ -611,9 +625,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             >
               {/* Be the first to hear & publish clips from mmmCherry's track */}
               ‘The Point of No Return’ is fractionalized into 14 clips that have
-              been synchronized with the Feral Kitty Tribe masks. These are
+              been synchronized with the Kitty Kat Gang masks. These are
               exclusively available to mint from Cherry’s site, once every part
-              of the song has been minted the Feral Kitty Tribe co-ordinates in
+              of the song has been minted the Kitty Kat Gang co-ordinates in
               order to unlock the full song release.
             </Typography>
           </Box>
@@ -862,7 +876,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           <Box maxWidth={{ md: "33%" }} mt={2} px={2}>
             <Typography align="center" fontFamily="BenchNine" variant="h5">
               NUSIC empowers artists & labels to release music into Web 3 on
-              their own terms, under their own brand, with their own team. Our
+              your own terms, under your own brand, for your own community. Our
               solutions have won multiple awards from top Web 3 infrastructure
               providers & our distributed team is ready to plug your music into
               the decentralized financial rails that power music on the next
