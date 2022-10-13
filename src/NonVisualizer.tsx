@@ -280,23 +280,33 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
   const downloadFile = (tokenId: string) => {
     setIsDownloading(true);
+    const id = (process.env.REACT_APP_FERALS as string).split(",")[
+      Number(tokenId) - 1
+    ];
+    window.open(
+      `https://storage.googleapis.com/nusic-data/marketplace/feral/${id}`
+    );
+    alert("Download Successful");
+    setIsDownloading(false);
     // TODO:
-    fetch("https://assets.nusic.fm/bg.mp4")
-      .then((resp) => resp.blob())
-      .then((blob) => {
-        setIsDownloading(false);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        // the filename you want
-        a.download = "Happy Ever After All.mp4";
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        alert("your file has downloaded!"); // or you know, something with better UX...
-      })
-      .catch(() => alert("Download failed. Please try again"));
+    // fetch("https://storage.googleapis.com/nusic-data/marketplace/feral/2.mov", {
+    //   mode: "no-cors",
+    // })
+    //   .then((resp) => resp.blob())
+    //   .then((blob) => {
+    //     setIsDownloading(false);
+    //     const url = window.URL.createObjectURL(blob);
+    //     const a = document.createElement("a");
+    //     a.style.display = "none";
+    //     a.href = url;
+    //     // the filename you want
+    //     a.download = `Feral #${tokenId}.mov`;
+    //     document.body.appendChild(a);
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //     alert("your file has downloaded!"); // or you know, something with better UX...
+    //   })
+    //   .catch(() => alert("Download failed. Please try again"));
   };
 
   // const onSignInWithFb = async () => {
@@ -576,7 +586,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 sx={{ border: "2px solid white", borderRadius: "6px" }}
               >
                 <Typography variant="h4" align="center" fontWeight="bold">
-                  nGenesis Live 🎧
+                  nGenesis Live
+                </Typography>
+                <Typography variant="body2" align="center">
+                  nGenesis went live on Oct 14th 0000 hrs PDT
                 </Typography>
               </Box>
             )}
