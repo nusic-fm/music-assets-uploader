@@ -778,15 +778,16 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           setIsListening(true);
                         }}
                         showOverlay={false}
-                        clientId=""
+                        clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
                         mintConfig={{
                           type: "erc-721",
-                          totalPrice: "0.01",
-                          tokenId: Number(section).toString(),
+                          totalPrice: "0",
+                          tokenId: (i + 1).toString(),
                           parentTokenId: "0",
                           _id: user.id,
-                          //TOODO
-                          uri: "",
+                          uri: `https://bafybeiecq6syjwu4tbmv65z6a3n4debnauystecjswptkm72mxshh2i66u.ipfs.nftstorage.link/${
+                            i + 1
+                          }.json`,
                         }}
                       />
                     ) : (
@@ -843,8 +844,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         Price
                       </Typography>
                       <Typography variant="h6" align="right">
-                        {/* ~$20 */}
-                        TBA
+                        {timerObj.isRevealed ? "~$20" : "TBA"}
                       </Typography>
                     </Box>
                   )}
