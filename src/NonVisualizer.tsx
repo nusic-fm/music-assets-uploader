@@ -87,9 +87,9 @@ const tracks: TrackMetadata[] = [
   {
     artist: "mmmCherry",
     title: "The Point of No Return",
-    genre: "Pop",
-    bpm: 190,
-    key: "A",
+    genre: "Alt-Pop",
+    bpm: 167,
+    key: "G Minor",
     coverUrl: "/cherry/banner.jpeg",
     profileUrl: "/cherry/feral.jpeg",
     socials: {
@@ -100,7 +100,7 @@ const tracks: TrackMetadata[] = [
       youtube: "youtube.com/channel/UCcfGu5v511FNCsrcBqwTafw",
       spotify: "open.spotify.com/artist/2pjOLjJD4lElSnRaeYad57",
     },
-    noOfSections: 12,
+    noOfSections: 14,
   },
 ];
 
@@ -683,7 +683,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               borderRadius="6px"
             >
               <img
-                src={`/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`}
+                src={
+                  timerObj.isRevealed &&
+                  mintedTokenIds.includes((i + 1).toString())
+                    ? `/cherry/cats/${i + 1}.png`
+                    : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
+                }
                 alt=""
                 width="100%"
                 height="100%"
@@ -700,21 +705,24 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               >
                 <source src="bg.mp4" type="video/mp4" />
               </video> */}
-              <Box
-                position="absolute"
-                top={0}
-                width="100%"
-                height="100%"
-                sx={{
-                  opacity: "0.6",
-                  // transition: "opacity 0.2s",
-                  background: "rgba(0,0,0,0.8)",
-                  borderRadius: "6px",
-                  "&:hover": {
-                    opacity: "0",
-                  },
-                }}
-              />
+              {(timerObj.isRevealed &&
+                mintedTokenIds.includes((i + 1).toString())) === false && (
+                <Box
+                  position="absolute"
+                  top={0}
+                  width="100%"
+                  height="100%"
+                  sx={{
+                    opacity: "0.6",
+                    // transition: "opacity 0.2s",
+                    background: "rgba(0,0,0,0.8)",
+                    borderRadius: "6px",
+                    "&:hover": {
+                      opacity: "0",
+                    },
+                  }}
+                />
+              )}
               <Box
                 position="absolute"
                 top={0}
