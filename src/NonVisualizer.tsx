@@ -377,6 +377,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           flexDirection="column"
           justifyContent="space-between"
           gap={2}
+          maxWidth={{ md: "35%" }}
         >
           <Box
             display="flex"
@@ -458,8 +459,16 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               // fontWeight="bold"
               fontFamily="BenchNine"
             >
-              Web-3 Music Developer // Epistemologist // Producer // Engineer //
-              Artist
+              {/* Web-3 Music Developer // Epistemologist // Producer // Engineer //
+              Artist */}
+              Cherry is a twenty-two year old artist from Pittsburgh,
+              Pennsylvania currently based out of Los Angeles. Pushing forward
+              the sounds of indie pop, trap & electronic. After an introduction
+              to making beats 4 years ago, Cherry started to focus on creating
+              music, and has been working. Being around music his whole life,
+              becoming a creative was the outlet Cherry needed to find his own
+              path. Cherry is a producer, engineer, mix&master,
+              singer/songwriter and composes all of his own projects.
             </Typography>
           </Box>
         </Box>
@@ -470,84 +479,92 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             flexDirection="column"
             justifyContent="space-between"
             gap={2}
+            maxWidth={{ md: "30%" }}
           >
             <Box>
-              <Typography fontWeight="bold" variant="h5">
-                nGenesis Begins In...
-              </Typography>
-            </Box>
-            <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
-              <Box
-                // mr={2}
-                mt={2}
-                p={2}
-                sx={{ border: "2px solid white", borderRadius: "6px" }}
-                width="35px"
-                fontWeight="bold"
-              >
-                <Typography fontWeight="bold" variant="h4" align="center">
-                  {timerObj.days}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  align="center"
-                  fontFamily="BenchNine"
-                >
-                  days
+              <Box>
+                <Typography fontWeight="bold" variant="h5">
+                  nGenesis Begins In...
                 </Typography>
               </Box>
               <Box
-                // mr={2}
-                mt={2}
-                p={2}
-                sx={{ border: "2px solid white", borderRadius: "6px" }}
-                width="35px"
+                display="flex"
+                flexWrap="wrap"
+                justifyContent="center"
+                gap={4}
               >
-                <Typography fontWeight="bold" variant="h4" align="center">
-                  {timerObj.hours}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  align="center"
-                  fontFamily="BenchNine"
+                <Box
+                  // mr={2}
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
+                  fontWeight="bold"
                 >
-                  hrs
-                </Typography>
-              </Box>
-              <Box
-                // mr={2}
-                mt={2}
-                p={2}
-                sx={{ border: "2px solid white", borderRadius: "6px" }}
-                width="35px"
-              >
-                <Typography fontWeight="bold" variant="h4" align="center">
-                  {timerObj.minutes}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  align="center"
-                  fontFamily="BenchNine"
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.days}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    days
+                  </Typography>
+                </Box>
+                <Box
+                  // mr={2}
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
                 >
-                  min
-                </Typography>
-              </Box>
-              <Box
-                mt={2}
-                p={2}
-                sx={{ border: "2px solid white", borderRadius: "6px" }}
-                width="35px"
-              >
-                <Typography fontWeight="bold" variant="h4" align="center">
-                  {timerObj.seconds}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  align="center"
-                  fontFamily="BenchNine"
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.hours}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    hrs
+                  </Typography>
+                </Box>
+                <Box
+                  // mr={2}
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
                 >
-                  sec
-                </Typography>
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.minutes}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    min
+                  </Typography>
+                </Box>
+                <Box
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
+                >
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.seconds}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    sec
+                  </Typography>
+                </Box>
               </Box>
             </Box>
             <Box>
@@ -556,8 +573,15 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 // fontWeight="bold"
                 fontFamily="BenchNine"
               >
-                nGenesis is the foundational Web3 label, powering the evolution
-                of music
+                {/* nGenesis is the foundational Web3 label, powering the evolution
+                of music */}
+                Cherry’s alter-ego Feral has become assimilated with the
+                prototypical Web 3 label nGenesis, that is set to start on his
+                twenty-third birthday. In order to assemble his forces to
+                prepare for the flight to Sovereignty, Cherry is offering 14
+                early access passes to the Feral Kitty Tribe to devotees. Each
+                of these passes grants access to Feral Kitty Lodge on
+                Petrichor’s outer moon, Feldspar.
               </Typography>
             </Box>
           </Box>
@@ -567,6 +591,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           flexDirection="column"
           justifyContent="space-between"
           gap={2}
+          maxWidth={{ md: "20%" }}
         >
           <iframe
             width="100%"
@@ -584,7 +609,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               // fontWeight="bold"
               fontFamily="BenchNine"
             >
-              Be the first to hear & publish clips from mmmCherry's track
+              {/* Be the first to hear & publish clips from mmmCherry's track */}
+              ‘The Point of No Return’ is fractionalized into 14 clips that have
+              been synchronized with the Feral Kitty Tribe masks. These are
+              exclusively available to mint from Cherry’s site, once every part
+              of the song has been minted the Feral Kitty Tribe co-ordinates in
+              order to unlock the full song release.
             </Typography>
           </Box>
         </Box>
@@ -713,16 +743,16 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           setIsListening(true);
                         }}
                         showOverlay={false}
-                        clientId="a8a1099c-4dcf-40ff-8179-4c701101604a"
+                        clientId=""
                         mintConfig={{
                           type: "erc-721",
                           totalPrice: "0.01",
                           tokenId: Number(section).toString(),
                           parentTokenId: "0",
                           _id: user.id,
-                          uri: "https://gateway.pinata.cloud/ipfs/QmQ89xevkyDy1Nn99ennYEYRhXoswBkfafozqNdYhQT4PN/3.json%22%7D%7D",
+                          //TOODO
+                          uri: "",
                         }}
-                        environment="staging"
                       />
                     ) : (
                       <Button
@@ -809,7 +839,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         </DialogContent>
       </Dialog>
       <Box mt={4} pb={8}>
-        <Typography variant="h5" align="center">
+        <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
         </Typography>
         {/* <Typography variant="h3" align="center">
@@ -826,9 +856,19 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           alignItems="center"
           justifyContent="center"
         >
-          <Typography variant="h5">
-            The decentralized financial rails for music
+          <Typography variant="h5" fontFamily="monospace" align="center">
+            The Decentralized Financial Rails for Music
           </Typography>
+          <Box maxWidth={{ md: "33%" }} mt={2} px={2}>
+            <Typography align="center" fontFamily="BenchNine" variant="h5">
+              NUSIC empowers artists & labels to release music into Web 3 on
+              their own terms, under their own brand, with their own team. Our
+              solutions have won multiple awards from top Web 3 infrastructure
+              providers & our distributed team is ready to plug your music into
+              the decentralized financial rails that power music on the next
+              generation of the internet.
+            </Typography>
+          </Box>
           <Box my={2}>
             <TextField
               placeholder="Spotify Artist ID"
