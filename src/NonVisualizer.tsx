@@ -830,16 +830,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           alignItems="center"
                           mt={0.5}
                         >
-                          <img
-                            src={`https://cdn.discordapp.com/avatars/${
-                              mintedTokenUserDetails[(i + 1).toString()]?.uid
-                            }/${
-                              mintedTokenUserDetails[(i + 1).toString()]?.avatar
-                            }.png`}
-                            alt="profile"
-                            width={45}
-                            style={{ borderRadius: "50%" }}
-                          />
+                          {mintedTokenUserDetails[(i + 1).toString()]
+                            ?.avatar && (
+                            <img
+                              src={`https://cdn.discordapp.com/avatars/${
+                                mintedTokenUserDetails[(i + 1).toString()]?.uid
+                              }/${
+                                mintedTokenUserDetails[(i + 1).toString()]
+                                  ?.avatar
+                              }.png`}
+                              alt="profile"
+                              width={45}
+                              style={{ borderRadius: "50%" }}
+                            />
+                          )}
                           <Typography fontFamily="BenchNine">
                             {mintedTokenUserDetails[(i + 1).toString()]?.name}
                           </Typography>
