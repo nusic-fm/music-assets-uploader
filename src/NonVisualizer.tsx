@@ -136,6 +136,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [mintedTokenUserDetails, setMintedTokenUserDetails] = useState<{
     [key: string]: User;
   }>({});
+  const [isNftRevealed, setIsNftRevealed] = useState(false);
 
   // const timer = useRef<NodeJS.Timer | null>(null);
   const [timerObj, setTimerObj] = useState(getTimerObj);
@@ -148,7 +149,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
   useEffect(() => {
     const myInterval = setInterval(() => {
-      setTimerObj(getTimerObj());
+      const _newTimerObj = getTimerObj();
+      if (_newTimerObj.isRevealed) {
+        setIsNftRevealed(true);
+      }
+      setTimerObj(_newTimerObj);
     }, 1000);
     return () => {
       clearInterval(myInterval);
@@ -279,7 +284,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         fetchUser(_tokenType, _accessToken, false);
       }
     }
-  }, [user]);
+  }, [user, isNftRevealed]);
 
   const downloadFile = (tokenId: string) => {
     setIsDownloading(true);
