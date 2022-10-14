@@ -241,7 +241,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       .map((data: any) => data.tokenId.toString());
     setOwnTokenIds(_ownTokenIds);
     if (userIds.length) {
-      const usersDetails = await getUserDocsFromIds(userIds);
+      const uniqueArray = userIds.filter((id: any, pos: any) => {
+        return userIds.indexOf(id) === pos;
+      });
+      const usersDetails = await getUserDocsFromIds(uniqueArray);
 
       const tokenIds = _mintedTokens.map((data: any) =>
         data.tokenId.toString()
