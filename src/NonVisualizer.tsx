@@ -597,7 +597,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   nGenesis Live
                 </Typography>
                 <Typography variant="body2" align="center">
-                  nGenesis went live on Oct 14th 0000 hrs PDT
+                  nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
                 </Typography>
               </Box>
             )}
