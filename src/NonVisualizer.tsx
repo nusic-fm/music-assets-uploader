@@ -244,8 +244,16 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       const uniqueArray = userIds.filter((id: any, pos: any) => {
         return userIds.indexOf(id) === pos;
       });
-      const usersDetails = await getUserDocsFromIds(uniqueArray);
-
+      let usersDetails = [];
+      if (uniqueArray.length > 10) {
+        const usersDetailsOne = await getUserDocsFromIds(
+          uniqueArray.slice(0, 10)
+        );
+        const usersDetailsTwo = await getUserDocsFromIds(uniqueArray.slice(10));
+        usersDetails = [...usersDetailsOne, ...usersDetailsTwo];
+      } else {
+        usersDetails = await getUserDocsFromIds(uniqueArray);
+      }
       const tokenIds = _mintedTokens.map((data: any) =>
         data.tokenId.toString()
       );
