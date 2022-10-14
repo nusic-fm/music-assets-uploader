@@ -231,29 +231,32 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     const userIds = listOfData
       .map((data: any) => data.id)
       .filter((data: any) => data.length);
-
-    const usersDetails = await getUserDocsFromIds(userIds);
     const _ownTokenIds = _mintedTokens
       .filter((data: any) => data.id === user?.id)
       .map((data: any) => data.tokenId.toString());
     setOwnTokenIds(_ownTokenIds);
+    if (userIds.length) {
+      const usersDetails = await getUserDocsFromIds(userIds);
 
-    const tokenIds = _mintedTokens.map((data: any) => data.tokenId.toString());
-    setMintedTokenIds(tokenIds);
-
-    const userDetailsObj: { [key: string]: User } = {};
-    usersDetails.map((user) => {
-      const tokensDetails = _mintedTokens.filter(
-        (data: any) => data.id === user.uid
+      const tokenIds = _mintedTokens.map((data: any) =>
+        data.tokenId.toString()
       );
-      if (tokensDetails.length)
-        tokensDetails.map(
-          (tokenDetails: any) =>
-            (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+      setMintedTokenIds(tokenIds);
+
+      const userDetailsObj: { [key: string]: User } = {};
+      usersDetails.map((user) => {
+        const tokensDetails = _mintedTokens.filter(
+          (data: any) => data.id === user.uid
         );
-      return "";
-    });
-    setMintedTokenUserDetails(userDetailsObj);
+        if (tokensDetails.length)
+          tokensDetails.map(
+            (tokenDetails: any) =>
+              (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+          );
+        return "";
+      });
+      setMintedTokenUserDetails(userDetailsObj);
+    }
     const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
     Array.from(buyButtons).map((btn: any) => {
       const icon = btn?.firstChild;
@@ -785,7 +788,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           tokenId: (i + 1).toString(),
                           parentTokenId: "0",
                           _id: user.id,
-                          uri: `https://bafybeiecq6syjwu4tbmv65z6a3n4debnauystecjswptkm72mxshh2i66u.ipfs.nftstorage.link/${
+                          uri: `https://bafybeih55dxz4ooutgdnfsrnovch4s6gs7lt7e3ik4223345ec2ec6to3e.ipfs.nftstorage.link//${
                             i + 1
                           }.json`,
                         }}
@@ -844,7 +847,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         Price
                       </Typography>
                       <Typography variant="h6" align="right">
-                        {timerObj.isRevealed ? "~$20" : "TBA"}
+                        {timerObj.isRevealed && (
+                          <Typography variant="caption">only</Typography>
+                        )}
+                        {timerObj.isRevealed ? " Gas" : "TBA"}
                       </Typography>
                     </Box>
                   )}
