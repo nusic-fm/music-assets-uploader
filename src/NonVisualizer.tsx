@@ -271,6 +271,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           );
         return "";
       });
+      userDetailsObj["12"].name = "RandomPumpkin";
       setMintedTokenUserDetails(userDetailsObj);
     }
     const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
