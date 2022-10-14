@@ -923,11 +923,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           </Typography>
           <Box maxWidth={{ md: "33%" }} mt={2} px={2}>
             <Typography align="center" fontFamily="BenchNine" variant="h5">
-              NUSIC empowers artists & labels to release music into Web 3 on
-              your own terms, under your own brand, for your own community. Our
-              solutions have won multiple awards from top Web 3 infrastructure
-              providers & our distributed team is ready to plug your music into
-              the decentralized financial rails that power music on the next
+              NUSIC empowers you to release music into Web 3 on your own terms,
+              under your own brand, for your own community. Our solutions have
+              won multiple awards from top Web 3 infrastructure providers & our
+              distributed team is ready to plug your music into the
+              decentralized financial rails that power music on the next
               generation of the internet.
             </Typography>
           </Box>
