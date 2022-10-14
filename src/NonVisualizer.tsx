@@ -778,7 +778,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           setIsListening(true);
                         }}
                         showOverlay={false}
-                        clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
+                        clientId="dc57b1e4-ca73-4bc9-954a-2457ce70335c"
                         mintConfig={{
                           type: "erc-721",
                           totalPrice: "0",
@@ -789,6 +789,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             i + 1
                           }.json`,
                         }}
+                        environment="staging"
                       />
                     ) : (
                       <Button
@@ -844,7 +845,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         Price
                       </Typography>
                       <Typography variant="h6" align="right">
-                        {timerObj.isRevealed ? "~$20" : "TBA"}
+                        {timerObj.isRevealed ? "Gas Only" : "TBA"}
                       </Typography>
                     </Box>
                   )}
