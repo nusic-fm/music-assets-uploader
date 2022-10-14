@@ -172,8 +172,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       const response = await axios.get(url, {
         headers: { Authorization: `${_tokenType} ${_accessToken}` },
       });
-      const { username, id, avatar } = response.data;
-      await createUser(id, { name: username, uid: id, avatar });
+      const { username, id, avatar, discriminator } = response.data;
+      await createUser(id, { name: username, uid: id, avatar, discriminator });
       // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
       setUser({ name: username, id, avatar });
       window.history.replaceState(null, "", window.location.origin);
