@@ -16,6 +16,10 @@ const createUser = async (uid: string, userDoc: User): Promise<void> => {
     const userRef = doc(db, "users", uid);
     const userDocRef = await getDoc(userRef);
     if (userDocRef.exists()) {
+      const docData = userDocRef.data();
+      if (docData.avatar !== userDoc.avatar) {
+        await updateDoc(userRef, { avatar: userDoc.avatar });
+      }
     } else {
       await setDoc(userRef, userDoc);
     }

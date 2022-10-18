@@ -25,6 +25,7 @@ import {
 } from "./services/db/users.service";
 import SaveIcon from "@mui/icons-material/Save";
 import { User } from "./models/User";
+import * as cherryMintDataList from "./data/cherry/cherryData.json";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -53,6 +54,7 @@ const sections: string[] = [
   "15",
   "16",
 ];
+
 interface TrackMetadata {
   artist: string;
   title: string;
@@ -212,23 +214,24 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   }, [trackIdx]);
 
   const setListOfMintedTokens = async (isAttachListener: boolean = true) => {
-    const provider = new ethers.providers.AlchemyProvider(
-      process.env.REACT_APP_CHAIN_NAME as string,
-      process.env.REACT_APP_ALCHEMY as string
-    );
-    const contract = new ethers.Contract(
-      process.env.REACT_APP_CONTRACT_ADDRESS as string,
-      SolAbi,
-      provider
-    );
-    if (isAttachListener) {
-      console.log("Listening");
-      contract.on("Minted", (to, id, parentTokenId, tokenId) => {
-        setIsListening(false);
-        if (id === user?.id) setNewlyMintedToken(tokenId.toString());
-      });
-    }
-    const listOfData = await contract.getChildrenMetadata(0);
+    // const provider = new ethers.providers.AlchemyProvider(
+    //   process.env.REACT_APP_CHAIN_NAME as string,
+    //   process.env.REACT_APP_ALCHEMY as string
+    // );
+    // const contract = new ethers.Contract(
+    //   process.env.REACT_APP_CONTRACT_ADDRESS as string,
+    //   SolAbi,
+    //   provider
+    // );
+    // if (isAttachListener) {
+    //   console.log("Listening");
+    //   contract.on("Minted", (to, id, parentTokenId, tokenId) => {
+    //     setIsListening(false);
+    //     if (id === user?.id) setNewlyMintedToken(tokenId.toString());
+    //   });
+    // }
+    // const listOfData = await contract.getChildrenMetadata(0);
+    const listOfData = Array.from(cherryMintDataList);
     const _mintedTokens = listOfData.filter(
       (data: any) => data.isMinted
     ) as any;
@@ -285,8 +288,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     });
   };
   useEffect(() => {
+    // make it available for all
+    setListOfMintedTokens();
     if (user) {
-      setListOfMintedTokens();
+      // setListOfMintedTokens();
     } else {
       const _accessToken = window.localStorage.getItem(
         localStorageAccessTokenKey
