@@ -76,8 +76,8 @@ root.render(
       <Web3ReactProvider getLibrary={getLibrary}>
         <Router>
           <Routes>
-            <Route path="/" element={<MarketPlace />} />
-            <Route path="/upload" element={<App />} />
+            <Route path="/" element={<App />} />
+            {/* <Route path="/upload" element={<App />} /> */}
           </Routes>
         </Router>
       </Web3ReactProvider>
