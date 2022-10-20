@@ -205,7 +205,7 @@ const TonePlayerViz = (props: {
     return <Box></Box>;
   }
   return (
-    <Box position={"relative"} width="100%" height="100%">
+    <Box position={"relative"} width="100%" height="150px">
       <canvas
         style={{ width: "100%", height: "100%" }}
         ref={audioWaveformCanvas}

@@ -2,9 +2,9 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Grid,
   IconButton,
   Popover,
+  TextField,
   // TextField,
   Typography,
 } from "@mui/material";
@@ -139,8 +139,33 @@ const CanvasSectionBox = (props: {
           horizontal: "left",
         }}
       >
-        <Box p={2}>
-          {/* <Box width="200px">
+        {isSongModeState ? (
+          <Box p={2}>
+            <Typography fontFamily="Helvetica">11 eth</Typography>
+            <Box mt={2} display="flex" justifyContent="center">
+              <Button variant="contained" onClick={handleMint}>
+                Mint
+              </Button>
+            </Box>
+          </Box>
+        ) : (
+          <Box p={2}>
+            <Box>
+              <TextField placeholder="address"></TextField>
+            </Box>
+            <Box display="flex" justifyContent="center" mt={2}>
+              <Button variant="contained">Join Whitelisting</Button>
+            </Box>
+          </Box>
+        )}
+      </Popover>
+    </Box>
+  );
+};
+
+export default CanvasSectionBox;
+
+/* <Box width="200px">
             <TextField
               type="number"
               fullWidth
@@ -149,14 +174,15 @@ const CanvasSectionBox = (props: {
               onChange={(e) => setAskingPrice(parseFloat(e.target.value))}
               label="USDC"
             ></TextField>
-          </Box> */}
-          <Grid container>
+          </Box> */
+
+/* <Grid container>
             <Grid item xs={6}>
-              {selectedTrackIndex === 0 ? "MOVR" : "USDC"}
+              Eth
             </Grid>
             <Grid item xs={2}></Grid>
             <Grid item xs={4}>
-              {price}
+              11
             </Grid>
             {selectedTrackIndex === 1 && (
               <>
@@ -173,8 +199,9 @@ const CanvasSectionBox = (props: {
                 </Grid>
               </>
             )}
-          </Grid>
-          {/* <Box
+          </Grid> */
+
+/* <Box
             mt={2}
             display="flex"
             justifyContent="space-around"
@@ -198,16 +225,4 @@ const CanvasSectionBox = (props: {
               </Box>
             </Box>
             <Typography variant="h6">5.89%</Typography>
-          </Box> */}
-          <Box mt={2} display="flex" justifyContent="center">
-            <Button variant="contained" onClick={handleMint}>
-              Mint
-            </Button>
-          </Box>
-        </Box>
-      </Popover>
-    </Box>
-  );
-};
-
-export default CanvasSectionBox;
+          </Box> */

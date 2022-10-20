@@ -1,25 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // import { TreeItem, TreeView } from "@mui/lab";
-import {
-  Button,
-  Chip,
-  CircularProgress,
-  Grid,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import axios from "axios";
 import { useState } from "react";
 // import { NftItem } from "./components/NftItem";
 // import { getBinaryTree } from "./utils/binaryTreeGenerator";
 import * as Tone from "tone";
 import { useEffect, useRef } from "react";
 import CanvasSectionBox from "./components/CanvasSectionBox";
-import TonePlayerViz, { colors } from "./components/TonePlayerViz";
+import TonePlayerViz from "./components/TonePlayerViz";
 import TransportBar from "./components/TransportBar";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
-import BarChart from "./components/BarChart";
 import { ethers } from "ethers";
 import Erc20Abi from "./abis/Erc20.json";
 import YbNftAbi from "./abis/AtomicMusicYBNFT.json";
@@ -260,10 +252,10 @@ export const MarketPlace = () => {
     };
   };
 
-  useEffect(() => {
-    login();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   login();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
     width: number;
@@ -549,64 +541,65 @@ export const MarketPlace = () => {
       setIsLoopOn(false);
     });
   };
-  const fetchFulltracks = async () => {
-    const graphqlQuery = {
-      query: `query {
-                fullTrackRecords (last: 2) {
-                  nodes {
-                    musicId
-                    cid
-                    artistName
-                    trackTitle
-                    albumName
-                    genre
-                    bpm
-                    key
-                    timeSignature
-                    bars
-                    beats
-                    duration
-                    startBeatOffsetMs
-                    sectionsCount
-                    stemsCount
-                  }
-              }
-                sectionRecords (last: 30) {
-                    nodes {
-                      musicId
-                      name
-                      startTimeMs
-                    }
-                }
-                stemRecords (last: 4) {
-                      nodes {
-                        musicId
-                        cid
-                        name
-                        type
-                      }
-                  }
-                }`,
-      variables: {},
-    };
-    // sectionRecords (first: 5) {
-    //   nodes {
-    //     id
-    //     musicId
-    //   }
-    // }
-    const fullTracks = await axios.post(
-      "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
-      graphqlQuery
-    );
-    const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
-    console.log({ raveCodeRecord });
-    setSongMetadata(raveCode);
-  };
+  // const fetchFulltracks = async () => {
+  //   const graphqlQuery = {
+  //     query: `query {
+  //               fullTrackRecords (last: 2) {
+  //                 nodes {
+  //                   musicId
+  //                   cid
+  //                   artistName
+  //                   trackTitle
+  //                   albumName
+  //                   genre
+  //                   bpm
+  //                   key
+  //                   timeSignature
+  //                   bars
+  //                   beats
+  //                   duration
+  //                   startBeatOffsetMs
+  //                   sectionsCount
+  //                   stemsCount
+  //                 }
+  //             }
+  //               sectionRecords (last: 30) {
+  //                   nodes {
+  //                     musicId
+  //                     name
+  //                     startTimeMs
+  //                   }
+  //               }
+  //               stemRecords (last: 4) {
+  //                     nodes {
+  //                       musicId
+  //                       cid
+  //                       name
+  //                       type
+  //                     }
+  //                 }
+  //               }`,
+  //     variables: {},
+  //   };
+  //   // sectionRecords (first: 5) {
+  //   //   nodes {
+  //   //     id
+  //   //     musicId
+  //   //   }
+  //   // }
+  //   const fullTracks = await axios.post(
+  //     "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
+  //     graphqlQuery
+  //   );
+  //   const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
+  //   console.log({ raveCodeRecord });
+  //   setSongMetadata(raveCode);
+  // };
 
   useEffect(() => {
-    if (selectedTrackIndex === 0) fetchFulltracks();
-    else setSongMetadata(noAir);
+    // if (selectedTrackIndex === 0) fetchFulltracks();
+    // else setSongMetadata(noAir);
+    setSongMetadata(raveCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTrackIndex]);
 
@@ -729,8 +722,15 @@ export const MarketPlace = () => {
 
   //No Air - Jording Sparks, Chris Brown
   return (
-    <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }} p={4}>
-      <Box style={{ float: "right" }}>
+    <Box
+      sx={{
+        bgcolor: "background.paper",
+        minHeight: "100vh",
+        overflowX: "auto",
+      }}
+      p={{ xs: 2, md: 4 }}
+    >
+      {/* <Box style={{ float: "right" }}>
         {account ? (
           <Tooltip title={account}>
             <Chip
@@ -746,389 +746,150 @@ export const MarketPlace = () => {
             Connect
           </Button>
         )}
-      </Box>
-      <Box
-        style={{ cursor: "pointer" }}
-        position="relative"
-        onClick={() => {
-          window.location.reload();
-        }}
-        display="flex"
-        alignItems="center"
-      >
-        <Typography variant="h4">NUSIC Marketplace</Typography>
-        <Box ml={2}>
-          <Chip label="BETA" size="small" sx={{ paddingX: "15px" }} />
+      </Box> */}
+      <Grid container p={{ xs: 2, md: 4 }} rowSpacing={4}>
+        <Grid item xs={12} md={4}>
+          <Box>
+            <Typography variant="h2">Mariana</Typography>
+            <Typography variant="h2">Makwaia</Typography>
+          </Box>
+        </Grid>
+        <Grid item md={5}></Grid>
+        <Grid item xs={12} md={3}>
+          <Box display="flex" justifyContent="space-around" width="100%">
+            <Box sx={{ cursor: "pointer" }}>
+              <Typography fontFamily="Helvetica">Instagram</Typography>
+            </Box>
+            <Box sx={{ cursor: "pointer" }}>
+              <Typography fontFamily="Helvetica">Twitter</Typography>
+            </Box>
+            <Box sx={{ cursor: "pointer" }}>
+              <Typography fontFamily="Helvetica">Youtube</Typography>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+      {/* <Box display="flex" justifyContent="space-between" flexWrap="wrap">
+        <Box p={4}>
+          <Typography variant="h2">Mariana</Typography>
+          <Typography variant="h2">Makwaia</Typography>
         </Box>
-      </Box>
-      <Box
-        style={{ backgroundColor: "#2E2E44", borderRadius: "6px" }}
-        mt={4}
-        p={2}
-      >
-        <Typography variant="h5" align="center">
-          Track Explorer
-        </Typography>
-        <Typography
-          variant="body2"
-          align="center"
-          visibility={selectedTrackIndex === -1 ? "visible" : "hidden"}
-        >
-          Select a track
-        </Typography>
-        <Box m={2} display="flex" justifyContent="center">
-          <Box
-            style={{
-              backgroundColor: "rgba(196,196,196,13%",
-              borderRadius: "6px",
-              minWidth: "80%",
-            }}
-          >
-            {!isLoaded ? (
-              <Box
-                p={2}
-                ml={4}
-                display="flex"
-                alignItems="center"
-                // justifyContent="space-around"
-                gap={6}
-              >
-                <Box>
-                  {/* <Typography variant="h6" fontWeight={"bold"} align="center">
-                    {songMetadata?.albumName}
-                  </Typography>
-                  <Typography variant="body2" align="center">
-                    By
-                  </Typography>
-                  <Typography variant="h6" fontWeight={"bold"} align="center">
-                    {songMetadata?.artistName}
-                  </Typography> */}
-
-                  <Box
-                    onClick={() => {
-                      start(0);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <img
-                      src="/pagoda.jpg"
-                      alt="no-air"
-                      width="185px"
-                      height="185px"
-                      style={{ borderRadius: "15px", objectFit: "cover" }}
-                    ></img>
-                    <Typography align="center">YATTA</Typography>
-                  </Box>
-                  {/* <Box mt={2} display="flex" justifyContent="center">
-                    <Button
-                      onClick={() => {
-                        start(0);
-                      }}
-                      variant="contained"
-                      size="small"
-                    >
-                      Load Track
-                    </Button>
-                  </Box> */}
-                </Box>
-                <Box>
-                  {/* <Typography variant="h6" fontWeight={"bold"} align="center">
-                    No Air
-                  </Typography>
-                  <Typography variant="body2" align="center">
-                    By
-                  </Typography>
-                  <Typography variant="h6" fontWeight={"bold"} align="center">
-                    Andrew
-                  </Typography> */}
-                  <Box
-                    onClick={() => {
-                      start(1);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <img
-                      src="/no-air.png"
-                      alt="no-air"
-                      width="185px"
-                      height="185px"
-                      style={{ borderRadius: "15px", objectFit: "cover" }}
-                    ></img>
-                    <Typography align="center">No Air</Typography>
-                  </Box>
-                  {/* <Box mt={2}>
-                    <Button
-                      onClick={() => {
-                        start(1);
-                      }}
-                      variant="contained"
-                      size="small"
-                    >
-                      Load Track
-                    </Button>
-                  </Box> */}
-                </Box>
-                <Box position="relative">
-                  <img
-                    src="/howie-B.webp"
-                    alt="no-air"
-                    width="185px"
-                    height="185px"
-                    style={{ borderRadius: "15px", objectFit: "cover" }}
-                  ></img>
-                  <Typography align="center">Howie B</Typography>
-                  <Box
-                    position="absolute"
-                    style={{ background: "rgba(0,0,0,0)" }}
-                    top={-10}
-                    left={-20}
-                    // right={-100}
-                    width="185px"
-                    height="185px"
-                    // display="flex"
-                    // alignItems="center"
-                    // justifyContent="flex-end"
-                    borderRadius="15px"
-                  >
-                    <Chip
-                      label="Upcoming"
-                      variant="filled"
-                      color="warning"
-                      size="small"
-                    ></Chip>
-                  </Box>
-                </Box>
-              </Box>
-            ) : (
-              <Box p={4} display="flex" alignItems="flex-start">
-                <Box>
-                  <img
-                    src={
-                      selectedTrackIndex === 0 ? "/pagoda.jpg" : "/no-air.png"
-                    }
-                    alt="no-air"
-                    width="185px"
-                    height="185px"
-                    style={{ borderRadius: "15px" }}
-                  ></img>
-                </Box>
-                <Box ml={4}>
-                  <Typography variant="h6" fontWeight="bold">
-                    {songMetadata?.trackTitle}
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {songMetadata?.artistName}
-                  </Typography>
-                  <Box mt={2} width="200px">
-                    <Grid container>
-                      {selectedTrackIndex === 1 && (
-                        <>
-                          <Grid item xs={6}>
-                            <Typography
-                              align="right"
-                              textTransform="capitalize"
-                              fontSize="small"
-                            >
-                              Contract ID:
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={2}></Grid>
-                          <Grid item xs={4}>
-                            <Typography
-                              align="left"
-                              fontWeight="bold"
-                              fontSize="small"
-                            >
-                              1514244
-                            </Typography>
-                          </Grid>
-                        </>
-                      )}
-                      {["genre", "bpm", "key"].map((prop) => {
-                        return (
-                          <>
-                            <Grid item xs={6}>
-                              <Typography
-                                align="right"
-                                textTransform="capitalize"
-                                fontSize="small"
-                              >
-                                {prop}:
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={2}></Grid>
-                            <Grid item xs={4}>
-                              <Typography
-                                align="left"
-                                fontWeight="bold"
-                                fontSize="small"
-                              >
-                                {songMetadata && songMetadata[prop]}
-                              </Typography>
-                            </Grid>
-                          </>
-                        );
-                      })}
-                    </Grid>
-                  </Box>
-                  {selectedTrackIndex === 0 && (
-                    <Box mt={2}>
-                      <Grid container>
-                        {/* <Grid item xs={4}>
-                          <Typography
-                            align="right"
-                            textTransform="capitalize"
-                            fontSize="small"
-                          >
-                            Description:
-                          </Typography>
-                        </Grid> */}
-                        {/* <Grid item xs={2}></Grid> */}
-                        <Grid item xs={12}>
-                          <Typography
-                            align="left"
-                            fontWeight="bold"
-                            fontSize="small"
-                          >
-                            In the 1990’s a mad scientist kidnapped a young
-                            woman, connected her brain to a machine and
-                            transferred her soul inside a 8 bit videogame. The
-                            process turned her into a cyber geisha. Many years
-                            later, the geisha’s soul managed to escape through
-                            the internet and the blockchain eventually
-                            re-emerging in the metaverse as a 3D avatar. As she
-                            seeks to heal her soul and tell the story of her
-                            long lost love, the geisha uses softwares and
-                            virtual instruments to compose music. Her first
-                            music album is a collection of short compositions
-                            called HAIKU, where traditional Asian instruments
-                            and electronic music are blended together into a
-                            unique soundtrack.
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            )}
+        <Box display="flex" gap={4}>
+          <Box>
+            <Typography fontFamily="Helvetica">Instagram</Typography>
+          </Box>
+          <Box>
+            <Typography fontFamily="Helvetica">Twitter</Typography>
+          </Box>
+          <Box>
+            <Typography fontFamily="Helvetica">Youtube</Typography>
           </Box>
         </Box>
-        {isLoaded && (
-          <Box
-            mt={2}
-            display="flex"
-            justifyContent="center"
-            gap={2}
-            alignItems="center"
-          >
-            {sectionsWithOffset[selectedTrackIndex as 0 | 1].map(
-              ({ name }, i) => (
-                <Chip
-                  key={i}
-                  label={name}
-                  sx={{ bgcolor: colors[i] }}
-                  clickable
-                  onClick={() => onSectionChipSelection(i)}
-                ></Chip>
-              )
-            )}
-          </Box>
-        )}
+      </Box> */}
+      <Box mt={4}>
+        <Typography variant="h3" align="center">
+          Push Me Too Far
+        </Typography>
       </Box>
+      {!isLoaded && (
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Button
+            onClick={() => start(0)}
+            color="secondary"
+            sx={{ fontFamily: "Helvetica" }}
+          >
+            Show me the track
+          </Button>
+        </Box>
+      )}
       {isLoaded && (
-        <div
-          style={{
-            position: "relative",
-            marginTop: "30px",
-            margin: "40px",
-            marginLeft: "160px",
-            marginRight: "160px",
-            backgroundColor: "black",
-          }}
-          onMouseMove={onMultiTrackHover}
-        >
-          <TonePlayerViz
-            name="synth"
-            onMounted={onMounted}
-            tonePlayer={synthPlayer.current as Tone.Player}
-            sectionLocation={sectionLocation}
-            onPlayOrPause={onPlayOrPause}
-            toggleSongOrStemMode={toggleSongOrStemMode}
-            isSongModeState={isSongModeState}
-            selectedStemPlayerName={selectedStemPlayerName}
-            isPlaying={isPlaying}
-            isLoopOn={isLoopOn}
-            transportProgress={transportProgress}
-            onMintNft={onMintNft}
-            selectedTrackIndex={selectedTrackIndex}
-          />
-          <TonePlayerViz
-            name="sound"
-            onMounted={onMounted}
-            tonePlayer={soundPlayer.current as Tone.Player}
-            sectionLocation={sectionLocation}
-            onPlayOrPause={onPlayOrPause}
-            toggleSongOrStemMode={toggleSongOrStemMode}
-            isSongModeState={isSongModeState}
-            selectedStemPlayerName={selectedStemPlayerName}
-            isPlaying={isPlaying}
-            isLoopOn={isLoopOn}
-            transportProgress={transportProgress}
-            onMintNft={onMintNft}
-            selectedTrackIndex={selectedTrackIndex}
-          />
-          <TonePlayerViz
-            name="bass"
-            onMounted={onMounted}
-            tonePlayer={bassPlayer.current as Tone.Player}
-            sectionLocation={sectionLocation}
-            onPlayOrPause={onPlayOrPause}
-            toggleSongOrStemMode={toggleSongOrStemMode}
-            isSongModeState={isSongModeState}
-            selectedStemPlayerName={selectedStemPlayerName}
-            isPlaying={isPlaying}
-            isLoopOn={isLoopOn}
-            transportProgress={transportProgress}
-            onMintNft={onMintNft}
-            selectedTrackIndex={selectedTrackIndex}
-          />
-          <TonePlayerViz
-            name="drums"
-            onMounted={onMounted}
-            tonePlayer={drumsPlayer.current as Tone.Player}
-            sectionLocation={sectionLocation}
-            onPlayOrPause={onPlayOrPause}
-            toggleSongOrStemMode={toggleSongOrStemMode}
-            isSongModeState={isSongModeState}
-            selectedStemPlayerName={selectedStemPlayerName}
-            isPlaying={isPlaying}
-            isLoopOn={isLoopOn}
-            transportProgress={transportProgress}
-            onMintNft={onMintNft}
-            selectedTrackIndex={selectedTrackIndex}
-          />
-          {isSongModeState && (
-            <TransportBar transportProgress={transportProgress} />
-          )}
-          {isSongModeState && sectionLocation.left !== -1 && (
-            <CanvasSectionBox
+        <Box mx={2} my={8} display={{ md: "flex" }} justifyContent="center">
+          <div
+            style={{
+              position: "relative",
+              // width: "100%",
+              width: "1500px",
+              // overflowX: "auto",
+            }}
+            onMouseMove={onMultiTrackHover}
+          >
+            <TonePlayerViz
+              name="synth"
+              onMounted={onMounted}
+              tonePlayer={synthPlayer.current as Tone.Player}
               sectionLocation={sectionLocation}
               onPlayOrPause={onPlayOrPause}
               toggleSongOrStemMode={toggleSongOrStemMode}
+              isSongModeState={isSongModeState}
+              selectedStemPlayerName={selectedStemPlayerName}
               isPlaying={isPlaying}
               isLoopOn={isLoopOn}
-              isSongModeState={isSongModeState}
+              transportProgress={transportProgress}
               onMintNft={onMintNft}
               selectedTrackIndex={selectedTrackIndex}
-              selectedStemPlayerName={selectedStemPlayerName}
             />
-          )}
-        </div>
-      )}
-      {isLoaded && (
-        <Box mt={5} display="flex" justifyContent="center">
-          <Box width="70%">{selectedTrackIndex === 1 && <BarChart />}</Box>
+            <TonePlayerViz
+              name="sound"
+              onMounted={onMounted}
+              tonePlayer={soundPlayer.current as Tone.Player}
+              sectionLocation={sectionLocation}
+              onPlayOrPause={onPlayOrPause}
+              toggleSongOrStemMode={toggleSongOrStemMode}
+              isSongModeState={isSongModeState}
+              selectedStemPlayerName={selectedStemPlayerName}
+              isPlaying={isPlaying}
+              isLoopOn={isLoopOn}
+              transportProgress={transportProgress}
+              onMintNft={onMintNft}
+              selectedTrackIndex={selectedTrackIndex}
+            />
+            <TonePlayerViz
+              name="bass"
+              onMounted={onMounted}
+              tonePlayer={bassPlayer.current as Tone.Player}
+              sectionLocation={sectionLocation}
+              onPlayOrPause={onPlayOrPause}
+              toggleSongOrStemMode={toggleSongOrStemMode}
+              isSongModeState={isSongModeState}
+              selectedStemPlayerName={selectedStemPlayerName}
+              isPlaying={isPlaying}
+              isLoopOn={isLoopOn}
+              transportProgress={transportProgress}
+              onMintNft={onMintNft}
+              selectedTrackIndex={selectedTrackIndex}
+            />
+            <TonePlayerViz
+              name="drums"
+              onMounted={onMounted}
+              tonePlayer={drumsPlayer.current as Tone.Player}
+              sectionLocation={sectionLocation}
+              onPlayOrPause={onPlayOrPause}
+              toggleSongOrStemMode={toggleSongOrStemMode}
+              isSongModeState={isSongModeState}
+              selectedStemPlayerName={selectedStemPlayerName}
+              isPlaying={isPlaying}
+              isLoopOn={isLoopOn}
+              transportProgress={transportProgress}
+              onMintNft={onMintNft}
+              selectedTrackIndex={selectedTrackIndex}
+            />
+            {isSongModeState && (
+              <TransportBar transportProgress={transportProgress} />
+            )}
+            {isSongModeState && sectionLocation.left !== -1 && (
+              <CanvasSectionBox
+                sectionLocation={sectionLocation}
+                onPlayOrPause={onPlayOrPause}
+                toggleSongOrStemMode={toggleSongOrStemMode}
+                isPlaying={isPlaying}
+                isLoopOn={isLoopOn}
+                isSongModeState={isSongModeState}
+                onMintNft={onMintNft}
+                selectedTrackIndex={selectedTrackIndex}
+                selectedStemPlayerName={selectedStemPlayerName}
+              />
+            )}
+          </div>
         </Box>
       )}
       {selectedTrackIndex !== -1 && isLoaded === false && (
@@ -1136,6 +897,11 @@ export const MarketPlace = () => {
           <CircularProgress></CircularProgress>
         </Box>
       )}
+      {/* <Box position="relative">
+        <Typography>
+          © 2023 by Mariana Makwaia. Powered and secured by nusic.fm
+        </Typography>
+      </Box> */}
     </Box>
   );
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   createTheme,
   responsiveFontSizes,
@@ -14,10 +15,11 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
 import NonVisualizer from "./NonVisualizer";
+import { MarketPlace } from "./MarketPlace";
 
 WebFont.load({
   google: {
-    families: ["BenchNine", "Space Mono", "Tenor Sans"],
+    families: ["Playfair Display"],
   },
 });
 
@@ -55,21 +57,22 @@ const themeSettings = createTheme({
       main: "#ffffff",
     },
     info: {
-      main: "#A794FF",
+      main: "#998ABE",
+      // main: "#A794FF",
     },
-    background: { paper: "#16162A" },
+    background: { paper: "black" },
   },
   typography: {
     button: {
-      fontFamily: '"Space Mono" , sans-serif',
+      fontFamily: '"Playfair Display" , sans-serif',
     },
     h5: {
-      fontFamily: '"BenchNine"',
+      fontFamily: '"Playfair Display"',
     },
     allVariants: {
       color: "#ffffff",
     },
-    fontFamily: `"Space Mono" , sans-serif`,
+    fontFamily: `"Playfair Display" , sans-serif`,
   },
 });
 const theme = responsiveFontSizes(themeSettings);
@@ -86,7 +89,7 @@ root.render(
             {/* <Route path="/" element={<MarketPlace />} />
             <Route path="/upload" element={<App />} />
             <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} /> */}
-            <Route path="/" element={<NonVisualizer trackIdx={1} />} />
+            <Route path="/" element={<MarketPlace />} />
           </Routes>
         </Router>
       </Web3ReactProvider>
