@@ -52,6 +52,7 @@ const TonePlayerViz = (props: {
   transportProgress: number;
   onMintNft: (price: number, sectionIndex: number) => Promise<void>;
   selectedTrackIndex?: number;
+  showSections: boolean;
 }) => {
   const {
     onMounted,
@@ -67,6 +68,7 @@ const TonePlayerViz = (props: {
     transportProgress,
     onMintNft,
     selectedTrackIndex,
+    showSections,
   } = props;
   const audioWaveformCanvas = useRef<HTMLCanvasElement>(null);
 
@@ -215,19 +217,21 @@ const TonePlayerViz = (props: {
       {isSongModeState === false && selectedStemPlayerName === name && (
         <TransportBar transportProgress={transportProgress} />
       )}
-      {isSongModeState === false && selectedStemPlayerName === name && (
-        <CanvasSectionBox
-          sectionLocation={sectionLocation}
-          onPlayOrPause={onPlayOrPause}
-          toggleSongOrStemMode={toggleSongOrStemMode}
-          isPlaying={isPlaying}
-          isLoopOn={isLoopOn}
-          isSongModeState={isSongModeState}
-          onMintNft={onMintNft}
-          selectedTrackIndex={selectedTrackIndex}
-          selectedStemPlayerName={selectedStemPlayerName}
-        ></CanvasSectionBox>
-      )}
+      {showSections &&
+        isSongModeState === false &&
+        selectedStemPlayerName === name && (
+          <CanvasSectionBox
+            sectionLocation={sectionLocation}
+            onPlayOrPause={onPlayOrPause}
+            toggleSongOrStemMode={toggleSongOrStemMode}
+            isPlaying={isPlaying}
+            isLoopOn={isLoopOn}
+            isSongModeState={isSongModeState}
+            onMintNft={onMintNft}
+            selectedTrackIndex={selectedTrackIndex}
+            selectedStemPlayerName={selectedStemPlayerName}
+          ></CanvasSectionBox>
+        )}
     </Box>
   );
 };

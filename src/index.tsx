@@ -19,7 +19,7 @@ import { MarketPlace } from "./MarketPlace";
 
 WebFont.load({
   google: {
-    families: ["Playfair Display"],
+    families: ["Playfair Display", "Helvetica", "Arial"],
   },
 });
 
@@ -64,15 +64,18 @@ const themeSettings = createTheme({
   },
   typography: {
     button: {
-      fontFamily: '"Playfair Display" , sans-serif',
+      fontFamily: "Arial, Helvetica , sans-serif",
     },
-    h5: {
-      fontFamily: '"Playfair Display"',
+    h2: {
+      fontFamily: "Playfair Display",
+    },
+    h3: {
+      fontFamily: "Playfair Display",
     },
     allVariants: {
       color: "#ffffff",
     },
-    fontFamily: `"Playfair Display" , sans-serif`,
+    fontFamily: `Arial, Helvetica , sans-serif`,
   },
 });
 const theme = responsiveFontSizes(themeSettings);

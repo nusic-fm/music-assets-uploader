@@ -1,6 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // import { TreeItem, TreeView } from "@mui/lab";
-import { Button, CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  Button,
+  ButtonGroup,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
 // import { NftItem } from "./components/NftItem";
@@ -16,6 +24,10 @@ import { ethers } from "ethers";
 import Erc20Abi from "./abis/Erc20.json";
 import YbNftAbi from "./abis/AtomicMusicYBNFT.json";
 import NftAbi from "./abis/AtomicMusicYBNFT.json";
+import CalendarViewDayRoundedIcon from "@mui/icons-material/CalendarViewDayRounded";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
+import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
 
 export interface Section {
   name: string;
@@ -77,93 +89,7 @@ export const sectionsWithOffset = {
       name: "Outro",
     },
   ],
-  1: [
-    {
-      sectionStartBeatInSeconds: 0,
-      sectionEndBeatInSeconds: 18,
-      name: "Intro",
-    },
-    {
-      sectionStartBeatInSeconds: 18,
-      sectionEndBeatInSeconds: 42,
-      name: "Verse",
-    },
-    {
-      sectionStartBeatInSeconds: 42,
-      sectionEndBeatInSeconds: 54,
-      name: "Pre-Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 54,
-      sectionEndBeatInSeconds: 79,
-      name: "Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 79,
-      sectionEndBeatInSeconds: 90,
-      name: "Post-Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 90,
-      sectionEndBeatInSeconds: 114,
-      name: "Verse",
-    },
-    {
-      sectionStartBeatInSeconds: 114,
-      sectionEndBeatInSeconds: 126,
-      name: "Pre-Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 126,
-      sectionEndBeatInSeconds: 150,
-      name: "Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 150,
-      sectionEndBeatInSeconds: 162,
-      name: "Post-Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 162,
-      sectionEndBeatInSeconds: 186,
-      name: "Bridge",
-    },
-    {
-      sectionStartBeatInSeconds: 186,
-      sectionEndBeatInSeconds: 210,
-      name: "Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 210,
-      sectionEndBeatInSeconds: 222,
-      name: "Pre-Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 222,
-      sectionEndBeatInSeconds: 246,
-      name: "Chorus",
-    },
-    {
-      sectionStartBeatInSeconds: 246,
-      sectionEndBeatInSeconds: 267,
-      name: "Hook",
-    },
-  ] as Section[],
-};
-
-const noAir = {
-  artistName: "Steven Russell ASCAP Royalties (US Market)",
-  trackTitle: "No Air - Jordin Sparks, Chris Brown",
-
-  albumName: "-",
-
-  genre: "Pop",
-
-  bpm: 160,
-
-  key: "A♭ minor",
-
-  timeSignature: "4/4",
+  1: [],
 };
 
 const raveCode = {
@@ -189,19 +115,6 @@ export const stemSectionPrices = {
   37: [160, 200, 240, 200, 160, 160, 240, 160], //FULLTRACK
 } as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
 
-export const tempStemSectionPrices = {
-  1: [0.4, 0.25, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //BASS
-  10: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //CHORDS
-  19: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //PADS
-  28: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //PERCUSSION
-  37: [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09], //FULLTRACK
-} as { 1: number[]; 10: number[]; 19: number[]; 28: number[]; 37: number[] };
-
-export const noAirPrices = [
-  247.81, 330.42, 165.21, 344.18, 151.44, 330.42, 165.21, 330.42, 165.21,
-  330.42, 330.42, 165.21, 330.42, 289.11,
-];
-
 export const MarketPlace = () => {
   const { login } = useAuth();
   const { account, library } = useWeb3React();
@@ -213,7 +126,7 @@ export const MarketPlace = () => {
   const synthPlayer = useRef<Tone.Player | null>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [selectedTrackIndex, setSelectedTrackIndex] = useState(-1);
+  const [selectedTrackIndex, setSelectedTrackIndex] = useState(0);
 
   const selectedSectionIndex = useRef<number>(-1);
   // const [selectedSectionIndexState, setSelectedSectionIndexState] =
@@ -231,7 +144,10 @@ export const MarketPlace = () => {
   const [isLoopOn, setIsLoopOn] = useState<boolean>(false);
   const [, setDuration] = useState<number>(0);
   const [transportProgress, setTransportProgress] = useState<number>(0);
-  const [songMetadata, setSongMetadata] = useState<any>(null);
+  const [songMetadata] = useState<any>(raveCode);
+  const [showSections, setShowSections] = useState(false);
+
+  const isFirstClickPending = useRef(true);
 
   const onMounted = (width: number) => {
     setClientWidth(width);
@@ -252,10 +168,6 @@ export const MarketPlace = () => {
     };
   };
 
-  // useEffect(() => {
-  //   login();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
     width: number;
@@ -263,10 +175,6 @@ export const MarketPlace = () => {
   }>({ left: -1, width: 0, index: -1 });
 
   const setupTransportTimeline = async () => {
-    // const song = songModel.value
-    // if (song == null) {
-    //   return
-    // }
     await Tone.start();
     Tone.Transport.bpm.value = songMetadata.bpm;
     // eslint-disable-next-line no-console
@@ -280,19 +188,8 @@ export const MarketPlace = () => {
     soundPlayer.current?.start(0, startBeatOffset);
     synthPlayer.current?.start(0, startBeatOffset);
     setDuration(bassPlayer.current?.buffer.duration ?? 0);
-    // this.metronomeLoop = new Tone.Loop((time) => {
-    //   this.metronome.start(time)
-    //   // TODO: Support time signatures other than 4/4
-    // }, '4n').start(0)
 
     new Tone.Loop(() => {
-      // if (
-      //   Tone.Transport.seconds.toFixed(0) === transport.duration.value.toFixed(0)
-      // ) {
-      //   Tone.Transport.stop()
-      // }
-      // transport.position.value = Tone.Transport.position
-      // transport.seconds.value = Tone.Transport.seconds
       const progress =
         Tone.Transport.seconds / (bassPlayer.current?.buffer.duration ?? 0);
       transportProgressRef.current = progress;
@@ -312,12 +209,6 @@ export const MarketPlace = () => {
   }, [isPlaying]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = async (trackIndex: number) => {
-    // https://storage.googleapis.com/nusic-mashup-content/Yatta/bass.mp3
-    // https://storage.googleapis.com/nusic-mashup-content/Yatta/drums.mp3
-    // https://storage.googleapis.com/nusic-mashup-content/Yatta/sound.mp3
-    // https://storage.googleapis.com/nusic-mashup-content/Yatta/synth.mp3
-    // https://storage.googleapis.com/nusic-mashup-content/Yatta/audio.wav
-    setSelectedTrackIndex(trackIndex);
     let stemPlayers;
     if (trackIndex === 0) {
       // Synth, Sound, Bass, Drums
@@ -337,32 +228,6 @@ export const MarketPlace = () => {
         bass: "https://storage.googleapis.com/nusic-mashup-content/No-Air/fulltrack.mp3",
       };
     }
-
-    // const stemPlayers = {
-    //   bass: "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-bass.mp3",
-    //   drums:
-    //     "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-drums.mp3",
-    //   sound:
-    //     "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-melody.mp3",
-    //   synth:
-    //     "https://storage.googleapis.com/nusic-mashup-content/-G-yZUZFIGY/4stems/-G-yZUZFIGY-vocals.mp3",
-    // };
-
-    // const stemsAudioBuffer = await new Promise(async (res) => {
-    //   const stemRes = await Promise.all(
-    //     Object.keys(stemPlayers).map(async (stem: string) => {
-    //       const audioBuffer = await new Promise((res) => {
-    //         const url =
-    //           stemPlayers[stem as "bass" | "drums" | "sound" | "synth"];
-    //         const player = new Tone.Player(url, () => {
-    //           res(player.buffer.get());
-    //         });
-    //       });
-    //       return { [stem]: audioBuffer };
-    //     })
-    //   );
-    //   return res(stemRes);
-    // });
     const players = new Tone.Players(stemPlayers as any, () => {
       bassPlayer.current = players.player("bass").toDestination().sync();
       if (trackIndex === 0) {
@@ -370,12 +235,7 @@ export const MarketPlace = () => {
         soundPlayer.current = players.player("sound").toDestination().sync();
         synthPlayer.current = players.player("synth").toDestination().sync();
       }
-      setupTransportTimeline();
-      // const { left, right } = transformCoordinateSecondsIntoPixels(
-      //   sectionsWithOffset[0].sectionStartBeatInSeconds,
-      //   sectionsWithOffset[0].sectionEndBeatInSeconds
-      // );
-      // setSectionLocation({ left, width: right - left });
+      // setupTransportTimeline();
       setIsLoaded(true);
     });
     tonePlayers.current = players;
@@ -454,20 +314,9 @@ export const MarketPlace = () => {
       width,
       index,
     });
-    // this.sectionCoordinate = sectionCoordinate
-    // this.toneService.transport.progress.value = sectionCoordinate.left
     if (previousSectionIndex === selectedSectionIndex.current) {
       return;
     }
-    //  Forward the loop state to new sections
-    // if (Tone.Transport.loop) {
-    //   const { sectionStartBeatInSeconds, sectionEndBeatInSeconds } = this
-    //     .currentSection as Section
-    //   this.toneService.setLoopStartAndEnd(
-    //     sectionStartBeatInSeconds,
-    //     sectionEndBeatInSeconds
-    //   )
-    // }
     if (toneChangetimer.current) {
       clearTimeout(toneChangetimer.current);
     }
@@ -484,28 +333,13 @@ export const MarketPlace = () => {
   };
 
   const onMultiTrackHover = (event: React.MouseEvent) => {
+    if (!showSections) {
+      return;
+    }
     const { left } = (
       event.currentTarget as HTMLElement
     ).getBoundingClientRect();
     const calculatedOffsetLeft = event.clientX - left;
-    // const calculatedOffsetTop = event.clientY - top;
-    // const cursorToTooltipDifferenceX = 20;
-    // const playerWidth = event.currentTarget.clientWidth;
-    // const isTooltipXOutOfPlayer = calculatedOffsetLeft > playerWidth - 150;
-    // const adjustedLeft = isTooltipXOutOfPlayer
-    //   ? playerWidth - 132
-    //   : calculatedOffsetLeft + cursorToTooltipDifferenceX;
-
-    // const cursorToTooltipDifferenceY = 120;
-    // const isTooltipYOutOfPlayer =
-    //   calculatedOffsetTop < cursorToTooltipDifferenceY;
-    // const adjustedTop = isTooltipYOutOfPlayer
-    //   ? 0
-    //   : calculatedOffsetTop - cursorToTooltipDifferenceY;
-
-    // TODO:
-    // this.waveFormTooltip.position.left = adjustedLeft;
-    // this.waveFormTooltip.position.top = adjustedTop;
     if ((event.target as HTMLElement).tagName === "CANVAS") {
       const stemName = (event.target as HTMLElement).getAttribute(
         "data-player"
@@ -516,7 +350,11 @@ export const MarketPlace = () => {
       changeSectionAndTone(event, stemName, calculatedOffsetLeft);
     }
   };
-  const onPlayOrPause = () => {
+  const onPlayOrPause = async () => {
+    if (isFirstClickPending.current) {
+      isFirstClickPending.current = false;
+      await setupTransportTimeline();
+    }
     toggleTransport();
   };
   const toggleSongOrStemMode = () => {
@@ -541,67 +379,12 @@ export const MarketPlace = () => {
       setIsLoopOn(false);
     });
   };
-  // const fetchFulltracks = async () => {
-  //   const graphqlQuery = {
-  //     query: `query {
-  //               fullTrackRecords (last: 2) {
-  //                 nodes {
-  //                   musicId
-  //                   cid
-  //                   artistName
-  //                   trackTitle
-  //                   albumName
-  //                   genre
-  //                   bpm
-  //                   key
-  //                   timeSignature
-  //                   bars
-  //                   beats
-  //                   duration
-  //                   startBeatOffsetMs
-  //                   sectionsCount
-  //                   stemsCount
-  //                 }
-  //             }
-  //               sectionRecords (last: 30) {
-  //                   nodes {
-  //                     musicId
-  //                     name
-  //                     startTimeMs
-  //                   }
-  //               }
-  //               stemRecords (last: 4) {
-  //                     nodes {
-  //                       musicId
-  //                       cid
-  //                       name
-  //                       type
-  //                     }
-  //                 }
-  //               }`,
-  //     variables: {},
-  //   };
-  //   // sectionRecords (first: 5) {
-  //   //   nodes {
-  //   //     id
-  //   //     musicId
-  //   //   }
-  //   // }
-  //   const fullTracks = await axios.post(
-  //     "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
-  //     graphqlQuery
-  //   );
-  //   const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
-  //   console.log({ raveCodeRecord });
-  //   setSongMetadata(raveCode);
-  // };
 
   useEffect(() => {
-    // if (selectedTrackIndex === 0) fetchFulltracks();
-    // else setSongMetadata(noAir);
-    setSongMetadata(raveCode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTrackIndex]);
+    if (songMetadata) {
+      start(0);
+    }
+  }, [songMetadata]);
 
   const onMintNft = async (price: number, sectionIndex: number) => {
     if (library) {
@@ -692,35 +475,6 @@ export const MarketPlace = () => {
     }
   };
 
-  const onSectionChipSelection = (sectionIndex: number): void => {
-    selectedSectionIndex.current = sectionIndex;
-    // setSelectedSectionIndexState(selectedSectionIndex.current);
-    const { sectionStartBeatInSeconds, sectionEndBeatInSeconds } =
-      sectionsWithOffset[selectedTrackIndex as 0 | 1][
-        selectedSectionIndex.current
-      ];
-    //  Playing only in song mode
-    // this.songOrStemMode = 0
-    setMutes();
-    const currentBeat = parseInt(
-      Tone.Transport.position.toString().split(":")[1]
-    );
-    const delayTime = ((4 - currentBeat) / 4) * (60 / Tone.Transport.bpm.value);
-    setTimeout(() => {
-      //  Delay included for hover section box as well
-      const { left, right } = transformCoordinateSecondsIntoPixels(
-        sectionStartBeatInSeconds,
-        sectionEndBeatInSeconds
-      );
-      setSectionLocation({ left, width: right - left, index: sectionIndex });
-      Tone.Transport.seconds = sectionStartBeatInSeconds;
-      if (isPlaying === false) {
-        toggleTransport();
-      }
-    }, delayTime * 1000);
-  };
-
-  //No Air - Jording Sparks, Chris Brown
   return (
     <Box
       sx={{
@@ -728,9 +482,15 @@ export const MarketPlace = () => {
         minHeight: "100vh",
         overflowX: "auto",
       }}
-      p={{ xs: 2, md: 4 }}
     >
-      {/* <Box style={{ float: "right" }}>
+      <Box
+        sx={{
+          background:
+            "radial-gradient(circle at 5% 0%, #34167D 0%, rgba(0,0,0,0) 14.0777587890625%)",
+        }}
+        p={{ xs: 2, md: 4 }}
+      >
+        {/* <Box style={{ float: "right" }}>
         {account ? (
           <Tooltip title={account}>
             <Chip
@@ -747,161 +507,215 @@ export const MarketPlace = () => {
           </Button>
         )}
       </Box> */}
-      <Grid container p={{ xs: 2, md: 4 }} rowSpacing={4}>
-        <Grid item xs={12} md={4}>
-          <Box>
-            <Typography variant="h2">Mariana</Typography>
-            <Typography variant="h2">Makwaia</Typography>
-          </Box>
+        <Grid container p={{ xs: 2, md: 4 }} rowSpacing={4}>
+          <Grid item xs={12} md={4}>
+            <Box px={{ md: 2 }}>
+              <Typography variant="h2">Mariana</Typography>
+              <Typography variant="h2">Makwaia</Typography>
+            </Box>
+          </Grid>
+          <Grid item md={5}></Grid>
+          <Grid item xs={12} md={3}>
+            <Box display="flex" justifyContent="space-around" width="100%">
+              <Box sx={{ cursor: "pointer" }}>
+                <Typography
+                  sx={{
+                    "&:hover": { color: "#998ABE" },
+                    transition: "color 0.3s",
+                  }}
+                >
+                  Instagram
+                </Typography>
+              </Box>
+              <Box sx={{ cursor: "pointer" }}>
+                <Typography
+                  sx={{
+                    "&:hover": { color: "#998ABE" },
+                    transition: "color 0.3s",
+                  }}
+                >
+                  Twitter
+                </Typography>
+              </Box>
+              <Box sx={{ cursor: "pointer" }}>
+                <Typography
+                  sx={{
+                    "&:hover": { color: "#998ABE" },
+                    transition: "color 0.3s",
+                  }}
+                >
+                  Youtube
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
         </Grid>
-        <Grid item md={5}></Grid>
-        <Grid item xs={12} md={3}>
-          <Box display="flex" justifyContent="space-around" width="100%">
-            <Box sx={{ cursor: "pointer" }}>
-              <Typography fontFamily="Helvetica">Instagram</Typography>
-            </Box>
-            <Box sx={{ cursor: "pointer" }}>
-              <Typography fontFamily="Helvetica">Twitter</Typography>
-            </Box>
-            <Box sx={{ cursor: "pointer" }}>
-              <Typography fontFamily="Helvetica">Youtube</Typography>
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
-      {/* <Box display="flex" justifyContent="space-between" flexWrap="wrap">
-        <Box p={4}>
-          <Typography variant="h2">Mariana</Typography>
-          <Typography variant="h2">Makwaia</Typography>
+        <Box mt={4}>
+          <Typography variant="h3" align="center">
+            Push Me Too Far
+          </Typography>
         </Box>
-        <Box display="flex" gap={4}>
-          <Box>
-            <Typography fontFamily="Helvetica">Instagram</Typography>
-          </Box>
-          <Box>
-            <Typography fontFamily="Helvetica">Twitter</Typography>
-          </Box>
-          <Box>
-            <Typography fontFamily="Helvetica">Youtube</Typography>
-          </Box>
-        </Box>
-      </Box> */}
-      <Box mt={4}>
-        <Typography variant="h3" align="center">
-          Push Me Too Far
-        </Typography>
-      </Box>
-      {!isLoaded && (
+        {/* {!isLoaded && (
         <Box display="flex" justifyContent="center" mt={2}>
           <Button
             onClick={() => start(0)}
             color="secondary"
-            sx={{ fontFamily: "Helvetica" }}
           >
             Show me the track
           </Button>
         </Box>
-      )}
-      {isLoaded && (
-        <Box mx={2} my={8} display={{ md: "flex" }} justifyContent="center">
-          <div
-            style={{
-              position: "relative",
-              // width: "100%",
-              width: "1500px",
-              // overflowX: "auto",
-            }}
-            onMouseMove={onMultiTrackHover}
+      )} */}
+        <Box mt={2} display="flex" justifyContent="center">
+          <ButtonGroup
+            variant="outlined"
+            color="secondary"
+            size="small"
+            aria-label="outlined primary button group"
           >
-            <TonePlayerViz
-              name="synth"
-              onMounted={onMounted}
-              tonePlayer={synthPlayer.current as Tone.Player}
-              sectionLocation={sectionLocation}
-              onPlayOrPause={onPlayOrPause}
-              toggleSongOrStemMode={toggleSongOrStemMode}
-              isSongModeState={isSongModeState}
-              selectedStemPlayerName={selectedStemPlayerName}
-              isPlaying={isPlaying}
-              isLoopOn={isLoopOn}
-              transportProgress={transportProgress}
-              onMintNft={onMintNft}
-              selectedTrackIndex={selectedTrackIndex}
-            />
-            <TonePlayerViz
-              name="sound"
-              onMounted={onMounted}
-              tonePlayer={soundPlayer.current as Tone.Player}
-              sectionLocation={sectionLocation}
-              onPlayOrPause={onPlayOrPause}
-              toggleSongOrStemMode={toggleSongOrStemMode}
-              isSongModeState={isSongModeState}
-              selectedStemPlayerName={selectedStemPlayerName}
-              isPlaying={isPlaying}
-              isLoopOn={isLoopOn}
-              transportProgress={transportProgress}
-              onMintNft={onMintNft}
-              selectedTrackIndex={selectedTrackIndex}
-            />
-            <TonePlayerViz
-              name="bass"
-              onMounted={onMounted}
-              tonePlayer={bassPlayer.current as Tone.Player}
-              sectionLocation={sectionLocation}
-              onPlayOrPause={onPlayOrPause}
-              toggleSongOrStemMode={toggleSongOrStemMode}
-              isSongModeState={isSongModeState}
-              selectedStemPlayerName={selectedStemPlayerName}
-              isPlaying={isPlaying}
-              isLoopOn={isLoopOn}
-              transportProgress={transportProgress}
-              onMintNft={onMintNft}
-              selectedTrackIndex={selectedTrackIndex}
-            />
-            <TonePlayerViz
-              name="drums"
-              onMounted={onMounted}
-              tonePlayer={drumsPlayer.current as Tone.Player}
-              sectionLocation={sectionLocation}
-              onPlayOrPause={onPlayOrPause}
-              toggleSongOrStemMode={toggleSongOrStemMode}
-              isSongModeState={isSongModeState}
-              selectedStemPlayerName={selectedStemPlayerName}
-              isPlaying={isPlaying}
-              isLoopOn={isLoopOn}
-              transportProgress={transportProgress}
-              onMintNft={onMintNft}
-              selectedTrackIndex={selectedTrackIndex}
-            />
-            {isSongModeState && (
-              <TransportBar transportProgress={transportProgress} />
+            {isPlaying ? (
+              <IconButton onClick={onPlayOrPause}>
+                <PauseRoundedIcon color="info" />
+              </IconButton>
+            ) : (
+              <IconButton onClick={onPlayOrPause}>
+                <PlayArrowRoundedIcon color="primary" />
+              </IconButton>
             )}
-            {isSongModeState && sectionLocation.left !== -1 && (
-              <CanvasSectionBox
+            <IconButton
+              onClick={() => {
+                if (sectionLocation.index === -1) {
+                  const { left, width, index } =
+                    transformPixelToSectionStartPixel({
+                      offsetX: 0,
+                      clientWidth: 1500,
+                    });
+                  setSectionLocation({
+                    left,
+                    width,
+                    index,
+                  });
+                }
+                if (showSections) {
+                  toggleSongOrStemMode();
+                }
+                setShowSections(!showSections);
+              }}
+            >
+              {!showSections ? (
+                <CalendarViewDayRoundedIcon color="primary" />
+              ) : (
+                <HorizontalRuleRoundedIcon color="info" />
+              )}
+            </IconButton>
+          </ButtonGroup>
+        </Box>
+        {isLoaded && (
+          <Box mx={2} my={8} display={{ md: "flex" }} justifyContent="center">
+            <div
+              style={{
+                position: "relative",
+                // width: "100%",
+                width: "1500px",
+                // overflowX: "auto",
+              }}
+              onMouseMove={onMultiTrackHover}
+            >
+              <TonePlayerViz
+                name="synth"
+                onMounted={onMounted}
+                tonePlayer={synthPlayer.current as Tone.Player}
                 sectionLocation={sectionLocation}
                 onPlayOrPause={onPlayOrPause}
                 toggleSongOrStemMode={toggleSongOrStemMode}
+                isSongModeState={isSongModeState}
+                selectedStemPlayerName={selectedStemPlayerName}
                 isPlaying={isPlaying}
                 isLoopOn={isLoopOn}
-                isSongModeState={isSongModeState}
+                transportProgress={transportProgress}
                 onMintNft={onMintNft}
                 selectedTrackIndex={selectedTrackIndex}
-                selectedStemPlayerName={selectedStemPlayerName}
+                showSections={showSections}
               />
-            )}
-          </div>
+              <TonePlayerViz
+                name="sound"
+                onMounted={onMounted}
+                tonePlayer={soundPlayer.current as Tone.Player}
+                sectionLocation={sectionLocation}
+                onPlayOrPause={onPlayOrPause}
+                toggleSongOrStemMode={toggleSongOrStemMode}
+                isSongModeState={isSongModeState}
+                selectedStemPlayerName={selectedStemPlayerName}
+                isPlaying={isPlaying}
+                isLoopOn={isLoopOn}
+                transportProgress={transportProgress}
+                onMintNft={onMintNft}
+                selectedTrackIndex={selectedTrackIndex}
+                showSections={showSections}
+              />
+              <TonePlayerViz
+                name="bass"
+                onMounted={onMounted}
+                tonePlayer={bassPlayer.current as Tone.Player}
+                sectionLocation={sectionLocation}
+                onPlayOrPause={onPlayOrPause}
+                toggleSongOrStemMode={toggleSongOrStemMode}
+                isSongModeState={isSongModeState}
+                selectedStemPlayerName={selectedStemPlayerName}
+                isPlaying={isPlaying}
+                isLoopOn={isLoopOn}
+                transportProgress={transportProgress}
+                onMintNft={onMintNft}
+                selectedTrackIndex={selectedTrackIndex}
+                showSections={showSections}
+              />
+              <TonePlayerViz
+                name="drums"
+                onMounted={onMounted}
+                tonePlayer={drumsPlayer.current as Tone.Player}
+                sectionLocation={sectionLocation}
+                onPlayOrPause={onPlayOrPause}
+                toggleSongOrStemMode={toggleSongOrStemMode}
+                isSongModeState={isSongModeState}
+                selectedStemPlayerName={selectedStemPlayerName}
+                isPlaying={isPlaying}
+                isLoopOn={isLoopOn}
+                transportProgress={transportProgress}
+                onMintNft={onMintNft}
+                selectedTrackIndex={selectedTrackIndex}
+                showSections={showSections}
+              />
+              {isSongModeState && (
+                <TransportBar transportProgress={transportProgress} />
+              )}
+              {showSections &&
+                isSongModeState &&
+                sectionLocation.left !== -1 && (
+                  <CanvasSectionBox
+                    sectionLocation={sectionLocation}
+                    onPlayOrPause={onPlayOrPause}
+                    toggleSongOrStemMode={toggleSongOrStemMode}
+                    isPlaying={isPlaying}
+                    isLoopOn={isLoopOn}
+                    isSongModeState={isSongModeState}
+                    onMintNft={onMintNft}
+                    selectedTrackIndex={selectedTrackIndex}
+                    selectedStemPlayerName={selectedStemPlayerName}
+                  />
+                )}
+            </div>
+          </Box>
+        )}
+        {selectedTrackIndex !== -1 && isLoaded === false && (
+          <Box display="flex" justifyContent="center" mt={8}>
+            <CircularProgress></CircularProgress>
+          </Box>
+        )}
+        <Box>
+          <Typography variant="caption">
+            © 2023 by Mariana Makwaia. Powered and secured by nusic.fm
+          </Typography>
         </Box>
-      )}
-      {selectedTrackIndex !== -1 && isLoaded === false && (
-        <Box display="flex" justifyContent="center" mt={8}>
-          <CircularProgress></CircularProgress>
-        </Box>
-      )}
-      {/* <Box position="relative">
-        <Typography>
-          © 2023 by Mariana Makwaia. Powered and secured by nusic.fm
-        </Typography>
-      </Box> */}
+      </Box>
     </Box>
   );
 };

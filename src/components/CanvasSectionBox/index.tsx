@@ -15,7 +15,7 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import ShopIcon from "@mui/icons-material/Shop";
 import { useState } from "react";
-import { noAirPrices, SectionInfo, stemSectionPrices } from "../../MarketPlace";
+import { SectionInfo, stemSectionPrices } from "../../MarketPlace";
 
 const getStemIndex = (name: string) =>
   ["bass", "sound", "drums", "synth"].indexOf(name);
@@ -62,12 +62,9 @@ const CanvasSectionBox = (props: {
   const open = Boolean(anchorEl);
 
   const stemIndex = getStemIndex(selectedStemPlayerName);
-  const price =
-    selectedTrackIndex === 0
-      ? isSongModeState
-        ? stemSectionPrices[37][index]
-        : (stemSectionPrices as any)[[1, 10, 19, 28][stemIndex]][index]
-      : noAirPrices[index];
+  const price = isSongModeState
+    ? stemSectionPrices[37][index]
+    : (stemSectionPrices as any)[[1, 10, 19, 28][stemIndex]][index];
   // console.log(`Stem: ${stemIndex}, Price: ${price}`);
   const handleMint = () => {
     // if (askingPrice < minPrice) {
