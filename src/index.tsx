@@ -14,7 +14,6 @@ import WebFont from "webfontloader";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
-import NonVisualizer from "./NonVisualizer";
 import { MarketPlace } from "./MarketPlace";
 
 WebFont.load({
