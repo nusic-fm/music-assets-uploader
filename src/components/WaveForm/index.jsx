@@ -15,6 +15,8 @@ import {
   MenuItem,
   IconButton,
   Card,
+  TextField,
+  Skeleton,
   // TextField,
 } from "@mui/material";
 import colormap from "colormap";
@@ -50,14 +52,16 @@ const WaveForm = (props) => {
   } = props;
   const [isLoading, setIsLoading] = useState(true);
   const wavesurferIns = useRef(null);
-  const [zoomValue, setZoomValue] = useState(1);
+  const [zoomValue, setZoomValue] = useState(30);
   const [bars, setBars] = useState({});
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (noOfBars && durationOfEachBarInSec && wavesurferIns.current) {
       let start = startBeatOffsetMs / 1000;
       let end;
       const newBars = {};
+      wavesurferIns.current.markers.clear();
       for (let i = 0; i < noOfBars; i++) {
         end = start + durationOfEachBarInSec;
         // const hue = (360 * i) / noOfBars
@@ -106,10 +110,10 @@ const WaveForm = (props) => {
           secondaryFontColor: "#fff",
         }),
         RegionsPlugin.create({
-          // dragSelection: false,
-          dragSelection: {
-            slop: 5,
-          },
+          dragSelection: false,
+          // dragSelection: {
+          //   slop: 5,
+          // },
         }),
         SpectrogramPlugin.create({
           container: "#wave-spectrogram",
@@ -121,6 +125,7 @@ const WaveForm = (props) => {
     });
     wavesurfer.on("ready", function () {
       setIsLoading(false);
+      wavesurferIns.current.zoom(zoomValue);
       // wavesurfer.backend()
     });
     // wavesurfer.on("region-update-end", function () {
@@ -180,52 +185,57 @@ const WaveForm = (props) => {
       showWaveForm();
     }
   }, [url]);
-
+  const callback = (region) => {
+    const id = region.id;
+    const newSectionsObj = { ...sectionsObj };
+    if (newSectionsObj[id]) {
+      // newSectionsObj[id].start = region.start;
+      const differenceToClosestBarEnd = Object.values(bars).filter(
+        (bar) => region.end >= bar.start && region.end < bar.end
+      );
+      const barsInSection =
+        Object.keys(bars).filter(
+          (barNo) =>
+            bars[barNo].start >= region.start && bars[barNo].end <= region.end
+        ).length + 1;
+      newSectionsObj[id].bars = barsInSection;
+      newSectionsObj[id].totalBars = id
+        ? newSectionsObj[id - 1].totalBars + barsInSection
+        : barsInSection;
+      if (differenceToClosestBarEnd.length) {
+        const newEnd = differenceToClosestBarEnd[0].end;
+        newSectionsObj[id].end = newEnd;
+        region.onResize(newEnd - region.end);
+      } else {
+        newSectionsObj[id].end = region.end;
+      }
+      setSectionsObj(newSectionsObj);
+      // if (
+      //   id &&
+      //   region.start !== wavesurferIns.current.regions.list[id - 1].end
+      // ) {
+      //   region.onResize(
+      //     wavesurferIns.current.regions.list[id - 1].end,
+      //     "start"
+      //   );
+      // }
+    }
+    // else {
+    //   newSectionsObj[id] = {
+    //     name: SectionNames[id],
+    //     start: region.start,
+    //     end: region.end,
+    //   };
+    //   setSectionsObj(newSectionsObj);
+    // }
+  };
   useEffect(() => {
     if (wavesurferIns.current && !isLoading) {
-      wavesurferIns.current.on("region-update-end", function (region) {
-        const id = region.id;
-        const newSectionsObj = { ...sectionsObj };
-        if (newSectionsObj[id]) {
-          // newSectionsObj[id].start = region.start;
-          const differenceToClosestBarEnd = Object.values(bars).filter(
-            (bar) => region.end >= bar.start && region.end < bar.end
-          );
-          const barsInSection =
-            Object.keys(bars).filter(
-              (barNo) =>
-                bars[barNo].start >= region.start &&
-                bars[barNo].end <= region.end
-            ).length + 1;
-          newSectionsObj[id].bars = barsInSection;
-          if (differenceToClosestBarEnd.length) {
-            const newEnd = differenceToClosestBarEnd[0].end;
-            newSectionsObj[id].end = newEnd;
-            region.onResize(newEnd - region.end);
-          } else {
-            newSectionsObj[id].end = region.end;
-            setSectionsObj(newSectionsObj);
-          }
-          // if (
-          //   id &&
-          //   region.start !== wavesurferIns.current.regions.list[id - 1].end
-          // ) {
-          //   region.onResize(
-          //     wavesurferIns.current.regions.list[id - 1].end,
-          //     "start"
-          //   );
-          // }
-        }
-        // else {
-        //   newSectionsObj[id] = {
-        //     name: SectionNames[id],
-        //     start: region.start,
-        //     end: region.end,
-        //   };
-        //   setSectionsObj(newSectionsObj);
-        // }
-      });
+      wavesurferIns.current.on("region-update-end", callback);
     }
+    return () => {
+      wavesurferIns.current?.un("region-update-end", callback);
+    };
   }, [isLoading, sectionsObj]);
 
   const addSection = () => {
@@ -238,6 +248,7 @@ const WaveForm = (props) => {
         start: 0,
         end: durationOfEachBarInSec,
         bars: 1,
+        totalBars: 1,
       };
     } else {
       const prevRegion = wavesurferIns.current.regions.list[id - 1];
@@ -247,6 +258,7 @@ const WaveForm = (props) => {
         start: prevRegion.end,
         end: prevRegion.end + durationOfEachBarInSec,
         bars: 1,
+        totalBars: newSectionsObj[id - 1].totalBars + 1,
       };
     }
     var o = Math.round,
@@ -267,6 +279,7 @@ const WaveForm = (props) => {
       start: newSectionsObj[id].start,
       end: newSectionsObj[id].end,
       color,
+      drag: false,
     });
     setSectionsObj(newSectionsObj);
   };
@@ -279,17 +292,47 @@ const WaveForm = (props) => {
     wavesurferIns.current.zoom(Number(e.target.value));
   };
 
+  const onPlay = () => {
+    setIsPlaying(true);
+  };
+  const onPause = () => {
+    setIsPlaying(false);
+  };
+  useEffect(() => {
+    wavesurferIns.current?.on("play", onPlay);
+    wavesurferIns.current?.on("pause", onPause);
+    return () => {
+      wavesurferIns.current?.on("play", onPlay);
+      wavesurferIns.current?.un("pause", onPause);
+    };
+  }, [isLoading, isPlaying]);
+
   return (
     <Box mt={5}>
       <Typography variant="h6">Waveform Explorer</Typography>
       <Box mt={4}>
-        {!isLoading && (
-          <Button variant="contained" onClick={pauseOrPlay}>
-            Play/Pause
-          </Button>
-        )}
+        <Button variant="contained" onClick={pauseOrPlay} disabled={isLoading}>
+          {isPlaying ? "Pause" : "Play"}
+        </Button>
+        <Button
+          sx={{ ml: 3 }}
+          onClick={addSection}
+          variant="contained"
+          disabled={isLoading || !noOfBars}
+        >
+          Add Section
+        </Button>
       </Box>
       <Box mt={4}>
+        {isLoading && (
+          <Skeleton
+            variant="rounded"
+            width={"100%"}
+            height={150}
+            sx={{ mb: 4 }}
+            animation={false}
+          ></Skeleton>
+        )}
         <Box id="waveform" style={{ width: "100%" }}></Box>
         <Box id="wave-timeline"></Box>
       </Box>
@@ -308,7 +351,7 @@ const WaveForm = (props) => {
               value={zoomValue}
               onChange={onZoom}
               step={10}
-              min={1}
+              min={10}
               max={100}
             />
             <AddIcon color="primary" />
@@ -331,9 +374,6 @@ const WaveForm = (props) => {
         <Typography variant="h6">Sections Information</Typography>
         <Box mt={2}>
           <Box>
-            <Button onClick={addSection} variant="contained">
-              Add Section
-            </Button>
             {/* <Typography>No of Sections</Typography>
             <TextField
               type="number"
@@ -358,7 +398,7 @@ const WaveForm = (props) => {
         </Box>
         <Box display="flex" gap={3} flexWrap="wrap" mt={2}>
           {Object.values(sectionsObj).map((section, i) => (
-            <Card>
+            <Card key={i}>
               <Box p={2}>
                 <Box mb={1}>
                   <Typography>Section Name</Typography>
@@ -384,6 +424,88 @@ const WaveForm = (props) => {
                     <MenuItem value={"Hook"}>Hook</MenuItem>
                     <MenuItem value={"Outro"}>Outro</MenuItem>
                   </Select>
+                </Box>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography>End Measure</Typography>
+                  <TextField
+                    type="number"
+                    size="small"
+                    sx={{ width: "70px" }}
+                    value={section.totalBars}
+                    onChange={(e) => {
+                      // const [startBar, endBar] = e.target.value.split(",");
+                      const enteredBarNo = Number(e.target.value);
+                      const newSections = { ...sectionsObj };
+                      const sectionIdx = section.id;
+                      let totalBars;
+                      let noOfBarsInSection = enteredBarNo;
+                      if (sectionIdx > 0) {
+                        const prevTotalBars =
+                          newSections[sectionIdx - 1].totalBars;
+                        if (enteredBarNo < prevTotalBars + 1) {
+                          return;
+                        }
+                        noOfBarsInSection -= prevTotalBars;
+                        totalBars = prevTotalBars + noOfBarsInSection;
+                      } else {
+                        totalBars = noOfBarsInSection;
+                      }
+                      newSections[sectionIdx].bars = noOfBarsInSection;
+                      newSections[sectionIdx].totalBars = totalBars;
+                      // newSections[idx].start = bars[startBar].start;
+                      newSections[sectionIdx].end = bars[totalBars].end;
+                      if (wavesurferIns.current.regions.list[i]) {
+                        // wavesurferIns.current.regions.list[i].onResize(
+                        //   bars[startBar].start,
+                        //   "start"
+                        // );
+                        const currentStartTime =
+                          wavesurferIns.current.regions.list[i].start;
+                        const currentEndTime =
+                          wavesurferIns.current.regions.list[i].end;
+                        const reducableTimeDiff =
+                          currentEndTime - currentStartTime;
+                        wavesurferIns.current.regions.list[i].onResize(
+                          -reducableTimeDiff
+                        );
+                        // const addableDiff =
+                        //   sectionIdx > 0
+                        //     ? newSections[sectionIdx].end -
+                        //       newSections[sectionIdx - 1].end
+                        //     : newSections[sectionIdx].end;
+                        const addableDiff =
+                          newSections[sectionIdx].end -
+                          newSections[sectionIdx].start;
+                        wavesurferIns.current.regions.list[i].onResize(
+                          addableDiff
+                        );
+                      } else {
+                        // var o = Math.round,
+                        //   r = Math.random,
+                        //   s = 255;
+                        // const color =
+                        //   "rgba(" +
+                        //   o(r() * s) +
+                        //   "," +
+                        //   o(r() * s) +
+                        //   "," +
+                        //   o(r() * s) +
+                        //   "," +
+                        //   0.4 +
+                        //   ")";
+                        // newSections[idx].color = color;
+                        // wavesurferIns.current.addRegion({
+                        //   start: bars[startBar].start,
+                        //   end: bars[endBar].end,
+                        //   color: newSections[idx].color,
+                        //   resize: false,
+                        //   drag: false,
+                        //   id: i,
+                        // });
+                      }
+                      setSectionsObj(newSections);
+                    }}
+                  />
                 </Box>
                 {/* <Box>
                   <Typography>Measures</Typography>
@@ -439,9 +561,10 @@ const WaveForm = (props) => {
                 </Box> */}
                 {section.end > 0 && (
                   <Box mt={2}>
-                    <Typography>Start: {section.start.toFixed(2)}s</Typography>
-                    <Typography>End: {section.end.toFixed(2)}s</Typography>
-                    <Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography>
+                        {section.start.toFixed(2)}s - {section.end.toFixed(2)}s
+                      </Typography>
                       <IconButton
                         onClick={() => {
                           wavesurferIns.current.regions.list[i].play();
@@ -449,14 +572,17 @@ const WaveForm = (props) => {
                       >
                         <PlayCircleFilledWhiteOutlinedIcon />
                       </IconButton>
-                      {/* <IconButton
+                    </Box>
+                    {/* <Typography>End: {section.end.toFixed(2)}s</Typography> */}
+                    {/* <Box>
+                      <IconButton
                         onClick={() => {
                           wavesurferIns.current.regions.list[i].remove();
                         }}
                       >
                         <ClearIcon />
-                      </IconButton> */}
-                    </Box>
+                      </IconButton>
+                    </Box> */}
                   </Box>
                 )}
               </Box>

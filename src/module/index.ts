@@ -45,7 +45,10 @@ interface SignAndBroadcastOptions {
 
 const txClient = async (
   wallet: OfflineSigner,
-  { addr }: TxClientOptions = { addr: "http://localhost:26657" }
+  // { addr }: TxClientOptions = { addr: "http://localhost:26657" }
+  { addr }: TxClientOptions = {
+    addr: "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
+  }
 ) => {
   if (!wallet) throw MissingWalletError;
   let client: SigningStargateClient;
@@ -93,7 +96,8 @@ const getSigningStargateClient = async (): Promise<{
   console.log("Creator: ", creator);
   const client: SigningStargateClient =
     await SigningStargateClient.connectWithSigner(
-      "http://localhost:26657",
+      // "http://localhost:26657",
+      "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
       offlineSigner,
       {
         gasPrice: GasPrice.fromString("1stake"),
@@ -109,7 +113,10 @@ interface QueryClientOptions {
 }
 
 const queryClient = async (
-  { addr }: QueryClientOptions = { addr: "http://localhost:1317" }
+  // { addr }: QueryClientOptions = { addr: "http://localhost:1317" }
+  { addr }: QueryClientOptions = {
+    addr: "https://1317-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
+  }
 ) => {
   return new Api({ baseUrl: addr });
 };

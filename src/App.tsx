@@ -13,6 +13,7 @@ import {
   Checkbox,
   Chip,
   Tooltip,
+  Skeleton,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import MusicUploader from "./components/MusicUploader";
@@ -38,13 +39,16 @@ import {
 } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
 
-export const checkersChainId = "metadatalayercosmos";
+export const checkersChainId = "227";
 
 export const getCheckersChainInfo = (): ChainInfo => ({
   chainId: checkersChainId,
-  chainName: "nusic L1",
-  rpc: "http://localhost:26657",
-  rest: "http://0.0.0.0:1317",
+  // chainName: "nusic L1",
+  // rpc: "http://localhost:26657",
+  // rest: "http://0.0.0.0:1317",
+  chainName: "NUSIC Testnet",
+  rpc: "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
+  rest: "https://1317-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
   bip44: {
     coinType: 118,
   },
@@ -467,19 +471,19 @@ function App() {
     }
     setIsTxDialogOpen(true);
     //TODO
-    // const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
-    // const allFiles = [fullTrackFile, ...stemFiles];
-    // let finalFiles;
-    // if (isEncryptFiles) {
-    //   finalFiles = await encryptFiles(allFiles);
-    // } else {
-    //   finalFiles = allFiles;
-    // }
-    // const client = new Web3Storage({
-    //   token: process.env.REACT_APP_WEB3_STORAGE as string,
-    // });
-    // const cid = await client.put(finalFiles);
-    setCid("cid");
+    const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
+    const allFiles = [fullTrackFile, ...stemFiles];
+    let finalFiles;
+    if (isEncryptFiles) {
+      finalFiles = await encryptFiles(allFiles);
+    } else {
+      finalFiles = allFiles;
+    }
+    const client = new Web3Storage({
+      token: process.env.REACT_APP_WEB3_STORAGE as string,
+    });
+    const cid = await client.put(finalFiles);
+    setCid(cid);
     // const formData = new FormData();
     // files.map((file) => {
     //   if (file) {
@@ -656,7 +660,9 @@ function App() {
                   >
                     {musicKeys.map(({ key, id }) => {
                       return (
-                        <MenuItem value={id}>{key.toUpperCase()}</MenuItem>
+                        <MenuItem value={id} key={id}>
+                          {key.toUpperCase()}
+                        </MenuItem>
                       );
                     })}
                     {/* 
@@ -680,12 +686,27 @@ function App() {
               <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>Duration</Typography>
-                  <TextField
+                  {duration ? (
+                    <TextField
+                      variant="outlined"
+                      value={duration}
+                      disabled
+                    ></TextField>
+                  ) : (
+                    <Skeleton
+                      variant="text"
+                      width={"50%"}
+                      height="50px"
+                      animation={false}
+                    />
+                  )}
+                  {/* <TextField
                     variant="outlined"
                     value={duration}
                     disabled
-                    placeholder="Fetched from upload"
-                  ></TextField>
+                    // placeholder="Fetched from upload"
+                    helperText="auto calculation"
+                  ></TextField> */}
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
@@ -722,6 +743,7 @@ function App() {
                 <Box>
                   <Typography>Time Signature</Typography>
                   <TextField
+                    required
                     variant="outlined"
                     onChange={(e: any) => setTimeSignature(e.target.value)}
                   ></TextField>
@@ -730,12 +752,27 @@ function App() {
               <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>No Of Measures</Typography>
-                  <TextField
+                  {noOfBars ? (
+                    <TextField
+                      variant="outlined"
+                      type="number"
+                      value={noOfBars}
+                      disabled
+                    ></TextField>
+                  ) : (
+                    <Skeleton
+                      variant="text"
+                      width={"50%"}
+                      height="50px"
+                      animation={false}
+                    />
+                  )}
+                  {/* <TextField
                     variant="outlined"
                     type="number"
                     value={noOfBars}
                     disabled
-                  ></TextField>
+                  ></TextField> */}
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
