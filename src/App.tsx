@@ -589,7 +589,7 @@ function App() {
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
-      <Box display="flex" justifyContent="end" p={2}>
+      {/* <Box display="flex" justifyContent="end" p={2}>
         {userAddress ? (
           <Tooltip title={userAddress}>
             <Chip
@@ -604,7 +604,7 @@ function App() {
             Login
           </Button>
         )}
-      </Box>
+      </Box> */}
       <Box p={{ xs: 4, md: 10 }}>
         <Typography variant="h4" fontWeight="600" align="left">
           Music Metadata Information
