@@ -8,7 +8,7 @@ import { MsgCreateSection } from "./types/metadatalayercosmos/tx";
 import { MsgCreateStem } from "./types/metadatalayercosmos/tx";
 import { MsgCreateFullTrack } from "./types/metadatalayercosmos/tx";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { checkersChainId, getCheckersChainInfo } from "../App";
+import { checkersChainId, getCheckersChainInfo, rpc } from "../App";
 
 declare global {
   interface Window extends KeplrWindow {}
@@ -47,7 +47,7 @@ const txClient = async (
   wallet: OfflineSigner,
   // { addr }: TxClientOptions = { addr: "http://localhost:26657" }
   { addr }: TxClientOptions = {
-    addr: "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
+    addr: rpc,
   }
 ) => {
   if (!wallet) throw MissingWalletError;
@@ -91,16 +91,17 @@ const getSigningStargateClient = async (): Promise<{
     throw new Error("You need to install Keplr");
   }
   await keplr.experimentalSuggestChain(getCheckersChainInfo());
-  const offlineSigner: OfflineSigner = keplr.getOfflineSigner!(checkersChainId);
+  await keplr.enable(checkersChainId);
+  const offlineSigner: OfflineSigner = keplr.getOfflineSigner(checkersChainId);
   const creator = (await offlineSigner.getAccounts())[0].address;
   console.log("Creator: ", creator);
   const client: SigningStargateClient =
     await SigningStargateClient.connectWithSigner(
       // "http://localhost:26657",
-      "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
+      rpc,
       offlineSigner,
       {
-        gasPrice: GasPrice.fromString("1stake"),
+        gasPrice: GasPrice.fromString("1nusic"),
         registry,
         prefix: "nusic",
       }

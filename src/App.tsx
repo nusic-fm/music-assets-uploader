@@ -39,7 +39,11 @@ import {
 } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
 
-export const checkersChainId = "227";
+// export const rpc = "http://0.0.0.0:26657";
+export const rpc = "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/";
+// export const rest = "http://0.0.0.0:1317";
+export const rest = "https://1317-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/";
+export const checkersChainId = "metadatalayercosmos-1";
 
 export const getCheckersChainInfo = (): ChainInfo => ({
   chainId: checkersChainId,
@@ -47,8 +51,8 @@ export const getCheckersChainInfo = (): ChainInfo => ({
   // rpc: "http://localhost:26657",
   // rest: "http://0.0.0.0:1317",
   chainName: "NUSIC Testnet",
-  rpc: "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
-  rest: "https://1317-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
+  rpc,
+  rest,
   bip44: {
     coinType: 118,
   },
@@ -151,7 +155,7 @@ type SectionsObj = {
   [internalId: string]: Section;
 };
 
-const getWithoutSpace = (str: string) => str.split(" ").join("");
+const getWithoutSpace = (str: string) => str?.split(" ").join("");
 // const aliceMnemonic =
 //   "cost hello lounge proof dinner ask degree spoil donor brown diary midnight cargo fog enroll across cupboard zero chief gate decade toss pretty profit";
 
@@ -242,7 +246,7 @@ function App() {
   };
 
   const onTx = async () => {
-    const titleWithoutSpace = getWithoutSpace(title as string).slice(0, 10);
+    const titleWithoutSpace = getWithoutSpace(title as string)?.slice(0, 10);
     const genreWithoutSpace = getWithoutSpace(genre as string);
     const fullTrackContent = {
       id: `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
@@ -262,51 +266,51 @@ function App() {
       stems: Object.keys(stemsObj).length,
     };
 
-    const { creator, signingClient } = await getSigningStargateClient();
-    const { keplr } = window;
-    if (!keplr) {
-      alert("You need to install Keplr");
-      return;
-    }
-    const offlineSigner: OfflineSigner =
-      keplr.getOfflineSigner!(checkersChainId);
-    const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
-      await txClient(offlineSigner);
+    // const { creator, signingClient } = await getSigningStargateClient();
+    // const { keplr } = window;
+    // if (!keplr) {
+    //   alert("You need to install Keplr");
+    //   return;
+    // }
+    // const offlineSigner: OfflineSigner =
+    //   keplr.getOfflineSigner!(checkersChainId);
+    // const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
+    //   await txClient(offlineSigner);
 
     let parentFullTrackId;
     try {
-      const fromJson = MsgCreateFullTrack.fromJSON({
-        creator,
-        cid,
-        artistName: artist,
-        trackTitle: title,
-        album,
-        bpm,
-        key,
-        bars: noOfBars,
-        beats: noOfBeats,
-        genre,
-        timeSignature,
-        durationMs: (duration || 0) * 1000,
-        startBeatOffsetMs: startBeatOffsetMs.toString(),
-        sectionsCount: Object.keys(sectionsObj).length,
-        stemsCount: Object.keys(stemsObj).length,
-      });
-      const msgEncoded = msgCreateFullTrack(fromJson);
+      // const fromJson = MsgCreateFullTrack.fromJSON({
+      //   creator,
+      //   cid,
+      //   artistName: artist,
+      //   trackTitle: title,
+      //   album,
+      //   bpm,
+      //   key,
+      //   bars: noOfBars,
+      //   beats: noOfBeats,
+      //   genre,
+      //   timeSignature,
+      //   durationMs: (duration || 0) * 1000,
+      //   startBeatOffsetMs: startBeatOffsetMs.toString(),
+      //   sectionsCount: Object.keys(sectionsObj).length,
+      //   stemsCount: Object.keys(stemsObj).length,
+      // });
+      // const msgEncoded = msgCreateFullTrack(fromJson);
       // const broadCast = await signAndBroadcast([msgEncoded]);
-      const broadCast = await signingClient.signAndBroadcast(
-        creator,
-        [msgEncoded],
-        "auto"
-      );
-      const id = JSON.parse(
-        JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
-      );
-      const creatorAddress = JSON.parse(
-        JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
-      );
-      parentFullTrackId = id;
-      console.log(broadCast, id, creatorAddress);
+      // const broadCast = await signingClient.signAndBroadcast(
+      //   creator,
+      //   [msgEncoded],
+      //   "auto"
+      // );
+      // const id = JSON.parse(
+      //   JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
+      // );
+      // const creatorAddress = JSON.parse(
+      //   JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
+      // );
+      // parentFullTrackId = id;
+      // console.log(broadCast, id, creatorAddress);
     } catch (err) {
       console.log("error: ", err);
       alert("Error creating fulltrack tx.");
@@ -329,15 +333,15 @@ function App() {
           name: stemObj.name,
           type: stemObj.type,
         });
-        const fromJson = MsgCreateStem.fromJSON({
-          creator,
-          fullTrackID: parentFullTrackId,
-          stemCid: cid, //TODO
-          stemName: stemObj.name,
-          stemType: stemObj.type,
-        });
-        const msgEncoded = msgCreateStem(fromJson);
-        broadCastStemsMsgs.push(msgEncoded);
+        // const fromJson = MsgCreateStem.fromJSON({
+        //   creator,
+        //   fullTrackID: parentFullTrackId,
+        //   stemCid: cid, //TODO
+        //   stemName: stemObj.name,
+        //   stemType: stemObj.type,
+        // });
+        // const msgEncoded = msgCreateStem(fromJson);
+        // broadCastStemsMsgs.push(msgEncoded);
         // const stemHash = await new Promise<string>((res) => {
         //   api.tx.uploadModule
         //     .createStem(
@@ -364,13 +368,13 @@ function App() {
       }
       try {
         // const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
-        const broadCastedStems = await signingClient.signAndBroadcast(
-          creator,
-          broadCastStemsMsgs,
-          "auto"
-        );
-        console.log({ broadCastStemsMsgs });
-        console.log({ broadCastedStems });
+        // const broadCastedStems = await signingClient.signAndBroadcast(
+        //   creator,
+        //   broadCastStemsMsgs,
+        //   "auto"
+        // );
+        // console.log({ broadCastStemsMsgs });
+        // console.log({ broadCastedStems });
       } catch (err) {
         console.log("error: ", err);
         alert("Error creating stems tx.");
@@ -382,18 +386,18 @@ function App() {
     const sections = Object.values(sectionsObj);
     const sectionsContent = [];
     if (sections.length) {
-      const broadCastSectionsMsgs = [];
+      // const broadCastSectionsMsgs = [];
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
-        const fromJson = MsgCreateSection.fromJSON({
-          creator,
-          fullTrackID: parentFullTrackId,
-          sectionName: section.name,
-          sectionStartTimeMs: section.start * 1000,
-          sectionEndTimeMs: section.end * 1000,
-        });
-        const msgEncoded = msgCreateSection(fromJson);
-        broadCastSectionsMsgs.push(msgEncoded);
+        //   const fromJson = MsgCreateSection.fromJSON({
+        //     creator,
+        //     fullTrackID: parentFullTrackId,
+        //     sectionName: section.name,
+        //     sectionStartTimeMs: section.start * 1000,
+        //     sectionEndTimeMs: section.end * 1000,
+        //   });
+        //   const msgEncoded = msgCreateSection(fromJson);
+        //   broadCastSectionsMsgs.push(msgEncoded);
         sectionsContent.push({
           id: `section${
             i + 1
@@ -434,13 +438,13 @@ function App() {
       }
       try {
         // const broadCastedStems = await signAndBroadcast(broadCastSectionsMsgs);
-        const broadCastedStems = await signingClient.signAndBroadcast(
-          creator,
-          broadCastSectionsMsgs,
-          "auto"
-        );
-        console.log({ broadCastSectionsMsgs });
-        console.log(broadCastedStems);
+        // const broadCastedStems = await signingClient.signAndBroadcast(
+        //   creator,
+        //   broadCastSectionsMsgs,
+        //   "auto"
+        // );
+        // console.log({ broadCastSectionsMsgs });
+        // console.log(broadCastedStems);
       } catch (err) {
         console.log("error: ", err);
         alert("Error creating sections tx.");
@@ -448,7 +452,7 @@ function App() {
     }
     download(
       JSON.stringify({ fullTrackContent, stemsContent, sectionsContent }),
-      "NUSIC-song-metadata.json",
+      `NUSIC-${title}-metadata.json`,
       "text/plain"
     );
     setActiveTxStep(4);
@@ -470,7 +474,6 @@ function App() {
       // return;
     }
     setIsTxDialogOpen(true);
-    //TODO
     const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
     const allFiles = [fullTrackFile, ...stemFiles];
     let finalFiles;
@@ -555,6 +558,7 @@ function App() {
     // console.log("Alice's address from signer", alice);
     const { creator } = await getSigningStargateClient();
     setUserAddress(creator);
+    // const chainId = await signingClient.getChainId();
     // console.log({ creator });
     // const { keplr } = window;
     // if (!keplr) {
@@ -579,7 +583,8 @@ function App() {
     //   [msgEncoded],
     //   "auto"
     // );
-    // const receipt = await signAndBroadcast([msgEncoded]);
+    // // const tx = await signAndBroadcast([msgEncoded]);
+    // console.log(tx);
   };
 
   return (
