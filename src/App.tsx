@@ -40,9 +40,9 @@ import {
 import { ChainInfo } from "@keplr-wallet/types";
 
 // export const rpc = "http://0.0.0.0:26657";
-export const rpc = "https://26657-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/";
+export const rpc = "http://34.135.229.28:26657/";
 // export const rest = "http://0.0.0.0:1317";
-export const rest = "https://1317-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/";
+export const rest = "http://34.135.229.28:1317/";
 export const checkersChainId = "metadatalayercosmos-1";
 
 export const getCheckersChainInfo = (): ChainInfo => ({
@@ -559,7 +559,7 @@ function App() {
     const { creator } = await getSigningStargateClient();
     setUserAddress(creator);
     // const chainId = await signingClient.getChainId();
-    // console.log({ creator });
+    // console.log({ creator, chainId });
     // const { keplr } = window;
     // if (!keplr) {
     //   alert("You need to install Keplr");
@@ -589,7 +589,7 @@ function App() {
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
-      {/* <Box display="flex" justifyContent="end" p={2}>
+      <Box display="flex" justifyContent="end" p={2}>
         {userAddress ? (
           <Tooltip title={userAddress}>
             <Chip
@@ -604,7 +604,7 @@ function App() {
             Login
           </Button>
         )}
-      </Box> */}
+      </Box>
       <Box p={{ xs: 4, md: 10 }}>
         <Typography variant="h4" fontWeight="600" align="left">
           Music Metadata Information
