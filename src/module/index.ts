@@ -94,18 +94,13 @@ const getSigningStargateClient = async (): Promise<{
   await keplr.enable(cosmosChainId);
   const offlineSigner: OfflineSigner = keplr.getOfflineSigner(cosmosChainId);
   const creator = (await offlineSigner.getAccounts())[0].address;
-  console.log("Creator: ", creator);
+  console.log("Creator: ", creator, rpc, cosmosChainId);
   const client: SigningStargateClient =
-    await SigningStargateClient.connectWithSigner(
-      // "http://localhost:26657",
-      rpc,
-      offlineSigner,
-      {
-        gasPrice: GasPrice.fromString("1nusic"),
-        registry,
-        prefix: "nusic",
-      }
-    );
+    await SigningStargateClient.connectWithSigner(rpc, offlineSigner, {
+      gasPrice: GasPrice.fromString("1nusic"),
+      registry,
+      prefix: "nusic",
+    });
   return { creator: creator, signingClient: client };
 };
 

@@ -39,8 +39,8 @@ import {
 } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
 
-export const rpc = "http://34.135.229.28:26657";
-export const rest = "http://34.135.229.28:1317";
+export const rpc = "http://34.135.229.28:26657/";
+export const rest = "http://34.135.229.28:1317/";
 export const cosmosChainId = "metadatalayercosmos-1";
 const chainName = "NUSIC Testnet";
 
