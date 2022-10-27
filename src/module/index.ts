@@ -96,11 +96,15 @@ const getSigningStargateClient = async (): Promise<{
   const creator = (await offlineSigner.getAccounts())[0].address;
   console.log("Creator: ", creator, rpc, cosmosChainId);
   const client: SigningStargateClient =
-    await SigningStargateClient.connectWithSigner(rpc, offlineSigner, {
-      gasPrice: GasPrice.fromString("1nusic"),
-      registry,
-      prefix: "nusic",
-    });
+    await SigningStargateClient.connectWithSigner(
+      { url: rpc, headers: {} },
+      offlineSigner,
+      {
+        gasPrice: GasPrice.fromString("1nusic"),
+        registry,
+        prefix: "nusic",
+      }
+    );
   return { creator: creator, signingClient: client };
 };
 
