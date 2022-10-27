@@ -39,18 +39,15 @@ import {
 } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
 
-// export const rpc = "http://0.0.0.0:26657";
-export const rpc = "http://34.135.229.28:26657/";
-// export const rest = "http://0.0.0.0:1317";
-export const rest = "http://34.135.229.28:1317/";
-export const checkersChainId = "metadatalayercosmos-1";
+export const rpc = process.env.REACT_APP_RPC as string;
+export const rest = process.env.REACT_APP_REST as string;
+// export const cosmosChainId = "metadatalayercosmos";
+export const cosmosChainId = process.env.REACT_APP_COSMOS_CHAINID as string;
+const chainName = process.env.REACT_APP_COSMOS_CHAIN_NAME as string;
 
 export const getCheckersChainInfo = (): ChainInfo => ({
-  chainId: checkersChainId,
-  // chainName: "nusic L1",
-  // rpc: "http://localhost:26657",
-  // rest: "http://0.0.0.0:1317",
-  chainName: "NUSIC Testnet",
+  chainId: cosmosChainId,
+  chainName,
   rpc,
   rest,
   bip44: {
@@ -266,51 +263,50 @@ function App() {
       stems: Object.keys(stemsObj).length,
     };
 
-    // const { creator, signingClient } = await getSigningStargateClient();
-    // const { keplr } = window;
-    // if (!keplr) {
-    //   alert("You need to install Keplr");
-    //   return;
-    // }
-    // const offlineSigner: OfflineSigner =
-    //   keplr.getOfflineSigner!(checkersChainId);
-    // const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
-    //   await txClient(offlineSigner);
+    const { creator, signingClient } = await getSigningStargateClient();
+    const { keplr } = window;
+    if (!keplr) {
+      alert("You need to install Keplr");
+      return;
+    }
+    const offlineSigner: OfflineSigner = keplr.getOfflineSigner!(cosmosChainId);
+    const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
+      await txClient(offlineSigner);
 
     let parentFullTrackId;
     try {
-      // const fromJson = MsgCreateFullTrack.fromJSON({
-      //   creator,
-      //   cid,
-      //   artistName: artist,
-      //   trackTitle: title,
-      //   album,
-      //   bpm,
-      //   key,
-      //   bars: noOfBars,
-      //   beats: noOfBeats,
-      //   genre,
-      //   timeSignature,
-      //   durationMs: (duration || 0) * 1000,
-      //   startBeatOffsetMs: startBeatOffsetMs.toString(),
-      //   sectionsCount: Object.keys(sectionsObj).length,
-      //   stemsCount: Object.keys(stemsObj).length,
-      // });
-      // const msgEncoded = msgCreateFullTrack(fromJson);
-      // const broadCast = await signAndBroadcast([msgEncoded]);
-      // const broadCast = await signingClient.signAndBroadcast(
-      //   creator,
-      //   [msgEncoded],
-      //   "auto"
-      // );
-      // const id = JSON.parse(
-      //   JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
-      // );
-      // const creatorAddress = JSON.parse(
-      //   JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
-      // );
-      // parentFullTrackId = id;
-      // console.log(broadCast, id, creatorAddress);
+      const fromJson = MsgCreateFullTrack.fromJSON({
+        creator,
+        cid,
+        artistName: artist,
+        trackTitle: title,
+        album,
+        bpm,
+        key,
+        bars: noOfBars,
+        beats: noOfBeats,
+        genre,
+        timeSignature,
+        durationMs: (duration || 0) * 1000,
+        startBeatOffsetMs: startBeatOffsetMs.toString(),
+        sectionsCount: Object.keys(sectionsObj).length,
+        stemsCount: Object.keys(stemsObj).length,
+      });
+      const msgEncoded = msgCreateFullTrack(fromJson);
+      // // const broadCast = await signAndBroadcast([msgEncoded]);
+      const broadCast = await signingClient.signAndBroadcast(
+        creator,
+        [msgEncoded],
+        "auto"
+      );
+      const id = JSON.parse(
+        JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
+      );
+      const creatorAddress = JSON.parse(
+        JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
+      );
+      parentFullTrackId = id;
+      console.log(broadCast, id, creatorAddress);
     } catch (err) {
       console.log("error: ", err);
       alert("Error creating fulltrack tx.");
@@ -321,8 +317,8 @@ function App() {
     // Stems
     const stems = Object.values(stemsObj);
     const stemsContent = [];
+    const broadCastStemsMsgs = [];
     if (stems.length) {
-      const broadCastStemsMsgs = [];
       for (let i = 0; i < stems.length; i++) {
         const stemObj = stems[i];
         stemsContent.push({
@@ -333,41 +329,18 @@ function App() {
           name: stemObj.name,
           type: stemObj.type,
         });
-        // const fromJson = MsgCreateStem.fromJSON({
-        //   creator,
-        //   fullTrackID: parentFullTrackId,
-        //   stemCid: cid, //TODO
-        //   stemName: stemObj.name,
-        //   stemType: stemObj.type,
-        // });
-        // const msgEncoded = msgCreateStem(fromJson);
-        // broadCastStemsMsgs.push(msgEncoded);
-        // const stemHash = await new Promise<string>((res) => {
-        //   api.tx.uploadModule
-        //     .createStem(
-        //       `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-        //       cid,
-        //       stemObj.name,
-        //       stemObj.type
-        //     )
-        //     .signAndSend(account, ({ events = [], status }) => {
-        //       if (status.isFinalized) {
-        //         console.log(
-        //           `Transaction included at blockHash ${status.asFinalized}`
-        //         );
-
-        //         // Loop through Vec<EventRecord> to display all events
-        //         events.forEach(({ phase, event: { data, method, section } }) => {
-        //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-        //         });
-        //         res(status.hash.toString());
-        //       }
-        //     });
-        // });
-        // setStemsHash([...stemsHash, stemHash]);
+        const fromJson = MsgCreateStem.fromJSON({
+          creator,
+          fullTrackID: parentFullTrackId,
+          stemCid: cid, //TODO
+          stemName: stemObj.name,
+          stemType: stemObj.type,
+        });
+        const msgEncoded = msgCreateStem(fromJson);
+        broadCastStemsMsgs.push(msgEncoded);
       }
       try {
-        // const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
+        //// const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
         // const broadCastedStems = await signingClient.signAndBroadcast(
         //   creator,
         //   broadCastStemsMsgs,
@@ -380,24 +353,24 @@ function App() {
         alert("Error creating stems tx.");
       }
     }
-    setActiveTxStep(3);
+    // setActiveTxStep(3);
 
     // Section
     const sections = Object.values(sectionsObj);
     const sectionsContent = [];
     if (sections.length) {
-      // const broadCastSectionsMsgs = [];
+      const broadCastSectionsMsgs = [];
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
-        //   const fromJson = MsgCreateSection.fromJSON({
-        //     creator,
-        //     fullTrackID: parentFullTrackId,
-        //     sectionName: section.name,
-        //     sectionStartTimeMs: section.start * 1000,
-        //     sectionEndTimeMs: section.end * 1000,
-        //   });
-        //   const msgEncoded = msgCreateSection(fromJson);
-        //   broadCastSectionsMsgs.push(msgEncoded);
+        const fromJson = MsgCreateSection.fromJSON({
+          creator,
+          fullTrackID: parentFullTrackId,
+          sectionName: section.name,
+          sectionStartTimeMs: section.start * 1000,
+          sectionEndTimeMs: section.end * 1000,
+        });
+        const msgEncoded = msgCreateSection(fromJson);
+        broadCastSectionsMsgs.push(msgEncoded);
         sectionsContent.push({
           id: `section${
             i + 1
@@ -438,21 +411,26 @@ function App() {
       }
       try {
         // const broadCastedStems = await signAndBroadcast(broadCastSectionsMsgs);
-        // const broadCastedStems = await signingClient.signAndBroadcast(
-        //   creator,
-        //   broadCastSectionsMsgs,
-        //   "auto"
-        // );
-        // console.log({ broadCastSectionsMsgs });
-        // console.log(broadCastedStems);
+        console.log({ broadCastSectionsMsgs });
+        const broadCastedStems = await signingClient.signAndBroadcast(
+          creator,
+          [...broadCastSectionsMsgs, ...broadCastStemsMsgs],
+          "auto"
+        );
+        console.log(broadCastedStems);
       } catch (err) {
         console.log("error: ", err);
         alert("Error creating sections tx.");
       }
     }
     download(
-      JSON.stringify({ fullTrackContent, stemsContent, sectionsContent }),
-      `NUSIC-${title}-metadata.json`,
+      JSON.stringify({
+        fullTrackContent,
+        stemsContent,
+        sectionsContent,
+        fullTrackId: parentFullTrackId,
+      }),
+      `NUSIC-${titleWithoutSpace}-metadata.json`,
       "text/plain"
     );
     setActiveTxStep(4);
@@ -477,16 +455,21 @@ function App() {
     const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
     const allFiles = [fullTrackFile, ...stemFiles];
     let finalFiles;
-    if (isEncryptFiles) {
-      finalFiles = await encryptFiles(allFiles);
+    const isIgnoreStorage = !process.env.REACT_APP_IGNORE_STORAGE;
+    if (isIgnoreStorage) {
+      if (isEncryptFiles) {
+        finalFiles = await encryptFiles(allFiles);
+      } else {
+        finalFiles = allFiles;
+      }
+      const client = new Web3Storage({
+        token: process.env.REACT_APP_WEB3_STORAGE as string,
+      });
+      const cid = await client.put(finalFiles);
+      setCid(cid);
     } else {
-      finalFiles = allFiles;
+      setCid("test_cid_here");
     }
-    const client = new Web3Storage({
-      token: process.env.REACT_APP_WEB3_STORAGE as string,
-    });
-    const cid = await client.put(finalFiles);
-    setCid(cid);
     // const formData = new FormData();
     // files.map((file) => {
     //   if (file) {
@@ -549,7 +532,8 @@ function App() {
   };
   const onTxDialogClose = () => {
     setIsTxDialogOpen(false);
-    navigate("/");
+    // navigate("/");
+    window.location.reload();
   };
 
   const login = async () => {
@@ -566,7 +550,7 @@ function App() {
     //   return;
     // }
     // const offlineSigner: OfflineSigner =
-    //   keplr.getOfflineSigner!(checkersChainId);
+    //   keplr.getOfflineSigner!(cosmosChainId);
     // const { msgCreateFullTrack, signAndBroadcast } = await txClient(
     //   offlineSigner
     // );
@@ -1127,3 +1111,26 @@ export default App;
 // console.log(api.consts.balances.existentialDeposit.toNumber());
 // // The amount required per byte on an extrinsic
 // console.log(api.consts.transactionPayment.transactionByteFee.toNumber());
+// const stemHash = await new Promise<string>((res) => {
+//   api.tx.uploadModule
+//     .createStem(
+//       `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+//       cid,
+//       stemObj.name,
+//       stemObj.type
+//     )
+//     .signAndSend(account, ({ events = [], status }) => {
+//       if (status.isFinalized) {
+//         console.log(
+//           `Transaction included at blockHash ${status.asFinalized}`
+//         );
+
+//         // Loop through Vec<EventRecord> to display all events
+//         events.forEach(({ phase, event: { data, method, section } }) => {
+//           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+//         });
+//         res(status.hash.toString());
+//       }
+//     });
+// });
+// setStemsHash([...stemsHash, stemHash]);

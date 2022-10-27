@@ -8,7 +8,7 @@ import { MsgCreateSection } from "./types/metadatalayercosmos/tx";
 import { MsgCreateStem } from "./types/metadatalayercosmos/tx";
 import { MsgCreateFullTrack } from "./types/metadatalayercosmos/tx";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { checkersChainId, getCheckersChainInfo, rpc } from "../App";
+import { cosmosChainId, getCheckersChainInfo, rpc } from "../App";
 
 declare global {
   interface Window extends KeplrWindow {}
@@ -91,8 +91,8 @@ const getSigningStargateClient = async (): Promise<{
     throw new Error("You need to install Keplr");
   }
   await keplr.experimentalSuggestChain(getCheckersChainInfo());
-  await keplr.enable(checkersChainId);
-  const offlineSigner: OfflineSigner = keplr.getOfflineSigner(checkersChainId);
+  await keplr.enable(cosmosChainId);
+  const offlineSigner: OfflineSigner = keplr.getOfflineSigner(cosmosChainId);
   const creator = (await offlineSigner.getAccounts())[0].address;
   console.log("Creator: ", creator);
   const client: SigningStargateClient =

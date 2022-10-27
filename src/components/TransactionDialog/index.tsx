@@ -108,7 +108,7 @@ const TransactionDialog = (props: any) => {
       <DialogActions>
         {activeTxStep > 3 && (
           <Button variant="contained" onClick={onTxDialogClose}>
-            Marketplace
+            Close
           </Button>
         )}
       </DialogActions>
