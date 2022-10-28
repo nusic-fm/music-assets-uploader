@@ -90,21 +90,18 @@ const getSigningStargateClient = async (): Promise<{
     alert("You need to install Keplr");
     throw new Error("You need to install Keplr");
   }
+  console.log("Rpc, chainid: ", rpc, cosmosChainId);
   await keplr.experimentalSuggestChain(getCheckersChainInfo());
   await keplr.enable(cosmosChainId);
   const offlineSigner: OfflineSigner = keplr.getOfflineSigner(cosmosChainId);
   const creator = (await offlineSigner.getAccounts())[0].address;
   console.log("Creator: ", creator, rpc, cosmosChainId);
   const client: SigningStargateClient =
-    await SigningStargateClient.connectWithSigner(
-      { url: rpc, headers: {} },
-      offlineSigner,
-      {
-        gasPrice: GasPrice.fromString("1nusic"),
-        registry,
-        prefix: "nusic",
-      }
-    );
+    await SigningStargateClient.connectWithSigner(rpc, offlineSigner, {
+      gasPrice: GasPrice.fromString("1nusic"),
+      registry,
+      prefix: "nusic",
+    });
   return { creator: creator, signingClient: client };
 };
 
@@ -114,9 +111,7 @@ interface QueryClientOptions {
 
 const queryClient = async (
   // { addr }: QueryClientOptions = { addr: "http://localhost:1317" }
-  { addr }: QueryClientOptions = {
-    addr: "https://1317-ignite-gitpod-hcddiem770k.ws-us72.gitpod.io/",
-  }
+  { addr }: QueryClientOptions
 ) => {
   return new Api({ baseUrl: addr });
 };

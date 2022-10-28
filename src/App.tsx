@@ -39,10 +39,11 @@ import {
 } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
 
-export const rpc = "http://34.135.229.28:26657/";
-export const rest = "http://34.135.229.28:1317/";
-export const cosmosChainId = "metadatalayercosmos-1";
-const chainName = "NUSIC Testnet";
+export const rpc = process.env.REACT_APP_RPC as string;
+export const rest = process.env.REACT_APP_REST as string;
+// export const cosmosChainId = "metadatalayercosmos";
+export const cosmosChainId = process.env.REACT_APP_COSMOS_CHAINID as string;
+const chainName = process.env.REACT_APP_COSMOS_CHAIN_NAME as string;
 
 export const getCheckersChainInfo = (): ChainInfo => ({
   chainId: cosmosChainId,
