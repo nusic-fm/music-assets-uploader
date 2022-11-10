@@ -6,9 +6,16 @@ import {
   Chip,
   CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
+  DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -26,6 +33,13 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import { User } from "./models/User";
 import * as cherryMintDataList from "./data/cherry/cherryData.json";
+import { DateTimePicker, LocalizationProvider } from "@mui/lab";
+import { getOffersFromId } from "./services/db/offers.service";
+import { Offer } from "./models/Offer";
+import MakeOfferDialog from "./components/MakeOfferDialog";
+import { useWeb3React } from "@web3-react/core";
+import useAuth from "./hooks/useAuth";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -139,10 +153,38 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     [key: string]: User;
   }>({});
   const [isNftRevealed, setIsNftRevealed] = useState(false);
+  const [openOfferForTokenId, setOpenOfferForTokenId] = useState(-1);
+  const [flipBoxIndex, setFlipBoxIndex] = useState(-1);
+
+  const [user, setUser] = useState<{
+    name: string;
+    id: string;
+    avatar: string;
+  }>();
+  const location = useLocation();
+  const [offersObj, setOffersObj] = useState<{ [i: number]: Offer[] }>({
+    1: [
+      {
+        amount: 0.1,
+        denom: "weth",
+        tokenId: 1,
+        userId: user?.id || "",
+        duration: new Date().toUTCString(),
+      },
+      {
+        amount: 120,
+        denom: "usdc",
+        tokenId: 1,
+        userId: user?.id || "",
+        duration: new Date().toUTCString(),
+      },
+    ],
+  });
 
   // const timer = useRef<NodeJS.Timer | null>(null);
   const [timerObj, setTimerObj] = useState(getTimerObj);
-
+  const { account, library } = useWeb3React();
+  const { login } = useAuth();
   // const countDown = () => {
   //   const newSeconds = seconds - 1;
   //   console.log({ seconds, newSeconds });
@@ -161,13 +203,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       clearInterval(myInterval);
     };
   }, [timerObj]);
-
-  const [user, setUser] = useState<{
-    name: string;
-    id: string;
-    avatar: string;
-  }>();
-  const location = useLocation();
 
   const fetchUser = async (
     _tokenType: string,
@@ -202,12 +237,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (newlyMintedToken) {
-      downloadFile(newlyMintedToken);
-      setListOfMintedTokens(false);
-    }
-  }, [newlyMintedToken]);
+  // useEffect(() => {
+  //   if (newlyMintedToken) {
+  //     downloadFile(newlyMintedToken);
+  //     setListOfMintedTokens(false);
+  //   }
+  // }, [newlyMintedToken]);
 
   useEffect(() => {
     setTrackDetails(tracks[trackIdx]);
@@ -360,7 +395,48 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     });
     alert("successfully submitted");
   };
+  const onSubmitOffer = async (
+    amount: number,
+    denom: "weth" | "usdc",
+    duration: string
+  ) => {
+    if (!account) {
+      alert("Please connect your wallet and try again.");
+      login();
+      return;
+    }
+    if (user && user.id) {
+      const signer = library.getSigner();
+      signer.signMessage(
+        `TokenId: ${openOfferForTokenId} Amount: ${amount} ${denom}, EndTime: ${duration}`
+      );
+      setOffersObj({
+        ...offersObj,
+        [openOfferForTokenId]: [
+          ...(offersObj[openOfferForTokenId] || []),
+          {
+            amount,
+            denom,
+            duration,
+            tokenId: openOfferForTokenId,
+            userId: user.id,
+          },
+        ],
+      });
+    } else {
+      alert("Plese login and try again.");
+    }
+    setOpenOfferForTokenId(-1);
+  };
 
+  const getOffers = async (i: number) => {
+    // const newOffers = await getOffersFromId(i.toString());
+    // setOffersObj({ ...offersObj, [i]: newOffers });
+  };
+  const onFlip = async (i: number) => {
+    setFlipBoxIndex(i);
+    await getOffers(i);
+  };
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
       <Box
@@ -380,18 +456,40 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             transform: "scale(2)",
           }}
         ></Box>
-        {user ? (
-          <Chip label={user.name} />
-        ) : (
-          <Button
-            variant="contained"
-            // onClick={onSignInWithFb}
-            href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-            startIcon={<img src="/social/discord.png" alt="" width={"22px"} />}
-          >
-            Sign In
-          </Button>
-        )}
+        <Box display={"flex"} alignItems="center">
+          <Box mr={2}>
+            {account ? (
+              <Tooltip title={account}>
+                <Chip
+                  clickable
+                  label={`${account.slice(0, 6)}...${account.slice(
+                    account.length - 4
+                  )}`}
+                  style={{ marginLeft: "auto" }}
+                  variant="outlined"
+                />
+              </Tooltip>
+            ) : (
+              <Button variant="outlined" onClick={login} color="info">
+                Connect
+              </Button>
+            )}
+          </Box>
+          {user ? (
+            <Chip label={user.name} />
+          ) : (
+            <Button
+              variant="contained"
+              // onClick={onSignInWithFb}
+              href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+              startIcon={
+                <img src="/social/discord.png" alt="" width={"22px"} />
+              }
+            >
+              Sign In
+            </Button>
+          )}
+        </Box>
       </Box>
       <Box
         display="flex"
@@ -702,24 +800,138 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           .map((section: string, i: number) => (
             <Box
               key={i}
-              width={200}
-              height={200}
+              width={256}
+              height={256}
               position="relative"
               borderRadius="6px"
             >
-              <img
-                src={
-                  timerObj.isRevealed &&
-                  mintedTokenIds.includes((i + 1).toString())
-                    ? `/cherry/cats/${i + 1}.png`
-                    : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
-                }
-                alt=""
-                width="100%"
-                height="100%"
-                style={{ borderRadius: "6px" }}
-              ></img>
-              {/* <video
+              <Box
+                sx={{
+                  transition: "0.5s linear",
+                  transformStyle: "preserve-3d",
+                  transform:
+                    flipBoxIndex === i ? "rotateY(180deg)" : "rotateY(0deg)",
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    backfaceVisibility: "hidden",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    transform: "rotateY(180deg)",
+                    boxShadow: "0 8px 18px -4px lightblue",
+                  }}
+                  onClick={() => {
+                    setFlipBoxIndex(-1);
+                  }}
+                >
+                  {/* <Typography align="center">Offers</Typography> */}
+                  <Box width="100%" height="100%">
+                    {offersObj[i + 1]?.length > 0 ? (
+                      <Box m={1} height="100%">
+                        <Typography sx={{ ml: 3 }} fontWeight="bold">
+                          Offers
+                        </Typography>
+                        <Box m={2} sx={{ overflowY: "auto", height: "80%" }}>
+                          {offersObj[i + 1].map((offer, i) => (
+                            <Tooltip
+                              title={
+                                new Date(offer.duration)
+                                  .toString()
+                                  .split("(")[0]
+                              }
+                              placement="top"
+                              disableInteractive
+                            >
+                              <Box
+                                key={i}
+                                p={1}
+                                display={"flex"}
+                                justifyContent="space-between"
+                                sx={{
+                                  ":hover": {
+                                    boxShadow: "0px 0px 3px #c4c4c4",
+                                  },
+                                }}
+                              >
+                                <Box display="flex" alignItems={"center"}>
+                                  <Typography>{offer.amount}</Typography>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ pl: 1 }}
+                                    textTransform="uppercase"
+                                  >
+                                    {offer.denom}
+                                  </Typography>
+                                </Box>
+                                {/* <Box>
+                                <Typography>
+                                  {new Date(offer.duration).getDate() -
+                                    new Date().getDate()}
+                                </Typography>
+                              </Box> */}
+                                {offer.userId === user?.id && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+                                {ownTokenIds.includes((i + 1).toString()) && (
+                                  <Button size="small" variant="outlined">
+                                    Accept
+                                  </Button>
+                                )}
+                              </Box>
+                            </Tooltip>
+                          ))}
+                        </Box>
+                      </Box>
+                    ) : (
+                      <Box
+                        display={"flex"}
+                        justifyContent="center"
+                        alignItems="center"
+                        width={"100%"}
+                        height={"100%"}
+                      >
+                        <Typography>No offers yet</Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    backfaceVisibility: "hidden",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    transform: "rotateY(0deg)",
+                  }}
+                  onClick={() => onFlip(i)}
+                >
+                  <img
+                    src={
+                      timerObj.isRevealed &&
+                      mintedTokenIds.includes((i + 1).toString())
+                        ? `/cherry/cats/${i + 1}.png`
+                        : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
+                    }
+                    alt=""
+                    width="100%"
+                    height="100%"
+                    style={{ borderRadius: "6px" }}
+                  ></img>
+                  {/* <video
                 width="100%"
                 height="100%"
                 autoPlay
@@ -730,156 +942,191 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               >
                 <source src="bg.mp4" type="video/mp4" />
               </video> */}
-              {(timerObj.isRevealed &&
-                mintedTokenIds.includes((i + 1).toString())) === false && (
-                <Box
-                  position="absolute"
-                  top={0}
-                  width="100%"
-                  height="100%"
-                  sx={{
-                    opacity: "0.6",
-                    // transition: "opacity 0.2s",
-                    background: "rgba(0,0,0,0.8)",
-                    borderRadius: "6px",
-                    "&:hover": {
+                  {(timerObj.isRevealed &&
+                    mintedTokenIds.includes((i + 1).toString())) === false && (
+                    <Box
+                      position="absolute"
+                      top={0}
+                      width="100%"
+                      height="100%"
+                      sx={{
+                        opacity: "0.6",
+                        // transition: "opacity 0.2s",
+                        background: "rgba(0,0,0,0.8)",
+                        borderRadius: "6px",
+                        "&:hover": {
+                          opacity: "0",
+                        },
+                      }}
+                    />
+                  )}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    width="100%"
+                    height="100%"
+                    sx={{
                       opacity: "0",
-                    },
-                  }}
-                />
-              )}
-              <Box
-                position="absolute"
-                top={0}
-                width="100%"
-                height="100%"
-                sx={{
-                  opacity: "0",
-                  transition: "opacity 0.2s",
-                  background: "rgba(0,0,0,0.8)",
-                  borderRadius: "6px",
-                  "&:hover": {
-                    opacity: "1",
-                  },
-                }}
-              >
-                <Box
-                  boxSizing="border-box"
-                  width="100%"
-                  height="100%"
-                  display="flex"
-                  flexDirection="column"
-                  justifyContent="space-between"
-                  p={1}
-                >
-                  {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                  <Box m={1}>
-                    <Typography variant="h6" fontFamily="BenchNine">
-                      Feral #{section}
-                    </Typography>
-                  </Box>
-                  {timerObj.isRevealed &&
-                    isTokenAlreadyMinted(i + 1) &&
-                    isTokenMintedByUser(i + 1) && (
-                      <Box display="flex" justifyContent="center">
+                      transition: "opacity 0.2s",
+                      background: "rgba(0,0,0,0.8)",
+                      borderRadius: "6px",
+                      "&:hover": {
+                        opacity: "1",
+                      },
+                    }}
+                  >
+                    <Box
+                      boxSizing="border-box"
+                      width="100%"
+                      height="100%"
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="space-between"
+                      p={1}
+                    >
+                      {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
+                      <Box m={1}>
+                        <Typography variant="h6" fontFamily="BenchNine">
+                          Feral #{section}
+                        </Typography>
+                      </Box>
+                      {timerObj.isRevealed &&
+                        isTokenAlreadyMinted(i + 1) &&
+                        isTokenMintedByUser(i + 1) && (
+                          <Box display="flex" justifyContent="center">
+                            <Button
+                              variant="contained"
+                              onClick={() => downloadFile((i + 1).toString())}
+                            >
+                              Download
+                            </Button>
+                          </Box>
+                        )}
+                      {timerObj.isRevealed === false && (
+                        <Button disabled variant="contained">
+                          Reveal soon
+                        </Button>
+                      )}
+                      {/* {timerObj.isRevealed &&
+                        isTokenAlreadyMinted(i + 1) === false &&
+                        (user ? (
+                          <CrossmintPayButton
+                            onClick={() => {
+                              setIsListening(true);
+                            }}
+                            showOverlay={false}
+                            clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
+                            mintConfig={{
+                              type: "erc-721",
+                              totalPrice: "0",
+                              tokenId: (i + 1).toString(),
+                              parentTokenId: "0",
+                              _id: user.id,
+                              uri: `https://bafybeih55dxz4ooutgdnfsrnovch4s6gs7lt7e3ik4223345ec2ec6to3e.ipfs.nftstorage.link//${
+                                i + 1
+                              }.json`,
+                            }}
+                          />
+                        ) : (
+                          <Button
+                            variant="contained"
+                            // onClick={onSignInWithFb}
+                            href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+                            startIcon={
+                              <img
+                                src="/social/discord.png"
+                                alt=""
+                                width={"22px"}
+                              />
+                            }
+                          >
+                            Sign in
+                          </Button>
+                        ))} */}
+                      {user ? (
+                        <Box display={"flex"} justifyContent="center">
+                          <Button
+                            // size="small"
+                            variant="contained"
+                            onClick={(e) => {
+                              setOpenOfferForTokenId(i + 1);
+                              e.preventDefault();
+                            }}
+                          >
+                            Make Offer
+                          </Button>
+                        </Box>
+                      ) : (
                         <Button
                           variant="contained"
-                          onClick={() => downloadFile((i + 1).toString())}
-                        >
-                          Download
-                        </Button>
-                      </Box>
-                    )}
-                  {timerObj.isRevealed === false && (
-                    <Button disabled variant="contained">
-                      Reveal soon
-                    </Button>
-                  )}
-                  {timerObj.isRevealed &&
-                    isTokenAlreadyMinted(i + 1) === false &&
-                    (user ? (
-                      <CrossmintPayButton
-                        onClick={() => {
-                          setIsListening(true);
-                        }}
-                        showOverlay={false}
-                        clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
-                        mintConfig={{
-                          type: "erc-721",
-                          totalPrice: "0",
-                          tokenId: (i + 1).toString(),
-                          parentTokenId: "0",
-                          _id: user.id,
-                          uri: `https://bafybeih55dxz4ooutgdnfsrnovch4s6gs7lt7e3ik4223345ec2ec6to3e.ipfs.nftstorage.link//${
-                            i + 1
-                          }.json`,
-                        }}
-                      />
-                    ) : (
-                      <Button
-                        variant="contained"
-                        // onClick={onSignInWithFb}
-                        href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-                        startIcon={
-                          <img
-                            src="/social/discord.png"
-                            alt=""
-                            width={"22px"}
-                          />
-                        }
-                      >
-                        Sign in
-                      </Button>
-                    ))}
-                  {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                  {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
-                    <Box>
-                      <Box
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="end"
-                        mt={1}
-                      >
-                        <Typography>Minted by:</Typography>
-                        <Box
-                          display="flex"
-                          flexDirection="column"
-                          alignItems="center"
-                          mt={0.5}
-                        >
-                          {mintedTokenUserDetails[(i + 1).toString()]
-                            ?.avatar && (
+                          // onClick={onSignInWithFb}
+                          href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+                          startIcon={
                             <img
-                              src={`https://cdn.discordapp.com/avatars/${
-                                mintedTokenUserDetails[(i + 1).toString()]?.uid
-                              }/${
-                                mintedTokenUserDetails[(i + 1).toString()]
-                                  ?.avatar
-                              }.png`}
-                              alt="profile"
-                              width={45}
-                              style={{ borderRadius: "50%" }}
+                              src="/social/discord.png"
+                              alt=""
+                              width={"22px"}
                             />
-                          )}
-                          <Typography fontFamily="BenchNine">
-                            {mintedTokenUserDetails[(i + 1).toString()]?.name}
+                          }
+                        >
+                          Sign in
+                        </Button>
+                      )}
+                      {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
+                      {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
+                        <Box>
+                          <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="end"
+                            mt={1}
+                          >
+                            <Typography>Minted by:</Typography>
+                            <Box
+                              display="flex"
+                              flexDirection="column"
+                              alignItems="center"
+                              mt={0.5}
+                            >
+                              {mintedTokenUserDetails[(i + 1).toString()]
+                                ?.avatar && (
+                                <img
+                                  src={`https://cdn.discordapp.com/avatars/${
+                                    mintedTokenUserDetails[(i + 1).toString()]
+                                      ?.uid
+                                  }/${
+                                    mintedTokenUserDetails[(i + 1).toString()]
+                                      ?.avatar
+                                  }.png`}
+                                  alt="profile"
+                                  width={45}
+                                  style={{ borderRadius: "50%" }}
+                                />
+                              )}
+                              <Typography fontFamily="BenchNine">
+                                {
+                                  mintedTokenUserDetails[(i + 1).toString()]
+                                    ?.name
+                                }
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Box>
+                          <Typography variant="subtitle2" align="right">
+                            Price
+                          </Typography>
+                          <Typography variant="h6" align="right">
+                            {timerObj.isRevealed && (
+                              <Typography variant="caption">only</Typography>
+                            )}
+                            {timerObj.isRevealed ? " Gas" : "TBA"}
                           </Typography>
                         </Box>
-                      </Box>
+                      )}
                     </Box>
-                  ) : (
-                    <Box>
-                      <Typography variant="subtitle2" align="right">
-                        Price
-                      </Typography>
-                      <Typography variant="h6" align="right">
-                        {timerObj.isRevealed && (
-                          <Typography variant="caption">only</Typography>
-                        )}
-                        {timerObj.isRevealed ? " Gas" : "TBA"}
-                      </Typography>
-                    </Box>
-                  )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -957,6 +1204,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           </Button>
         </Box>
       </Box>
+      <MakeOfferDialog
+        isOpen={openOfferForTokenId >= 0}
+        onClose={() => setOpenOfferForTokenId(-1)}
+        onSubmitOffer={onSubmitOffer}
+        tokenId={openOfferForTokenId}
+      />
     </Box>
   );
 };
