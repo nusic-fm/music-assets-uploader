@@ -23,8 +23,9 @@ const MakeOfferDialog = (props: {
   isOpen: boolean;
   onClose: () => void;
   tokenId: number;
+  isLoading: boolean;
 }) => {
-  const { onSubmitOffer, isOpen, tokenId, onClose } = props;
+  const { onSubmitOffer, isOpen, tokenId, onClose, isLoading } = props;
   const [amount, setAmount] = useState(0.1);
   const [denom, setDenom] = useState<"weth" | "usdc">("weth");
   const [duration, setDuration] = useState(3);
@@ -50,7 +51,7 @@ const MakeOfferDialog = (props: {
               onChange={(e) => setDenom(e.target.value as "weth" | "usdc")}
             >
               <MenuItem value={"weth"}>WETH</MenuItem>
-              <MenuItem value={"usdc"}>USDC</MenuItem>
+              {/* <MenuItem value={"usdc"}>USDC</MenuItem> */}
             </Select>
           </Box>
           <Box mt={4}>
@@ -92,6 +93,7 @@ const MakeOfferDialog = (props: {
             date.setDate(date.getDate() + duration);
             onSubmitOffer(amount, denom, date.toUTCString());
           }}
+          disabled={isLoading}
         >
           Submit
         </Button>

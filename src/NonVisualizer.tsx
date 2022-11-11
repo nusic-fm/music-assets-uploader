@@ -33,13 +33,16 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import { User } from "./models/User";
 import * as cherryMintDataList from "./data/cherry/cherryData.json";
-import { DateTimePicker, LocalizationProvider } from "@mui/lab";
-import { getOffersFromId } from "./services/db/offers.service";
-import { Offer } from "./models/Offer";
+import {
+  cancelOffer,
+  createOffer,
+  getOffersFromId,
+} from "./services/db/offers.service";
+import { OfferDbDoc } from "./models/Offer";
 import MakeOfferDialog from "./components/MakeOfferDialog";
 import { useWeb3React } from "@web3-react/core";
 import useAuth from "./hooks/useAuth";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import AvatarOrNameDicord from "./components/AvatarOrNameDiscord";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -156,29 +159,36 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [openOfferForTokenId, setOpenOfferForTokenId] = useState(-1);
   const [flipBoxIndex, setFlipBoxIndex] = useState(-1);
 
+  const [isMakeOfferLoading, setIsMakeOfferLoading] = useState(false);
+  const [isCancelfferLoading, setIsCancelOfferLoading] = useState(false);
+
   const [user, setUser] = useState<{
     name: string;
     id: string;
     avatar: string;
   }>();
   const location = useLocation();
-  const [offersObj, setOffersObj] = useState<{ [i: number]: Offer[] }>({
-    1: [
-      {
-        amount: 0.1,
-        denom: "weth",
-        tokenId: 1,
-        userId: user?.id || "",
-        duration: new Date().toUTCString(),
-      },
-      {
-        amount: 120,
-        denom: "usdc",
-        tokenId: 1,
-        userId: user?.id || "",
-        duration: new Date().toUTCString(),
-      },
-    ],
+  const [offersObj, setOffersObj] = useState<{ [i: number]: OfferDbDoc[] }>({
+    // 1: [
+    //   {
+    //     amount: 0.1,
+    //     denom: "weth",
+    //     tokenId: 1,
+    //     userId: user?.id || "",
+    //     duration: new Date().toUTCString(),
+    //     id: "1",
+    //     isCancelled: false,
+    //   },
+    //   {
+    //     amount: 120,
+    //     denom: "usdc",
+    //     tokenId: 1,
+    //     userId: user?.id || "",
+    //     duration: new Date().toUTCString(),
+    //     id: "2",
+    //     isCancelled: false,
+    //   },
+    // ],
   });
 
   // const timer = useRef<NodeJS.Timer | null>(null);
@@ -402,40 +412,69 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   ) => {
     if (!account) {
       alert("Please connect your wallet and try again.");
-      login();
+      setOpenOfferForTokenId(-1);
       return;
     }
-    if (user && user.id) {
-      const signer = library.getSigner();
-      signer.signMessage(
-        `TokenId: ${openOfferForTokenId} Amount: ${amount} ${denom}, EndTime: ${duration}`
-      );
-      setOffersObj({
-        ...offersObj,
-        [openOfferForTokenId]: [
-          ...(offersObj[openOfferForTokenId] || []),
-          {
-            amount,
-            denom,
-            duration,
-            tokenId: openOfferForTokenId,
-            userId: user.id,
-          },
-        ],
+    if (user && user.id && account) {
+      // const signer = library.getSigner();
+      // signer.signMessage(
+      //   `TokenId: ${openOfferForTokenId} Amount: ${amount} ${denom}, EndTime: ${duration}`
+      // );
+      // setOffersObj({
+      //   ...offersObj,
+      //   [openOfferForTokenId]: [
+      //     ...(offersObj[openOfferForTokenId] || []),
+      //     {
+      //       amount,
+      //       denom,
+      //       duration,
+      //       tokenId: openOfferForTokenId,
+      //       userId: user.id,
+      //       id: (Math.random() + 1).toString(36).substring(7),
+      //       isCancelled: false,
+      //     },
+      //   ],
+      // });
+      setIsMakeOfferLoading(true);
+      await createOffer({
+        amount,
+        denom,
+        duration,
+        userId: user.id,
+        userName: user.name,
+        userAvatar: user.avatar,
+        tokenId: openOfferForTokenId,
+        walletAddress: account,
       });
+      setIsMakeOfferLoading(false);
+      alert("Your offer has been submitted successfully.");
     } else {
       alert("Plese login and try again.");
     }
     setOpenOfferForTokenId(-1);
   };
 
-  const getOffers = async (i: number) => {
-    // const newOffers = await getOffersFromId(i.toString());
-    // setOffersObj({ ...offersObj, [i]: newOffers });
+  const getAndSetOffers = async (tokenId: number) => {
+    const newOffers = await getOffersFromId(tokenId);
+    setOffersObj({ ...offersObj, [tokenId]: newOffers });
   };
   const onFlip = async (i: number) => {
     setFlipBoxIndex(i);
-    await getOffers(i);
+    if (offersObj[i + 1]) {
+      return;
+    }
+    await getAndSetOffers(i + 1);
+  };
+  const onCancelOffer = async (tokenId: number, offer: OfferDbDoc) => {
+    // eslint-disable-next-line no-restricted-globals
+    const result = confirm("Are you sure to cancel your offer");
+    if (!result) return;
+    setIsCancelOfferLoading(true);
+    await cancelOffer(offer.id);
+    await getAndSetOffers(tokenId);
+    setIsCancelOfferLoading(false);
+    alert("Your offer has been removed");
+    setFlipBoxIndex(-1);
   };
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
@@ -840,6 +879,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         <Box m={2} sx={{ overflowY: "auto", height: "80%" }}>
                           {offersObj[i + 1].map((offer, i) => (
                             <Tooltip
+                              key={i}
                               title={
                                 new Date(offer.duration)
                                   .toString()
@@ -849,7 +889,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                               disableInteractive
                             >
                               <Box
-                                key={i}
                                 p={1}
                                 display={"flex"}
                                 justifyContent="space-between"
@@ -869,21 +908,33 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                     {offer.denom}
                                   </Typography>
                                 </Box>
-                                {/* <Box>
-                                <Typography>
-                                  {new Date(offer.duration).getDate() -
-                                    new Date().getDate()}
-                                </Typography>
-                              </Box> */}
-                                {offer.userId === user?.id && (
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    Cancel
-                                  </Button>
-                                )}
+                                <Box display="flex" alignItems={"center"}>
+                                  <AvatarOrNameDicord
+                                    user={{
+                                      name: offer.userName,
+                                      avatar: offer.userAvatar,
+                                      uid: offer.userId,
+                                    }}
+                                    width={25}
+                                    onlyAvatar
+                                  />
+                                </Box>
+
+                                <Box display="flex" alignItems={"center"}>
+                                  {offer.userId === user?.id && (
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onCancelOffer(i + 1, offer);
+                                      }}
+                                      disabled={isCancelfferLoading}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  )}
+                                </Box>
                                 {ownTokenIds.includes((i + 1).toString()) && (
                                   <Button size="small" variant="outlined">
                                     Accept
@@ -996,7 +1047,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           <Box display="flex" justifyContent="center">
                             <Button
                               variant="contained"
-                              onClick={() => downloadFile((i + 1).toString())}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadFile((i + 1).toString());
+                              }}
                             >
                               Download
                             </Button>
@@ -1050,7 +1104,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             variant="contained"
                             onClick={(e) => {
                               setOpenOfferForTokenId(i + 1);
-                              e.preventDefault();
+                              e.stopPropagation();
                             }}
                           >
                             Make Offer
@@ -1082,34 +1136,13 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             mt={1}
                           >
                             <Typography>Minted by:</Typography>
-                            <Box
-                              display="flex"
-                              flexDirection="column"
-                              alignItems="center"
-                              mt={0.5}
-                            >
-                              {mintedTokenUserDetails[(i + 1).toString()]
-                                ?.avatar && (
-                                <img
-                                  src={`https://cdn.discordapp.com/avatars/${
-                                    mintedTokenUserDetails[(i + 1).toString()]
-                                      ?.uid
-                                  }/${
-                                    mintedTokenUserDetails[(i + 1).toString()]
-                                      ?.avatar
-                                  }.png`}
-                                  alt="profile"
-                                  width={45}
-                                  style={{ borderRadius: "50%" }}
-                                />
-                              )}
-                              <Typography fontFamily="BenchNine">
-                                {
+                            {mintedTokenUserDetails[(i + 1).toString()] && (
+                              <AvatarOrNameDicord
+                                user={
                                   mintedTokenUserDetails[(i + 1).toString()]
-                                    ?.name
                                 }
-                              </Typography>
-                            </Box>
+                              />
+                            )}
                           </Box>
                         </Box>
                       ) : (
@@ -1209,6 +1242,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         onClose={() => setOpenOfferForTokenId(-1)}
         onSubmitOffer={onSubmitOffer}
         tokenId={openOfferForTokenId}
+        isLoading={isMakeOfferLoading}
       />
     </Box>
   );

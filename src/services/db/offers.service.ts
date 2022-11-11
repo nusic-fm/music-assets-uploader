@@ -8,8 +8,10 @@ import {
   query,
   where,
   getDocs,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
-import { Offer } from "../../models/Offer";
+import { Offer, OfferDbDoc } from "../../models/Offer";
 import { db } from "../firebase.service";
 
 const createOffer = async (offerDoc: Offer): Promise<void> => {
@@ -27,14 +29,25 @@ const createOffer = async (offerDoc: Offer): Promise<void> => {
 //   await updateDoc(userRef, obj);
 // };
 
-const getOffersFromId = async (id: string) => {
+const getOffersFromId = async (id: number): Promise<OfferDbDoc[]> => {
   const q = query(collection(db, "offers"), where("tokenId", "==", id));
   const querySnapshots = await getDocs(q);
-  const offers: Offer[] = [];
+  const offers: OfferDbDoc[] = [];
   querySnapshots.forEach((doc) => {
-    offers.push(doc.data() as Offer);
+    offers.push({ ...(doc.data() as OfferDbDoc), id: doc.id });
   });
-  return offers;
+  return offers.filter((o) => !o.isCancelled);
+};
+const cancelOffer = async (id: string) => {
+  const offerDoc = doc(db, "offers", id);
+  try {
+    await updateDoc(offerDoc, {
+      isCancelled: true,
+    });
+  } catch (e) {
+    alert("Error, please try again later.");
+    console.log(e);
+  }
 };
 
-export { createOffer, getOffersFromId };
+export { createOffer, getOffersFromId, cancelOffer };
