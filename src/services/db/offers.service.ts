@@ -24,25 +24,30 @@ const createOffer = async (offerDoc: Offer): Promise<void> => {
   }
 };
 
-// const updateUser = async (uid: string, obj: Partial<User>): Promise<void> => {
-//   const userRef = doc(db, "users", uid);
-//   await updateDoc(userRef, obj);
-// };
+const updateOffer = async (uid: string, obj: Partial<Offer>): Promise<void> => {
+  const userRef = doc(db, "offers", uid);
+  await updateDoc(userRef, obj);
+};
 
 const getOffersFromId = async (id: number): Promise<OfferDbDoc[]> => {
-  const q = query(collection(db, "offers"), where("tokenId", "==", id));
+  const q = query(
+    collection(db, "offers"),
+    where("tokenId", "==", id),
+    where("isActive", "==", true),
+    where("isSold", "==", false)
+  );
   const querySnapshots = await getDocs(q);
   const offers: OfferDbDoc[] = [];
   querySnapshots.forEach((doc) => {
     offers.push({ ...(doc.data() as OfferDbDoc), id: doc.id });
   });
-  return offers.filter((o) => !o.isCancelled);
+  return offers;
 };
 const cancelOffer = async (id: string) => {
   const offerDoc = doc(db, "offers", id);
   try {
     await updateDoc(offerDoc, {
-      isCancelled: true,
+      isActive: false,
     });
   } catch (e) {
     alert("Error, please try again later.");
@@ -50,4 +55,4 @@ const cancelOffer = async (id: string) => {
   }
 };
 
-export { createOffer, getOffersFromId, cancelOffer };
+export { createOffer, updateOffer, getOffersFromId, cancelOffer };

@@ -37,6 +37,7 @@ import {
   cancelOffer,
   createOffer,
   getOffersFromId,
+  updateOffer,
 } from "./services/db/offers.service";
 import { OfferDbDoc } from "./models/Offer";
 import MakeOfferDialog from "./components/MakeOfferDialog";
@@ -190,6 +191,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     //   },
     // ],
   });
+  const [randamNumber, setRandomNumber] = useState<number>();
 
   // const timer = useRef<NodeJS.Timer | null>(null);
   const [timerObj, setTimerObj] = useState(getTimerObj);
@@ -259,24 +261,24 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   }, [trackIdx]);
 
   const setListOfMintedTokens = async (isAttachListener: boolean = true) => {
-    // const provider = new ethers.providers.AlchemyProvider(
-    //   process.env.REACT_APP_CHAIN_NAME as string,
-    //   process.env.REACT_APP_ALCHEMY as string
-    // );
-    // const contract = new ethers.Contract(
-    //   process.env.REACT_APP_CONTRACT_ADDRESS as string,
-    //   SolAbi,
-    //   provider
-    // );
-    // if (isAttachListener) {
-    //   console.log("Listening");
-    //   contract.on("Minted", (to, id, parentTokenId, tokenId) => {
-    //     setIsListening(false);
-    //     if (id === user?.id) setNewlyMintedToken(tokenId.toString());
-    //   });
-    // }
-    // const listOfData = await contract.getChildrenMetadata(0);
-    const listOfData = Array.from(cherryMintDataList);
+    const provider = new ethers.providers.AlchemyProvider(
+      process.env.REACT_APP_CHAIN_NAME as string,
+      process.env.REACT_APP_ALCHEMY as string
+    );
+    const contract = new ethers.Contract(
+      process.env.REACT_APP_CONTRACT_ADDRESS as string,
+      SolAbi,
+      provider
+    );
+    if (isAttachListener) {
+      console.log("Listening");
+      contract.on("Minted", (to, id, parentTokenId, tokenId) => {
+        setIsListening(false);
+        if (id === user?.id) setNewlyMintedToken(tokenId.toString());
+      });
+    }
+    const listOfData = await contract.getChildrenMetadata(0);
+    // const listOfData = Array.from(cherryMintDataList);
     const _mintedTokens = listOfData.filter(
       (data: any) => data.isMinted
     ) as any;
@@ -416,7 +418,52 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       return;
     }
     if (user && user.id && account) {
-      // const signer = library.getSigner();
+      setIsMakeOfferLoading(true);
+      let approvedHash: string;
+      try {
+        const signer = library.getSigner();
+        const wethContract = new ethers.Contract(
+          "0x3F71b3Bf5419C151A131D36c523333bE5AbdD10e",
+          [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              name: "approve",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+          signer
+        );
+        const tx = await wethContract.approve(
+          "0x22032bfED1CCe47D73Fd68eBC98231C6CEf32c0E",
+          ethers.utils.parseUnits(amount.toString(), "ether")
+        );
+        await tx.wait();
+        approvedHash = tx.hash;
+      } catch (e) {
+        alert("Transaction failed, please try again");
+        console.log("Error: ", e);
+        return;
+      }
+
       // signer.signMessage(
       //   `TokenId: ${openOfferForTokenId} Amount: ${amount} ${denom}, EndTime: ${duration}`
       // );
@@ -435,7 +482,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       //     },
       //   ],
       // });
-      setIsMakeOfferLoading(true);
       await createOffer({
         amount,
         denom,
@@ -445,6 +491,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         userAvatar: user.avatar,
         tokenId: openOfferForTokenId,
         walletAddress: account,
+        isActive: true,
+        isSold: false,
+        approvedHash,
       });
       setIsMakeOfferLoading(false);
       alert("Your offer has been submitted successfully.");
@@ -457,25 +506,53 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const getAndSetOffers = async (tokenId: number) => {
     const newOffers = await getOffersFromId(tokenId);
     setOffersObj({ ...offersObj, [tokenId]: newOffers });
+    setRandomNumber(Math.random() + 1);
   };
   const onFlip = async (i: number) => {
     setFlipBoxIndex(i);
-    if (offersObj[i + 1]) {
+    if (offersObj[i + 1]?.length) {
       return;
     }
     await getAndSetOffers(i + 1);
   };
-  const onCancelOffer = async (tokenId: number, offer: OfferDbDoc) => {
+  const onCancelOffer = async (offer: OfferDbDoc) => {
     // eslint-disable-next-line no-restricted-globals
     const result = confirm("Are you sure to cancel your offer");
     if (!result) return;
     setIsCancelOfferLoading(true);
     await cancelOffer(offer.id);
-    await getAndSetOffers(tokenId);
+    await getAndSetOffers(offer.tokenId);
     setIsCancelOfferLoading(false);
     alert("Your offer has been removed");
     setFlipBoxIndex(-1);
   };
+  const onAcceptOffer = async (offer: OfferDbDoc) => {
+    if (mintedTokenIds.includes(offer.tokenId.toString())) {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/accept-offer",
+          {
+            tokenId: offer.tokenId,
+            buyerAddress: offer.walletAddress,
+            amount: offer.amount,
+          }
+        );
+        const acceptedReceiptHash = response.data.acceptedReceiptHash;
+        await updateOffer(offer.id, {
+          isSold: true,
+          acceptedReceiptHash,
+        });
+      } catch (e) {
+        alert("Something went wrong, please try again");
+        console.log("ERROR: ", e);
+      }
+    } else {
+      alert(
+        "Something went wrong with accepting the offer, please refresh the page and try again."
+      );
+    }
+  };
+
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
       <Box
@@ -871,15 +948,15 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 >
                   {/* <Typography align="center">Offers</Typography> */}
                   <Box width="100%" height="100%">
-                    {offersObj[i + 1]?.length > 0 ? (
+                    {!!randamNumber && offersObj[i + 1]?.length > 0 ? (
                       <Box m={1} height="100%">
                         <Typography sx={{ ml: 3 }} fontWeight="bold">
                           Offers
                         </Typography>
                         <Box m={2} sx={{ overflowY: "auto", height: "80%" }}>
-                          {offersObj[i + 1].map((offer, i) => (
+                          {offersObj[i + 1].map((offer, j) => (
                             <Tooltip
-                              key={i}
+                              key={j}
                               title={
                                 new Date(offer.duration)
                                   .toString()
@@ -927,7 +1004,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                       variant="outlined"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        onCancelOffer(i + 1, offer);
+                                        onCancelOffer(offer);
                                       }}
                                       disabled={isCancelfferLoading}
                                     >
@@ -936,7 +1013,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                   )}
                                 </Box>
                                 {ownTokenIds.includes((i + 1).toString()) && (
-                                  <Button size="small" variant="outlined">
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => onAcceptOffer(offer)}
+                                  >
                                     Accept
                                   </Button>
                                 )}
@@ -1098,18 +1179,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           </Button>
                         ))} */}
                       {user ? (
-                        <Box display={"flex"} justifyContent="center">
-                          <Button
-                            // size="small"
-                            variant="contained"
-                            onClick={(e) => {
-                              setOpenOfferForTokenId(i + 1);
-                              e.stopPropagation();
-                            }}
-                          >
-                            Make Offer
-                          </Button>
-                        </Box>
+                        isTokenMintedByUser(i + 1) === false && (
+                          <Box display={"flex"} justifyContent="center">
+                            <Button
+                              // size="small"
+                              variant="contained"
+                              onClick={(e) => {
+                                setOpenOfferForTokenId(i + 1);
+                                e.stopPropagation();
+                              }}
+                            >
+                              Make Offer
+                            </Button>
+                          </Box>
+                        )
                       ) : (
                         <Button
                           variant="contained"
