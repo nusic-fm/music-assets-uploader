@@ -27,6 +27,7 @@ import axios from "axios";
 import { logFirebaseEvent } from "./services/firebase.service";
 import {
   createUser,
+  getUserById,
   getUserDocsFromIds,
   updateUser,
 } from "./services/db/users.service";
@@ -44,6 +45,12 @@ import MakeOfferDialog from "./components/MakeOfferDialog";
 import { useWeb3React } from "@web3-react/core";
 import useAuth from "./hooks/useAuth";
 import AvatarOrNameDicord from "./components/AvatarOrNameDiscord";
+import { getTokens, updateTokenOwner } from "./services/db/tokens.service";
+import { Token } from "./models/Token";
+import ProfileDialog, {
+  checkNftBalance,
+  getOwnerOfNft,
+} from "./components/ProfileDialog";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -153,21 +160,18 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
   const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
-  const [mintedTokenUserDetails, setMintedTokenUserDetails] = useState<{
-    [key: string]: User;
-  }>({});
+  // const [mintedTokenUserDetails, setMintedTokenUserDetails] = useState<{
+  //   [key: string]: User;
+  // }>({});
   const [isNftRevealed, setIsNftRevealed] = useState(false);
   const [openOfferForTokenId, setOpenOfferForTokenId] = useState(-1);
   const [flipBoxIndex, setFlipBoxIndex] = useState(-1);
 
   const [isMakeOfferLoading, setIsMakeOfferLoading] = useState(false);
   const [isCancelfferLoading, setIsCancelOfferLoading] = useState(false);
-
-  const [user, setUser] = useState<{
-    name: string;
-    id: string;
-    avatar: string;
-  }>();
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [showProfile, setShowProfile] = useState(false);
+  const [user, setUser] = useState<User>();
   const location = useLocation();
   const [offersObj, setOffersObj] = useState<{ [i: number]: OfferDbDoc[] }>({
     // 1: [
@@ -227,12 +231,25 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         headers: { Authorization: `${_tokenType} ${_accessToken}` },
       });
       const { username, id, avatar, discriminator } = response.data;
-      await createUser(id, { name: username, uid: id, avatar, discriminator });
-      // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
-      setUser({ name: username, id, avatar });
-      window.history.replaceState(null, "", window.location.origin);
+      const userDocDb = await createUser(id, {
+        name: username,
+        uid: id,
+        avatar,
+        discriminator,
+      });
+      if (userDocDb) {
+        // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
+        setUser(userDocDb);
+        window.history.replaceState(null, "", window.location.origin);
+      }
     } catch (e) {
       if (isAlertOnFail) alert("Please click Sign In to continue");
+    }
+  };
+  const refreshUser = async () => {
+    if (user?.uid) {
+      const _user = await getUserById(user?.uid);
+      setUser(_user);
     }
   };
 
@@ -261,78 +278,81 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   }, [trackIdx]);
 
   const setListOfMintedTokens = async (isAttachListener: boolean = true) => {
-    const provider = new ethers.providers.AlchemyProvider(
-      process.env.REACT_APP_CHAIN_NAME as string,
-      process.env.REACT_APP_ALCHEMY as string
-    );
-    const contract = new ethers.Contract(
-      process.env.REACT_APP_CONTRACT_ADDRESS as string,
-      SolAbi,
-      provider
-    );
-    if (isAttachListener) {
-      console.log("Listening");
-      contract.on("Minted", (to, id, parentTokenId, tokenId) => {
-        setIsListening(false);
-        if (id === user?.id) setNewlyMintedToken(tokenId.toString());
-      });
-    }
-    const listOfData = await contract.getChildrenMetadata(0);
+    // const provider = new ethers.providers.AlchemyProvider(
+    //   process.env.REACT_APP_CHAIN_NAME as string,
+    //   process.env.REACT_APP_ALCHEMY as string
+    // );
+    // const contract = new ethers.Contract(
+    //   process.env.REACT_APP_CONTRACT_ADDRESS as string,
+    //   SolAbi,
+    //   provider
+    // );
+    // if (isAttachListener) {
+    //   console.log("Listening");
+    //   contract.on("Minted", (to, id, parentTokenId, tokenId) => {
+    //     setIsListening(false);
+    //     if (id === user?.id) setNewlyMintedToken(tokenId.toString());
+    //   });
+    // }
+    // const listOfData = await contract.getChildrenMetadata(0);
     // const listOfData = Array.from(cherryMintDataList);
-    const _mintedTokens = listOfData.filter(
-      (data: any) => data.isMinted
-    ) as any;
+    const listOfTokens = await getTokens();
+    listOfTokens[0].ownerId = "879400465861869638";
+    setTokens(listOfTokens);
+    // const _mintedTokens = listOfData.filter(
+    //   (data: any) => data.isMinted
+    // ) as any;
 
-    const userIds = listOfData
-      .map((data: any) => data.id)
-      .filter((data: any) => data.length);
-    const _ownTokenIds = _mintedTokens
-      .filter((data: any) => data.id === user?.id)
-      .map((data: any) => data.tokenId.toString());
-    setOwnTokenIds(_ownTokenIds);
-    if (userIds.length) {
-      const uniqueArray = userIds.filter((id: any, pos: any) => {
-        return userIds.indexOf(id) === pos;
-      });
-      let usersDetails = [];
-      if (uniqueArray.length > 10) {
-        const usersDetailsOne = await getUserDocsFromIds(
-          uniqueArray.slice(0, 10)
-        );
-        const usersDetailsTwo = await getUserDocsFromIds(uniqueArray.slice(10));
-        usersDetails = [...usersDetailsOne, ...usersDetailsTwo];
-      } else {
-        usersDetails = await getUserDocsFromIds(uniqueArray);
-      }
-      const tokenIds = _mintedTokens.map((data: any) =>
-        data.tokenId.toString()
-      );
-      setMintedTokenIds(tokenIds);
+    // const userIds = listOfData
+    //   .map((data: any) => data.id)
+    //   .filter((data: any) => data.length);
+    // const _ownTokenIds = _mintedTokens
+    //   .filter((data: any) => data.id === user?.id)
+    //   .map((data: any) => data.tokenId.toString());
+    setOwnTokenIds(
+      listOfTokens.filter((t) => t.ownerId === user?.uid).map((t) => t.id)
+    );
+    // if (userIds.length) {
+    // const uniqueArray = userIds.filter((id: any, pos: any) => {
+    //   return userIds.indexOf(id) === pos;
+    // });
+    // let usersDetails = [];
+    // if (uniqueArray.length > 10) {
+    //   const usersDetailsOne = await getUserDocsFromIds(
+    //     uniqueArray.slice(0, 10)
+    //   );
+    //   const usersDetailsTwo = await getUserDocsFromIds(uniqueArray.slice(10));
+    //   usersDetails = [...usersDetailsOne, ...usersDetailsTwo];
+    // } else {
+    //   usersDetails = await getUserDocsFromIds(uniqueArray);
+    // }
+    const tokenIds = listOfTokens.map((t) => t.id);
+    setMintedTokenIds(tokenIds);
 
-      const userDetailsObj: { [key: string]: User } = {};
-      usersDetails.map((user) => {
-        const tokensDetails = _mintedTokens.filter(
-          (data: any) => data.id === user.uid
-        );
-        if (tokensDetails.length)
-          tokensDetails.map(
-            (tokenDetails: any) =>
-              (userDetailsObj[tokenDetails.tokenId.toString()] = user)
-          );
-        return "";
-      });
-      userDetailsObj["12"] = { ...userDetailsObj["12"], name: "RandomPumpkin" };
-      setMintedTokenUserDetails(userDetailsObj);
-    }
-    const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
-    Array.from(buyButtons).map((btn: any) => {
-      const icon = btn?.firstChild;
-      if (icon.tagName === "IMG") {
-        btn?.removeChild(icon);
-        if (btn?.children[0]) btn.children[0].innerText = "Buy";
-      }
-      return "";
-    });
+    // const userDetailsObj: { [key: string]: User } = {};
+    // usersDetails.map((user) => {
+    //   const tokensDetails = _mintedTokens.filter(
+    //     (data: any) => data.id === user.uid
+    //   );
+    //   if (tokensDetails.length)
+    //     tokensDetails.map(
+    //       (tokenDetails: any) =>
+    //         (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+    //     );
+    //   return "";
+    // });
+    // userDetailsObj["12"] = { ...userDetailsObj["12"], name: "RandomPumpkin" };
+    // setMintedTokenUserDetails(userDetailsObj);
+    // }
+    // const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
+    // Array.from(buyButtons).map((btn: any) => {
+    //   const icon = btn?.firstChild;
+    //   if (icon.tagName === "IMG") {
+    //     btn?.removeChild(icon);
+    //     if (btn?.children[0]) btn.children[0].innerText = "Buy";
+    //   }
+    //   return "";
+    // });
   };
   useEffect(() => {
     // make it available for all
@@ -392,7 +412,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     ownTokenIds.includes(id.toString());
 
   const onSpotifyId = (e: any) => {
-    if (!user?.id) {
+    if (!user?.uid) {
       alert("Please sign in and try again.");
       return;
     }
@@ -400,7 +420,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       alert("Please enter valid Spotify Artist ID");
       return;
     }
-    updateUser(user.id, { artistId: spotifyArtistId });
+    updateUser(user.uid, { artistId: spotifyArtistId });
     logFirebaseEvent("select_content", {
       content_type: "spotifyArtistId",
       content_id: spotifyArtistId,
@@ -417,7 +437,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       setOpenOfferForTokenId(-1);
       return;
     }
-    if (user && user.id && account) {
+    if (user && user.uid && account) {
       setIsMakeOfferLoading(true);
       let approvedHash: string;
       try {
@@ -486,9 +506,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         amount,
         denom,
         duration,
-        userId: user.id,
+        userId: user.uid,
         userName: user.name,
         userAvatar: user.avatar,
+        discriminator: user.discriminator,
         tokenId: openOfferForTokenId,
         walletAddress: account,
         isActive: true,
@@ -527,17 +548,43 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     setFlipBoxIndex(-1);
   };
   const onAcceptOffer = async (offer: OfferDbDoc) => {
-    if (mintedTokenIds.includes(offer.tokenId.toString())) {
+    if (ownTokenIds.includes(offer.tokenId.toString())) {
+      if (!user?.pubkey) {
+        alert(
+          "Kindly create your wallet and import NFT before accepting an offer."
+        );
+        return;
+      }
+      const owner = await getOwnerOfNft(offer.tokenId.toString());
+      if (user.pubkey !== owner) {
+        alert(
+          `Your wallet does't hold the token id - ${offer.tokenId}. Kindly transfer it to your custodial wallet - ${user.pubkey}`
+        );
+        return;
+      }
       try {
         const response = await axios.post(
-          "http://localhost:3000/accept-offer",
+          "http://localhost:8080/accept-offer",
           {
-            tokenId: offer.tokenId,
+            tokenId: offer.tokenId.toString(),
             buyerAddress: offer.walletAddress,
+            custodialAddress: user.pubkey,
             amount: offer.amount,
           }
         );
         const acceptedReceiptHash = response.data.acceptedReceiptHash;
+        console.log({ acceptedReceiptHash });
+        await updateTokenOwner(
+          offer.tokenId.toString(),
+          {
+            name: offer.userName,
+            uid: offer.userId,
+            avatar: offer.userAvatar,
+            discriminator: offer.discriminator,
+          },
+          user?.uid as string,
+          offer.id
+        );
         await updateOffer(offer.id, {
           isSold: true,
           acceptedReceiptHash,
@@ -551,6 +598,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         "Something went wrong with accepting the offer, please refresh the page and try again."
       );
     }
+  };
+
+  const onProfileClose = () => {
+    setShowProfile(false);
   };
 
   return (
@@ -592,7 +643,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             )}
           </Box>
           {user ? (
-            <Chip label={user.name} />
+            <Chip
+              label={user.name}
+              clickable
+              onClick={() => setShowProfile(true)}
+            />
           ) : (
             <Button
               variant="contained"
@@ -946,7 +1001,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     setFlipBoxIndex(-1);
                   }}
                 >
-                  {/* <Typography align="center">Offers</Typography> */}
                   <Box width="100%" height="100%">
                     {!!randamNumber && offersObj[i + 1]?.length > 0 ? (
                       <Box m={1} height="100%">
@@ -998,7 +1052,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                 </Box>
 
                                 <Box display="flex" alignItems={"center"}>
-                                  {offer.userId === user?.id && (
+                                  {offer.userId === user?.uid && (
                                     <Button
                                       size="small"
                                       variant="outlined"
@@ -1016,7 +1070,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                   <Button
                                     size="small"
                                     variant="outlined"
-                                    onClick={() => onAcceptOffer(offer)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onAcceptOffer(offer);
+                                    }}
                                   >
                                     Accept
                                   </Button>
@@ -1219,11 +1276,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             mt={1}
                           >
                             <Typography>Minted by:</Typography>
-                            {mintedTokenUserDetails[(i + 1).toString()] && (
+                            {tokens[i] && (
                               <AvatarOrNameDicord
-                                user={
-                                  mintedTokenUserDetails[(i + 1).toString()]
-                                }
+                                user={{
+                                  uid: tokens[i].ownerId,
+                                  name: tokens[i].name,
+                                  discriminator: tokens[i].discriminator,
+                                  avatar: tokens[i].avatar,
+                                }}
                               />
                             )}
                           </Box>
@@ -1327,6 +1387,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         tokenId={openOfferForTokenId}
         isLoading={isMakeOfferLoading}
       />
+      {user && (
+        <ProfileDialog
+          isOpen={showProfile}
+          user={user}
+          onClose={onProfileClose}
+          refreshUser={refreshUser}
+        />
+      )}
     </Box>
   );
 };

@@ -12,6 +12,7 @@ export interface Offer {
   approvedHash: string;
   acceptedReceipt?: string;
   acceptedReceiptHash?: string;
+  discriminator: string;
 }
 export interface OfferDbDoc extends Offer {
   id: string;
