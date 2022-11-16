@@ -1,6 +1,6 @@
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -86,17 +86,17 @@ const MakeOfferDialog = (props: {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button
+        <LoadingButton
           variant="contained"
           onClick={() => {
             const date = new Date();
             date.setDate(date.getDate() + duration);
             onSubmitOffer(amount, denom, date.toUTCString());
           }}
-          disabled={isLoading}
+          loading={isLoading}
         >
           Submit
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

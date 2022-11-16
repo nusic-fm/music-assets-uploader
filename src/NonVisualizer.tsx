@@ -51,6 +51,7 @@ import ProfileDialog, {
   checkNftBalance,
   getOwnerOfNft,
 } from "./components/ProfileDialog";
+import { LoadingButton } from "@mui/lab";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -167,8 +168,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [openOfferForTokenId, setOpenOfferForTokenId] = useState(-1);
   const [flipBoxIndex, setFlipBoxIndex] = useState(-1);
 
-  const [isMakeOfferLoading, setIsMakeOfferLoading] = useState(false);
-  const [isCancelfferLoading, setIsCancelOfferLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
   const [showProfile, setShowProfile] = useState(false);
   const [user, setUser] = useState<User>();
@@ -297,7 +297,6 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     // const listOfData = await contract.getChildrenMetadata(0);
     // const listOfData = Array.from(cherryMintDataList);
     const listOfTokens = await getTokens();
-    listOfTokens[0].ownerId = "879400465861869638";
     setTokens(listOfTokens);
     // const _mintedTokens = listOfData.filter(
     //   (data: any) => data.isMinted
@@ -438,7 +437,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       return;
     }
     if (user && user.uid && account) {
-      setIsMakeOfferLoading(true);
+      setIsLoading(true);
       let approvedHash: string;
       try {
         const signer = library.getSigner();
@@ -481,6 +480,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       } catch (e) {
         alert("Transaction failed, please try again");
         console.log("Error: ", e);
+        setIsLoading(false);
         return;
       }
 
@@ -516,7 +516,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         isSold: false,
         approvedHash,
       });
-      setIsMakeOfferLoading(false);
+      setIsLoading(false);
       alert("Your offer has been submitted successfully.");
     } else {
       alert("Plese login and try again.");
@@ -540,10 +540,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     // eslint-disable-next-line no-restricted-globals
     const result = confirm("Are you sure to cancel your offer");
     if (!result) return;
-    setIsCancelOfferLoading(true);
+    setIsLoading(true);
     await cancelOffer(offer.id);
     await getAndSetOffers(offer.tokenId);
-    setIsCancelOfferLoading(false);
+    setIsLoading(false);
     alert("Your offer has been removed");
     setFlipBoxIndex(-1);
   };
@@ -563,6 +563,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         return;
       }
       try {
+        setIsLoading(true);
         const response = await axios.post(
           "http://localhost:8080/accept-offer",
           {
@@ -589,9 +590,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           isSold: true,
           acceptedReceiptHash,
         });
+        setIsLoading(false);
       } catch (e) {
         alert("Something went wrong, please try again");
         console.log("ERROR: ", e);
+        setIsLoading(false);
       }
     } else {
       alert(
@@ -1053,17 +1056,17 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
                                 <Box display="flex" alignItems={"center"}>
                                   {offer.userId === user?.uid && (
-                                    <Button
+                                    <LoadingButton
                                       size="small"
                                       variant="outlined"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         onCancelOffer(offer);
                                       }}
-                                      disabled={isCancelfferLoading}
+                                      loading={isLoading}
                                     >
                                       Cancel
-                                    </Button>
+                                    </LoadingButton>
                                   )}
                                 </Box>
                                 {ownTokenIds.includes((i + 1).toString()) && (
@@ -1382,10 +1385,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       </Box>
       <MakeOfferDialog
         isOpen={openOfferForTokenId >= 0}
-        onClose={() => setOpenOfferForTokenId(-1)}
+        onClose={() => {
+          if (!isLoading) setOpenOfferForTokenId(-1);
+        }}
         onSubmitOffer={onSubmitOffer}
         tokenId={openOfferForTokenId}
-        isLoading={isMakeOfferLoading}
+        isLoading={isLoading}
       />
       {user && (
         <ProfileDialog

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
@@ -58,6 +59,41 @@ export const checkNftBalance = async (address: string): Promise<number> => {
   return balance;
 };
 
+export const getUserBalance = async (address: string): Promise<string> => {
+  const provider = new ethers.providers.AlchemyProvider(
+    process.env.REACT_APP_CHAIN_NAME as string,
+    process.env.REACT_APP_ALCHEMY as string
+  );
+  const nftContract = new ethers.Contract(
+    process.env.REACT_APP_MASTER_CONTRACT_ADDRESS as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "",
+            type: "address",
+          },
+        ],
+        name: "userBalance",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    provider
+  );
+  const balanceBn = await nftContract.userBalance(address);
+  const balance = balanceBn.toString();
+  return balance;
+};
+
 export const getOwnerOfNft = async (tokenId: string): Promise<string> => {
   const provider = new ethers.providers.AlchemyProvider(
     process.env.REACT_APP_CHAIN_NAME as string,
@@ -97,6 +133,7 @@ const ProfileDialog = (props: Props) => {
   const { isOpen, user, onClose, refreshUser } = props;
   const [currentStep, setCurrentStep] = useState(0);
   const [userCollection, setUserCollection] = useState(0);
+  const [userBalance, setUserBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchUserCollection = async () => {
@@ -105,10 +142,17 @@ const ProfileDialog = (props: Props) => {
       setUserCollection(noOfTokens);
     }
   };
+  const fetchUserBalance = async () => {
+    if (user.pubkey) {
+      const noOfTokens = await getUserBalance(user.pubkey);
+      setUserBalance(Number(ethers.utils.formatEther(noOfTokens)));
+    }
+  };
   useEffect(() => {
     if (user.pubkey) {
       setCurrentStep(1);
       fetchUserCollection();
+      fetchUserBalance();
     }
   }, [user.pubkey]);
 
@@ -193,13 +237,26 @@ const ProfileDialog = (props: Props) => {
               </Step>
             </Stepper>
           )}
-          <Box my={2} display="flex">
-            <Typography variant="h5" fontFamily={"monospace"}>
-              Collections
-            </Typography>
-            <Chip sx={{ ml: 2 }} color="info" label={userCollection}></Chip>
-            {/* <Typography variant="h4">{userCollection}</Typography> */}
-          </Box>
+          {userCollection && (
+            <Box my={2} display="flex">
+              <Typography variant="h5" fontFamily={"monospace"}>
+                Collections
+              </Typography>
+              <Chip sx={{ ml: 2 }} color="info" label={userCollection} />
+            </Box>
+          )}
+          {userBalance > 0 && (
+            <Box my={2} display="flex">
+              <Typography variant="h5" fontFamily={"monospace"}>
+                Balance
+              </Typography>
+              <Chip
+                sx={{ ml: 2 }}
+                color="success"
+                label={`${userBalance} ETH`}
+              ></Chip>
+            </Box>
+          )}
         </Box>
       </DialogContent>
     </Dialog>
