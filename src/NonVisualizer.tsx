@@ -567,6 +567,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         const response = await axios.post(
           "http://localhost:8080/accept-offer",
           {
+            discordId: user.uid,
             tokenId: offer.tokenId.toString(),
             buyerAddress: offer.walletAddress,
             custodialAddress: user.pubkey,
