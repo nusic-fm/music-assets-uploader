@@ -22,6 +22,7 @@ type Props = {
   user: User;
   onClose: () => void;
   refreshUser: () => void;
+  setShowAlertMessage: any;
 };
 
 export const checkNftBalance = async (address: string): Promise<number> => {
@@ -130,7 +131,7 @@ export const getOwnerOfNft = async (tokenId: string): Promise<string> => {
 };
 
 const ProfileDialog = (props: Props) => {
-  const { isOpen, user, onClose, refreshUser } = props;
+  const { isOpen, user, onClose, refreshUser, setShowAlertMessage } = props;
   const [currentStep, setCurrentStep] = useState(0);
   const [userCollection, setUserCollection] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
@@ -158,7 +159,8 @@ const ProfileDialog = (props: Props) => {
 
   const onCreateWallet = async () => {
     if (!user.uid) {
-      alert("Kindly login and try again.");
+      setShowAlertMessage("Kindly login and try again.");
+      return;
     }
     setIsLoading(true);
     try {
@@ -237,7 +239,7 @@ const ProfileDialog = (props: Props) => {
               </Step>
             </Stepper>
           )}
-          {userCollection && (
+          {userCollection > 0 && (
             <Box my={2} display="flex">
               <Typography variant="h5" fontFamily={"monospace"}>
                 Collections

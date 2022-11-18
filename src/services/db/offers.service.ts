@@ -15,13 +15,8 @@ import { Offer, OfferDbDoc } from "../../models/Offer";
 import { db } from "../firebase.service";
 
 const createOffer = async (offerDoc: Offer): Promise<void> => {
-  try {
-    const offerCollection = collection(db, "offers");
-    await addDoc(offerCollection, offerDoc);
-  } catch (e) {
-    alert("Error, please try again later.");
-    console.log(e);
-  }
+  const offerCollection = collection(db, "offers");
+  await addDoc(offerCollection, offerDoc);
 };
 
 const updateOffer = async (uid: string, obj: Partial<Offer>): Promise<void> => {
@@ -45,14 +40,10 @@ const getOffersFromId = async (id: number): Promise<OfferDbDoc[]> => {
 };
 const cancelOffer = async (id: string) => {
   const offerDoc = doc(db, "offers", id);
-  try {
-    await updateDoc(offerDoc, {
-      isActive: false,
-    });
-  } catch (e) {
-    alert("Error, please try again later.");
-    console.log(e);
-  }
+
+  await updateDoc(offerDoc, {
+    isActive: false,
+  });
 };
 
 export { createOffer, updateOffer, getOffersFromId, cancelOffer };

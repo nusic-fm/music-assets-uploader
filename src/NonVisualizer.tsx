@@ -52,6 +52,7 @@ import ProfileDialog, {
   getOwnerOfNft,
 } from "./components/ProfileDialog";
 import { LoadingButton } from "@mui/lab";
+import AlertSnackBar from "./components/AlertSnackBar";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -196,7 +197,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     // ],
   });
   const [randamNumber, setRandomNumber] = useState<number>();
-
+  const [showAlertMessage, setShowAlertMessage] = useState<boolean | string>(
+    false
+  );
   // const timer = useRef<NodeJS.Timer | null>(null);
   const [timerObj, setTimerObj] = useState(getTimerObj);
   const { account, library } = useWeb3React();
@@ -243,7 +246,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         window.history.replaceState(null, "", window.location.origin);
       }
     } catch (e) {
-      if (isAlertOnFail) alert("Please click Sign In to continue");
+      if (isAlertOnFail)
+        setShowAlertMessage("Please click Sign In to continue");
     }
   };
   const refreshUser = async () => {
@@ -377,7 +381,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     window.open(
       `https://storage.googleapis.com/nusic-data/marketplace/feral/${id}`
     );
-    alert("Download Successful");
+    setShowAlertMessage("Download Successful");
     setIsDownloading(false);
     // TODO:
     // fetch("https://storage.googleapis.com/nusic-data/marketplace/feral/2.mov", {
@@ -412,11 +416,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
   const onSpotifyId = (e: any) => {
     if (!user?.uid) {
-      alert("Please sign in and try again.");
+      setShowAlertMessage("Please sign in and try again.");
       return;
     }
     if (!spotifyArtistId?.length) {
-      alert("Please enter valid Spotify Artist ID");
+      setShowAlertMessage("Please enter valid Spotify Artist ID");
       return;
     }
     updateUser(user.uid, { artistId: spotifyArtistId });
@@ -424,7 +428,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       content_type: "spotifyArtistId",
       content_id: spotifyArtistId,
     });
-    alert("successfully submitted");
+    setShowAlertMessage("Successfully submitted");
   };
   const onSubmitOffer = async (
     amount: number,
@@ -432,7 +436,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     duration: string
   ) => {
     if (!account) {
-      alert("Please connect your wallet and try again.");
+      setShowAlertMessage("Please connect your wallet and try again.");
       setOpenOfferForTokenId(-1);
       return;
     }
@@ -478,7 +482,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         await tx.wait();
         approvedHash = tx.hash;
       } catch (e) {
-        alert("Transaction failed, please try again");
+        setShowAlertMessage("Transaction failed, please try again");
         console.log("Error: ", e);
         setIsLoading(false);
         return;
@@ -502,24 +506,31 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       //     },
       //   ],
       // });
-      await createOffer({
-        amount,
-        denom,
-        duration,
-        userId: user.uid,
-        userName: user.name,
-        userAvatar: user.avatar,
-        discriminator: user.discriminator,
-        tokenId: openOfferForTokenId,
-        walletAddress: account,
-        isActive: true,
-        isSold: false,
-        approvedHash,
-      });
-      setIsLoading(false);
-      alert("Your offer has been submitted successfully.");
+      try {
+        await createOffer({
+          amount,
+          denom,
+          duration,
+          userId: user.uid,
+          userName: user.name,
+          userAvatar: user.avatar,
+          discriminator: user.discriminator,
+          tokenId: openOfferForTokenId,
+          walletAddress: account,
+          isActive: true,
+          isSold: false,
+          approvedHash,
+        });
+      } catch (e) {
+        console.log("Create ERROR: ", e);
+        setShowAlertMessage("Error Occured: please try again later.");
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+      setShowAlertMessage("Your offer has been submitted successfully.");
     } else {
-      alert("Plese login and try again.");
+      setShowAlertMessage("Plese login and try again.");
     }
     setOpenOfferForTokenId(-1);
   };
@@ -541,23 +552,30 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     const result = confirm("Are you sure to cancel your offer");
     if (!result) return;
     setIsLoading(true);
-    await cancelOffer(offer.id);
-    await getAndSetOffers(offer.tokenId);
-    setIsLoading(false);
-    alert("Your offer has been removed");
+    try {
+      await cancelOffer(offer.id);
+      await getAndSetOffers(offer.tokenId);
+    } catch (e) {
+      console.log("Cancel ERROR: ", e);
+      setShowAlertMessage("Error Occured: Please try again later.");
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+    setShowAlertMessage("Your offer has been removed");
     setFlipBoxIndex(-1);
   };
   const onAcceptOffer = async (offer: OfferDbDoc) => {
     if (ownTokenIds.includes(offer.tokenId.toString())) {
       if (!user?.pubkey) {
-        alert(
+        setShowAlertMessage(
           "Kindly create your wallet and import NFT before accepting an offer."
         );
         return;
       }
       const owner = await getOwnerOfNft(offer.tokenId.toString());
       if (user.pubkey !== owner) {
-        alert(
+        setShowAlertMessage(
           `Your wallet does't hold the token id - ${offer.tokenId}. Kindly transfer it to your custodial wallet - ${user.pubkey}`
         );
         return;
@@ -593,12 +611,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         });
         setIsLoading(false);
       } catch (e) {
-        alert("Something went wrong, please try again");
+        setShowAlertMessage("Something went wrong, please try again");
         console.log("ERROR: ", e);
         setIsLoading(false);
       }
     } else {
-      alert(
+      setShowAlertMessage(
         "Something went wrong with accepting the offer, please refresh the page and try again."
       );
     }
@@ -1399,8 +1417,16 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           user={user}
           onClose={onProfileClose}
           refreshUser={refreshUser}
+          setShowAlertMessage={setShowAlertMessage}
         />
       )}
+      <AlertSnackBar
+        isOpen={!!showAlertMessage}
+        message={showAlertMessage as string}
+        onClose={() => {
+          setShowAlertMessage(false);
+        }}
+      />
     </Box>
   );
 };
