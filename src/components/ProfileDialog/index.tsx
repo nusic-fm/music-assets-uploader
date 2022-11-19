@@ -164,9 +164,12 @@ const ProfileDialog = (props: Props) => {
     }
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/wallet/create", {
-        id: user.uid,
-      });
+      const res = await axios.post(
+        "https://custodial-wallets-server-1-ynfarb57wa-uc.a.run.app/wallet/create",
+        {
+          id: user.uid,
+        }
+      );
       console.log(res);
       refreshUser();
       setIsLoading(false);

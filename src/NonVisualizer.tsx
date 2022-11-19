@@ -583,7 +583,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       try {
         setIsLoading(true);
         const response = await axios.post(
-          "http://localhost:8080/accept-offer",
+          "https://custodial-wallets-server-1-ynfarb57wa-uc.a.run.app/accept-offer",
           {
             discordId: user.uid,
             tokenId: offer.tokenId.toString(),
