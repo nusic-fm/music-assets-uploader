@@ -25,6 +25,8 @@ type Props = {
   setShowAlertMessage: any;
 };
 
+const CREATE_WALLET_URL = `${process.env.REACT_APP_MARKET_API}/wallet/create`;
+
 export const checkNftBalance = async (address: string): Promise<number> => {
   const provider = new ethers.providers.AlchemyProvider(
     process.env.REACT_APP_CHAIN_NAME as string,
@@ -164,12 +166,9 @@ const ProfileDialog = (props: Props) => {
     }
     setIsLoading(true);
     try {
-      const res = await axios.post(
-        "https://custodial-wallets-server-1-ynfarb57wa-uc.a.run.app/wallet/create",
-        {
-          id: user.uid,
-        }
-      );
+      const res = await axios.post(CREATE_WALLET_URL, {
+        id: user.uid,
+      });
       console.log(res);
       refreshUser();
       setIsLoading(false);
@@ -232,7 +231,9 @@ const ProfileDialog = (props: Props) => {
                     <LoadingButton
                       variant="outlined"
                       color="info"
-                      onClick={() => {}}
+                      onClick={() => {
+                        fetchUserCollection();
+                      }}
                       loading={isLoading}
                     >
                       Refresh

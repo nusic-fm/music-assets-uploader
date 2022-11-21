@@ -149,6 +149,8 @@ const getTimerObj = () => {
   return { days, hours, minutes, seconds, isRevealed: false };
 };
 
+const ACCEPT_OFFER_URL = `${process.env.REACT_APP_MARKET_API}/accept-offer`;
+
 const NonVisualizer = (props: { trackIdx: number }) => {
   const { trackIdx } = props;
   // const [firstClick, setFirstClick] = useState(false);
@@ -582,16 +584,13 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       }
       try {
         setIsLoading(true);
-        const response = await axios.post(
-          "https://custodial-wallets-server-1-ynfarb57wa-uc.a.run.app/accept-offer",
-          {
-            discordId: user.uid,
-            tokenId: offer.tokenId.toString(),
-            buyerAddress: offer.walletAddress,
-            custodialAddress: user.pubkey,
-            amount: offer.amount,
-          }
-        );
+        const response = await axios.post(ACCEPT_OFFER_URL, {
+          discordId: user.uid,
+          tokenId: offer.tokenId.toString(),
+          buyerAddress: offer.walletAddress,
+          custodialAddress: user.pubkey,
+          amount: offer.amount,
+        });
         const acceptedReceiptHash = response.data.acceptedReceiptHash;
         console.log({ acceptedReceiptHash });
         await updateTokenOwner(
