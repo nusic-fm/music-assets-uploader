@@ -169,7 +169,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   // }>({});
   const [isNftRevealed, setIsNftRevealed] = useState(false);
   const [openOfferForTokenId, setOpenOfferForTokenId] = useState(-1);
-  const [flipBoxIndex, setFlipBoxIndex] = useState(-1);
+  const [flipBoxIndex, setFlipBoxIndex] = useState<number[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -448,7 +448,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       try {
         const signer = library.getSigner();
         const wethContract = new ethers.Contract(
-          "0x3F71b3Bf5419C151A131D36c523333bE5AbdD10e",
+          process.env.REACT_APP_WETH as string,
           [
             {
               inputs: [
@@ -478,8 +478,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           signer
         );
         const tx = await wethContract.approve(
-          "0x22032bfED1CCe47D73Fd68eBC98231C6CEf32c0E",
-          ethers.utils.parseUnits(amount.toString(), "ether")
+          process.env.REACT_APP_MASTER_CONTRACT_ADDRESS,
+          ethers.utils.parseEther(amount.toString())
         );
         await tx.wait();
         approvedHash = tx.hash;
@@ -543,10 +543,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     setRandomNumber(Math.random() + 1);
   };
   const onFlip = async (i: number) => {
-    setFlipBoxIndex(i);
-    if (offersObj[i + 1]?.length) {
-      return;
-    }
+    setFlipBoxIndex([...flipBoxIndex, i]);
     await getAndSetOffers(i + 1);
   };
   const onCancelOffer = async (offer: OfferDbDoc) => {
@@ -565,7 +562,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       setIsLoading(false);
     }
     setShowAlertMessage("Your offer has been removed");
-    setFlipBoxIndex(-1);
+    const idx = offer.tokenId - 1;
+    const removeIdx = flipBoxIndex.findIndex((f) => f === idx);
+    setFlipBoxIndex([
+      ...flipBoxIndex.slice(0, removeIdx),
+      ...flipBoxIndex.slice(removeIdx + 1),
+    ]);
   };
   const onAcceptOffer = async (offer: OfferDbDoc) => {
     if (ownTokenIds.includes(offer.tokenId.toString())) {
@@ -608,7 +610,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           isSold: true,
           acceptedReceiptHash,
         });
+        setShowAlertMessage("Successfully accepted the offer");
         setIsLoading(false);
+        window.location.reload();
       } catch (e) {
         setShowAlertMessage("Something went wrong, please try again");
         console.log("ERROR: ", e);
@@ -1001,8 +1005,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                 sx={{
                   transition: "0.5s linear",
                   transformStyle: "preserve-3d",
-                  transform:
-                    flipBoxIndex === i ? "rotateY(180deg)" : "rotateY(0deg)",
+                  transform: flipBoxIndex.includes(i)
+                    ? "rotateY(180deg)"
+                    : "rotateY(0deg)",
                   width: "100%",
                   height: "100%",
                 }}
@@ -1019,7 +1024,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     boxShadow: "0 8px 18px -4px lightblue",
                   }}
                   onClick={() => {
-                    setFlipBoxIndex(-1);
+                    const removeIdx = flipBoxIndex.findIndex((f) => f === i);
+                    setFlipBoxIndex([
+                      ...flipBoxIndex.slice(0, removeIdx),
+                      ...flipBoxIndex.slice(removeIdx + 1),
+                    ]);
                   }}
                 >
                   <Box width="100%" height="100%">
@@ -1088,7 +1097,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                   )}
                                 </Box>
                                 {ownTokenIds.includes((i + 1).toString()) && (
-                                  <Button
+                                  <LoadingButton
+                                    loading={isLoading}
                                     size="small"
                                     variant="outlined"
                                     onClick={(e) => {
@@ -1097,7 +1107,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                     }}
                                   >
                                     Accept
-                                  </Button>
+                                  </LoadingButton>
                                 )}
                               </Box>
                             </Tooltip>

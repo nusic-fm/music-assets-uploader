@@ -141,8 +141,10 @@ const ProfileDialog = (props: Props) => {
 
   const fetchUserCollection = async () => {
     if (user.pubkey) {
+      setIsLoading(true);
       const noOfTokens = await checkNftBalance(user.pubkey);
       setUserCollection(noOfTokens);
+      setIsLoading(false);
     }
   };
   const fetchUserBalance = async () => {
@@ -187,6 +189,12 @@ const ProfileDialog = (props: Props) => {
             Profile - {user.name}#{user.discriminator}
           </Typography>
         </Box>
+        <Chip
+          sx={{ mb: 2 }}
+          label={user.pubkey}
+          size="small"
+          variant="outlined"
+        />
         <Divider />
         <Box my={2}>
           {userCollection === 0 && (
@@ -236,7 +244,7 @@ const ProfileDialog = (props: Props) => {
                       }}
                       loading={isLoading}
                     >
-                      Refresh
+                      Check for NFT
                     </LoadingButton>
                   </Box>
                 </StepContent>
