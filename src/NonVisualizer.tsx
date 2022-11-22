@@ -1411,6 +1411,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           </Button>
         </Box>
       </Box>
+      {/* {openOfferForTokenId >= 0 && ( */}
       <MakeOfferDialog
         isOpen={openOfferForTokenId >= 0}
         onClose={() => {
@@ -1420,6 +1421,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         tokenId={openOfferForTokenId}
         isLoading={isLoading}
       />
+      {/* )} */}
       {user && (
         <ProfileDialog
           isOpen={showProfile}
