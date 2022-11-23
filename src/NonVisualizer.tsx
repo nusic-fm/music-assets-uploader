@@ -47,12 +47,10 @@ import useAuth from "./hooks/useAuth";
 import AvatarOrNameDicord from "./components/AvatarOrNameDiscord";
 import { getTokens, updateTokenOwner } from "./services/db/tokens.service";
 import { Token } from "./models/Token";
-import ProfileDialog, {
-  checkNftBalance,
-  getOwnerOfNft,
-} from "./components/ProfileDialog";
+import ProfileDialog, { getOwnerOfNft } from "./components/ProfileDialog";
 import { LoadingButton } from "@mui/lab";
 import AlertSnackBar from "./components/AlertSnackBar";
+import AcceptOfferDialog from "./components/AcceptOfferDialog";
 
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -211,6 +209,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   //   console.log({ seconds, newSeconds });
   //   setSeconds(newSeconds);
   // };
+  const [acceptOffer, setAcceptOffer] = useState<OfferDbDoc>();
 
   useEffect(() => {
     const myInterval = setInterval(() => {
@@ -571,10 +570,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   };
   const onAcceptOffer = async (offer: OfferDbDoc) => {
     if (ownTokenIds.includes(offer.tokenId.toString())) {
+      setIsLoading(true);
       if (!user?.pubkey) {
         setShowAlertMessage(
           "Kindly create your wallet and import NFT before accepting an offer."
         );
+        setIsLoading(false);
         return;
       }
       const owner = await getOwnerOfNft(offer.tokenId.toString());
@@ -582,10 +583,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         setShowAlertMessage(
           `Your wallet does't hold the token id - ${offer.tokenId}. Kindly transfer it to your custodial wallet - ${user.pubkey}`
         );
+        setIsLoading(false);
         return;
       }
       try {
-        setIsLoading(true);
         const response = await axios.post(ACCEPT_OFFER_URL, {
           discordId: user.uid,
           tokenId: offer.tokenId.toString(),
@@ -611,11 +612,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           acceptedReceiptHash,
         });
         setShowAlertMessage("Successfully accepted the offer");
-        setIsLoading(false);
         window.location.reload();
       } catch (e) {
         setShowAlertMessage("Something went wrong, please try again");
         console.log("ERROR: ", e);
+      } finally {
         setIsLoading(false);
       }
     } else {
@@ -1042,9 +1043,10 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             <Tooltip
                               key={j}
                               title={
-                                new Date(offer.duration)
-                                  .toString()
-                                  .split("(")[0]
+                                // new Date(offer.duration)
+                                //   .toString()
+                                //   .split("(")[0]
+                                offer.userName
                               }
                               placement="top"
                               disableInteractive
@@ -1057,6 +1059,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                   ":hover": {
                                     boxShadow: "0px 0px 3px #c4c4c4",
                                   },
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (ownTokenIds.includes((i + 1).toString()))
+                                    setAcceptOffer(offer);
                                 }}
                               >
                                 <Box display="flex" alignItems={"center"}>
@@ -1096,7 +1103,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                     </LoadingButton>
                                   )}
                                 </Box>
-                                {ownTokenIds.includes((i + 1).toString()) && (
+                                {/* {ownTokenIds.includes((i + 1).toString()) && (
                                   <LoadingButton
                                     loading={isLoading}
                                     size="small"
@@ -1108,7 +1115,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                   >
                                     Accept
                                   </LoadingButton>
-                                )}
+                                )} */}
                               </Box>
                             </Tooltip>
                           ))}
@@ -1438,6 +1445,17 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           setShowAlertMessage(false);
         }}
       />
+      {!!acceptOffer && !!user && (
+        <AcceptOfferDialog
+          offer={acceptOffer}
+          onClose={() => {
+            setAcceptOffer(undefined);
+          }}
+          user={user}
+          isLoading={isLoading}
+          onAcceptOffer={onAcceptOffer}
+        />
+      )}
     </Box>
   );
 };

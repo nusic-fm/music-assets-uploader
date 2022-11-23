@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   Divider,
+  Grid,
   Step,
   StepContent,
   StepLabel,
@@ -16,6 +17,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { User } from "../../models/User";
+import { getEthPrice } from "../AcceptOfferDialog";
 
 type Props = {
   isOpen: boolean;
@@ -138,6 +140,7 @@ const ProfileDialog = (props: Props) => {
   const [userCollection, setUserCollection] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [ethUsdPrice, setEthUsdPrice] = useState<number>(0);
 
   const fetchUserCollection = async () => {
     if (user.pubkey) {
@@ -151,6 +154,8 @@ const ProfileDialog = (props: Props) => {
     if (user.pubkey) {
       const noOfTokens = await getUserBalance(user.pubkey);
       setUserBalance(Number(ethers.utils.formatEther(noOfTokens)));
+      const price = await getEthPrice();
+      setEthUsdPrice(price);
     }
   };
   useEffect(() => {
@@ -189,12 +194,20 @@ const ProfileDialog = (props: Props) => {
             Profile - {user.name}#{user.discriminator}
           </Typography>
         </Box>
-        <Chip
-          sx={{ mb: 2 }}
-          label={user.pubkey}
-          size="small"
-          variant="outlined"
-        />
+        {user.pubkey && (
+          <Chip
+            sx={{ mb: 2 }}
+            label={`${user.pubkey.slice(0, 6)}...${user.pubkey.slice(
+              user.pubkey.length - 4
+            )}`}
+            size="small"
+            variant="outlined"
+            clickable
+            onClick={() => {
+              navigator.clipboard.writeText(user.pubkey || "");
+            }}
+          />
+        )}
         <Divider />
         <Box my={2}>
           {userCollection === 0 && (
@@ -251,26 +264,56 @@ const ProfileDialog = (props: Props) => {
               </Step>
             </Stepper>
           )}
-          {userCollection > 0 && (
-            <Box my={2} display="flex">
-              <Typography variant="h5" fontFamily={"monospace"}>
-                Collections
-              </Typography>
-              <Chip sx={{ ml: 2 }} color="info" label={userCollection} />
-            </Box>
-          )}
-          {userBalance > 0 && (
-            <Box my={2} display="flex">
-              <Typography variant="h5" fontFamily={"monospace"}>
-                Balance
-              </Typography>
-              <Chip
-                sx={{ ml: 2 }}
-                color="success"
-                label={`${userBalance} ETH`}
-              ></Chip>
-            </Box>
-          )}
+          <Grid container rowSpacing={3}>
+            {userCollection > 0 && (
+              <>
+                <Grid item xs={12} md={4}>
+                  <Typography variant="h5" fontFamily={"monospace"}>
+                    Collections
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <Chip sx={{ ml: 2 }} color="info" label={userCollection} />
+                </Grid>
+              </>
+              // <Box my={2} display="flex">
+              //   <Typography variant="h5" fontFamily={"monospace"}>
+              //     Collections
+              //   </Typography>
+              //   <Chip sx={{ ml: 2 }} color="info" label={userCollection} />
+              // </Box>
+            )}
+            {userBalance > 0 && (
+              <>
+                <Grid item xs={12} md={4}>
+                  <Typography variant="h5" fontFamily={"monospace"}>
+                    Balance
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <Chip
+                    sx={{ ml: 2 }}
+                    color="success"
+                    label={`$${(userBalance * ethUsdPrice).toFixed(
+                      2
+                    )} (${userBalance} ETH)`}
+                  ></Chip>
+                </Grid>
+              </>
+              // <Box my={2} display="flex">
+              //   <Typography variant="h5" fontFamily={"monospace"}>
+              //     Balance
+              //   </Typography>
+              //   <Chip
+              //     sx={{ ml: 2 }}
+              //     color="success"
+              //     label={`$${(userBalance * ethUsdPrice).toFixed(
+              //       2
+              //     )} (${userBalance} ETH)`}
+              //   ></Chip>
+              // </Box>
+            )}
+          </Grid>
         </Box>
       </DialogContent>
     </Dialog>

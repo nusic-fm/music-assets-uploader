@@ -146,11 +146,12 @@ const MakeOfferDialog = (props: {
           onClick={async () => {
             // const date = new Date();
             // date.setDate(date.getDate() + duration);
-            const bal = await getBalance();
-            if (bal && amount.lte(userBal)) {
-              onSubmitOffer(amountUi, "weth", new Date().toUTCString());
-            }
+            // const bal = await getBalance();
+            // if (bal && amount.lte(userBal)) {
+            onSubmitOffer(amountUi, "weth", new Date().toUTCString());
+            // }
           }}
+          disabled={amount.gt(userBal)}
           loading={isLoading}
         >
           Submit
