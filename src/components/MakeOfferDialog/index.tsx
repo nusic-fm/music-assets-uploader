@@ -62,7 +62,7 @@ const MakeOfferDialog = (props: {
   const { onSubmitOffer, isOpen, tokenId, onClose, isLoading } = props;
   const [amountUi, setAmountUi] = useState(0.1);
   const [amount, setAmount] = useState<BigNumber>(
-    BigNumber.from(ethers.utils.parseEther("0.1"))
+    BigNumber.from(ethers.utils.parseEther("0.5"))
   );
   // const [denom, setDenom] = useState<"weth" | "usdc">("weth");
   // const [duration, setDuration] = useState(3);
@@ -91,13 +91,17 @@ const MakeOfferDialog = (props: {
           <Box display={"flex"} alignItems="center" p={1}>
             <TextField
               label="WETH"
+              // inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
               type="number"
               // sx={{ width: "150px" }}
               value={amountUi}
+              InputProps={{ inputProps: { min: 0.05, step: "0.1" } }}
               onChange={(e) => {
                 setAmountUi(Number(e.target.value));
-                setAmount(ethers.utils.parseEther(e.target.value));
-                debugger;
+                if (Number(e.target.value))
+                  setAmount(
+                    BigNumber.from(ethers.utils.parseEther(e.target.value))
+                  );
               }}
               helperText={
                 account
@@ -151,7 +155,11 @@ const MakeOfferDialog = (props: {
             onSubmitOffer(amountUi, "weth", new Date().toUTCString());
             // }
           }}
-          disabled={amount.gt(userBal)}
+          disabled={
+            amount.gt(userBal) ||
+            amount.lt(BigNumber.from(ethers.utils.parseEther("0.05"))) ||
+            amountUi < 0.05
+          }
           loading={isLoading}
         >
           Submit
