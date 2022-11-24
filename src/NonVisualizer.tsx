@@ -51,7 +51,7 @@ import ProfileDialog, { getOwnerOfNft } from "./components/ProfileDialog";
 import { LoadingButton } from "@mui/lab";
 import AlertSnackBar from "./components/AlertSnackBar";
 import AcceptOfferDialog from "./components/AcceptOfferDialog";
-
+import CancelIcon from "@mui/icons-material/Cancel";
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
@@ -1066,17 +1066,25 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                     setAcceptOffer(offer);
                                 }}
                               >
-                                <Box display="flex" alignItems={"center"}>
-                                  <Typography>{offer.amount}</Typography>
-                                  <Typography
+                                <Box
+                                  display="flex"
+                                  alignItems={"center"}
+                                  flexBasis="100px"
+                                >
+                                  <Typography>{offer.amount} WETH</Typography>
+                                  {/* <Typography
                                     variant="body2"
                                     sx={{ pl: 1 }}
                                     textTransform="uppercase"
                                   >
                                     {offer.denom}
-                                  </Typography>
+                                  </Typography> */}
                                 </Box>
-                                <Box display="flex" alignItems={"center"}>
+                                <Box
+                                  display="flex"
+                                  alignItems={"flex-start"}
+                                  flexBasis="25px"
+                                >
                                   <AvatarOrNameDicord
                                     user={{
                                       name: offer.userName,
@@ -1089,18 +1097,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                 </Box>
 
                                 <Box display="flex" alignItems={"center"}>
-                                  {offer.userId === user?.uid && (
+                                  {offer.userId === user?.uid ? (
                                     <LoadingButton
                                       size="small"
-                                      variant="outlined"
+                                      // variant="outlined"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         onCancelOffer(offer);
                                       }}
                                       loading={isLoading}
                                     >
-                                      Cancel
+                                      <CancelIcon />
                                     </LoadingButton>
+                                  ) : (
+                                    <Button disabled></Button>
                                   )}
                                 </Box>
                                 {/* {ownTokenIds.includes((i + 1).toString()) && (
