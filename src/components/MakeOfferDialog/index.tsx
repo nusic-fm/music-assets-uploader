@@ -84,7 +84,7 @@ const MakeOfferDialog = (props: {
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <DialogTitle fontFamily="BenchNine">
-        <Typography variant="h5">Feral #{tokenId} - Make Offer</Typography>
+        Feral #{tokenId} - Make Offer
       </DialogTitle>
       <DialogContent>
         <Box>

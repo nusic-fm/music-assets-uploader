@@ -40,7 +40,7 @@ import {
   getOffersFromId,
   updateOffer,
 } from "./services/db/offers.service";
-import { OfferDbDoc } from "./models/Offer";
+import { Offer, OfferDbDoc } from "./models/Offer";
 import MakeOfferDialog from "./components/MakeOfferDialog";
 import { useWeb3React } from "@web3-react/core";
 import useAuth from "./hooks/useAuth";
@@ -508,20 +508,23 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       //   ],
       // });
       try {
-        await createOffer({
+        const newOffer: Offer = {
           amount,
           denom,
           duration,
           userId: user.uid,
           userName: user.name,
-          userAvatar: user.avatar,
-          discriminator: user.discriminator,
+          discriminator: user.discriminator || "0000",
           tokenId: openOfferForTokenId,
           walletAddress: account,
           isActive: true,
           isSold: false,
           approvedHash,
-        });
+        };
+        if (user.avatar) {
+          newOffer.userAvatar = user.avatar;
+        }
+        await createOffer(newOffer);
       } catch (e) {
         console.log("Create ERROR: ", e);
         setShowAlertMessage("Error Occured: please try again later.");
