@@ -17,7 +17,6 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { User } from "../../models/User";
-import { getEthPrice } from "../AcceptOfferDialog";
 
 type Props = {
   isOpen: boolean;
@@ -25,6 +24,7 @@ type Props = {
   onClose: () => void;
   refreshUser: () => void;
   setShowAlertMessage: any;
+  ethUsdPrice: number;
 };
 
 const CREATE_WALLET_URL = `${process.env.REACT_APP_MARKET_API}/wallet/create`;
@@ -135,12 +135,18 @@ export const getOwnerOfNft = async (tokenId: string): Promise<string> => {
 };
 
 const ProfileDialog = (props: Props) => {
-  const { isOpen, user, onClose, refreshUser, setShowAlertMessage } = props;
+  const {
+    isOpen,
+    user,
+    onClose,
+    refreshUser,
+    setShowAlertMessage,
+    ethUsdPrice,
+  } = props;
   const [currentStep, setCurrentStep] = useState(0);
   const [userCollection, setUserCollection] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [ethUsdPrice, setEthUsdPrice] = useState<number>(0);
 
   const fetchUserCollection = async () => {
     if (user.pubkey) {
@@ -154,8 +160,6 @@ const ProfileDialog = (props: Props) => {
     if (user.pubkey) {
       const noOfTokens = await getUserBalance(user.pubkey);
       setUserBalance(Number(ethers.utils.formatEther(noOfTokens)));
-      const price = await getEthPrice();
-      setEthUsdPrice(price);
     }
   };
   useEffect(() => {

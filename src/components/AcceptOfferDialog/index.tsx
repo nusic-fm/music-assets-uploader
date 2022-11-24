@@ -9,8 +9,6 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import { ethers } from "ethers";
-import React, { useEffect, useState } from "react";
 import { OfferDbDoc } from "../../models/Offer";
 import { User } from "../../models/User";
 
@@ -20,26 +18,7 @@ type Props = {
   user: User;
   isLoading: boolean;
   onAcceptOffer: (offer: OfferDbDoc) => void;
-};
-
-export const dataFeedsForUsd: { [key: string]: string } = {
-  mainnet: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
-  maticmum: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
-};
-
-export const getEthPrice = async (): Promise<number> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
-  const contract = new ethers.Contract(
-    dataFeedsForUsd[process.env.REACT_APP_CHAIN_NAME as string],
-    ["function latestAnswer() view returns (uint)"],
-    provider
-  );
-  const price = await contract.latestAnswer();
-  // Figured it from data feeds: 100000000
-  return parseInt(price) / 100000000;
+  ethUsdPrice: number;
 };
 
 const AcceptOfferDialog = ({
@@ -48,20 +27,20 @@ const AcceptOfferDialog = ({
   user,
   isLoading,
   onAcceptOffer,
+  ethUsdPrice,
 }: Props) => {
-  const [finalEth, setFinalEth] = useState(0);
-  const [ethUsdPrice, setEthUsdPrice] = useState<number>(0);
+  // const [finalEth, setFinalEth] = useState(0);
+  // useEffect(() => {
+  //   if (offer) {
+  //     setFinalEth((offer.amount * 50) / 100);
+  //   }
+  // }, []);
 
-  const fetchPrice = async () => {
-    const price = await getEthPrice();
-    setEthUsdPrice(price);
-  };
-  useEffect(() => {
-    if (offer) {
-      fetchPrice();
-      setFinalEth((offer.amount * 50) / 100);
-    }
-  }, []);
+  const offerInUsd = (offer.amount * ethUsdPrice).toFixed(2);
+  const offerAfterDeductionInUsd = (
+    ((offer.amount * 50) / 100) *
+    ethUsdPrice
+  ).toFixed(2);
 
   return (
     <Dialog open onClose={onClose} fullWidth>
@@ -69,23 +48,30 @@ const AcceptOfferDialog = ({
       <Divider />
       <DialogContent>
         <Box>
-          <Typography variant="h6">WETH {offer.amount.toFixed(2)}</Typography>
+          <Typography variant="h6">
+            ${offerInUsd} (WETH {offer.amount.toFixed(2)})
+          </Typography>
+          {/* <Typography variant="h6">WETH {offer.amount.toFixed(2)}</Typography> */}
           <Typography variant="caption">
             {process.env.REACT_APP_ROYALTY}% royalty
           </Typography>
+          <Box mt={0.4}>
+            <Typography variant="caption">{`ETH/USD = $${ethUsdPrice}`}</Typography>
+          </Box>
         </Box>
-        <Box mt={2}>
+        {/* <Box mt={2}>
+          <Typography variant="h6">${offerAfterDeductionInUsd}</Typography>
           <Typography variant="h6">WETH {finalEth.toFixed(2)}</Typography>
-          <Typography variant="caption">{`ETH/USD $${ethUsdPrice}`}</Typography>
-          {/* <Typography variant="caption">-12343 gwei</Typography> */}
-        </Box>
+          <Typography variant="caption">{`ETH/USD APPROX $${ethUsdPrice}`}</Typography>
+          <Typography variant="caption">-12343 gwei</Typography>
+        </Box> */}
         {/* <Box mt={2}>
           <Typography>WETH</Typography>
           <Typography variant="caption">ETH/USD</Typography>
         </Box> */}
-        <Box mt={2}>
-          <Typography variant="h5" fontFamily={"Space Mono"}>
-            ${(finalEth * ethUsdPrice).toFixed(2)}
+        <Box mt={4}>
+          <Typography variant="h4" fontFamily={"Space Mono"}>
+            ${offerAfterDeductionInUsd}
           </Typography>
         </Box>
       </DialogContent>

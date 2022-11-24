@@ -52,6 +52,8 @@ import { LoadingButton } from "@mui/lab";
 import AlertSnackBar from "./components/AlertSnackBar";
 import AcceptOfferDialog from "./components/AcceptOfferDialog";
 import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import { getEthPrice } from "./utils/helper";
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
@@ -131,21 +133,21 @@ const tracks: TrackMetadata[] = [
   },
 ];
 
-const getTimerObj = () => {
-  const revealDate = "Fri, 14 Oct 2022 07:00:00 GMT";
-  const countDownDate = new Date(revealDate).getTime();
-  const timeleft = countDownDate - Date.now();
-  if (timeleft <= 0) {
-    return { isRevealed: true };
-  }
-  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-  return { days, hours, minutes, seconds, isRevealed: false };
-};
+// const getTimerObj = () => {
+//   const revealDate = "Fri, 14 Oct 2022 07:00:00 GMT";
+//   const countDownDate = new Date(revealDate).getTime();
+//   const timeleft = countDownDate - Date.now();
+//   if (timeleft <= 0) {
+//     return { isRevealed: true };
+//   }
+//   const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+//   const hours = Math.floor(
+//     (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+//   );
+//   const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+//   var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+//   return { days, hours, minutes, seconds, isRevealed: false };
+// };
 
 const ACCEPT_OFFER_URL = `${process.env.REACT_APP_MARKET_API}/accept-offer`;
 
@@ -201,7 +203,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     false
   );
   // const timer = useRef<NodeJS.Timer | null>(null);
-  const [timerObj, setTimerObj] = useState(getTimerObj);
+  // const [timerObj, setTimerObj] = useState(getTimerObj);
   const { account, library } = useWeb3React();
   const { login } = useAuth();
   // const countDown = () => {
@@ -211,18 +213,25 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   // };
   const [acceptOffer, setAcceptOffer] = useState<OfferDbDoc>();
 
-  useEffect(() => {
-    const myInterval = setInterval(() => {
-      const _newTimerObj = getTimerObj();
-      if (_newTimerObj.isRevealed) {
-        setIsNftRevealed(true);
-      }
-      setTimerObj(_newTimerObj);
-    }, 1000);
-    return () => {
-      clearInterval(myInterval);
-    };
-  }, [timerObj]);
+  const [ethUsdPrice, setEthUsdPrice] = useState<number>(0);
+
+  const fetchPrice = async () => {
+    const price = await getEthPrice();
+    setEthUsdPrice(price);
+  };
+
+  // useEffect(() => {
+  //   const myInterval = setInterval(() => {
+  //     const _newTimerObj = getTimerObj();
+  //     if (_newTimerObj.isRevealed) {
+  //       setIsNftRevealed(true);
+  //     }
+  //     setTimerObj(_newTimerObj);
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval(myInterval);
+  //   };
+  // }, [timerObj]);
 
   const fetchUser = async (
     _tokenType: string,
@@ -332,7 +341,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     // }
     const tokenIds = listOfTokens.map((t) => t.id);
     setMintedTokenIds(tokenIds);
-
+    fetchPrice();
     // const userDetailsObj: { [key: string]: User } = {};
     // usersDetails.map((user) => {
     //   const tokensDetails = _mintedTokens.filter(
@@ -814,7 +823,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           maxWidth={{ md: "30%" }}
         >
           <Box>
-            <Box>
+            {/* <Box>
               {timerObj.isRevealed === false && (
                 <Typography fontWeight="bold" variant="h5">
                   nGenesis Begins In...
@@ -915,7 +924,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
                 </Typography>
               </Box>
-            )}
+            )} */}
+            <Box
+              my={2}
+              // mx={4}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+            >
+              <Typography variant="h4" align="center" fontWeight="bold">
+                nGenesis Live
+              </Typography>
+              <Typography variant="body2" align="center">
+                nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
+              </Typography>
+            </Box>
           </Box>
           <Box>
             <Typography
@@ -1074,7 +1096,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                   alignItems={"center"}
                                   flexBasis="100px"
                                 >
-                                  <Typography>{offer.amount} WETH</Typography>
+                                  <Typography>
+                                    ${(offer.amount * ethUsdPrice).toFixed(2)}
+                                  </Typography>
                                   {/* <Typography
                                     variant="body2"
                                     sx={{ pl: 1 }}
@@ -1086,7 +1110,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                 <Box
                                   display="flex"
                                   alignItems={"flex-start"}
-                                  flexBasis="25px"
+                                  // flexBasis="25px"
                                 >
                                   <AvatarOrNameDicord
                                     user={{
@@ -1100,35 +1124,50 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                 </Box>
 
                                 <Box display="flex" alignItems={"center"}>
-                                  {offer.userId === user?.uid ? (
-                                    <LoadingButton
-                                      size="small"
-                                      // variant="outlined"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        onCancelOffer(offer);
-                                      }}
-                                      loading={isLoading}
-                                    >
-                                      <CancelIcon />
-                                    </LoadingButton>
+                                  {offer.userId === user?.uid ||
+                                  ownTokenIds.includes((i + 1).toString()) ? (
+                                    <>
+                                      {offer.userId === user?.uid && (
+                                        <LoadingButton
+                                          size="small"
+                                          // variant="outlined"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            onCancelOffer(offer);
+                                          }}
+                                          loading={isLoading}
+                                          color="warning"
+                                        >
+                                          <CancelIcon />
+                                        </LoadingButton>
+                                      )}
+                                      {ownTokenIds.includes(
+                                        (i + 1).toString()
+                                      ) && (
+                                        <LoadingButton
+                                          loading={isLoading}
+                                          // size="small"
+                                          // variant="outlined"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (
+                                              ownTokenIds.includes(
+                                                (i + 1).toString()
+                                              )
+                                            )
+                                              setAcceptOffer(offer);
+                                          }}
+                                          size="small"
+                                          color="success"
+                                        >
+                                          <CheckIcon />
+                                        </LoadingButton>
+                                      )}
+                                    </>
                                   ) : (
                                     <Button disabled></Button>
                                   )}
                                 </Box>
-                                {/* {ownTokenIds.includes((i + 1).toString()) && (
-                                  <LoadingButton
-                                    loading={isLoading}
-                                    size="small"
-                                    variant="outlined"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onAcceptOffer(offer);
-                                    }}
-                                  >
-                                    Accept
-                                  </LoadingButton>
-                                )} */}
                               </Box>
                             </Tooltip>
                           ))}
@@ -1157,14 +1196,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                     height: "100%",
                     transform: "rotateY(0deg)",
                   }}
-                  onClick={() => onFlip(i)}
                 >
                   <img
                     src={
-                      timerObj.isRevealed &&
-                      mintedTokenIds.includes((i + 1).toString())
-                        ? `/cherry/cats/${i + 1}.png`
-                        : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
+                      // timerObj.isRevealed &&
+                      // mintedTokenIds.includes((i + 1).toString())
+                      //   ? `/cherry/cats/${i + 1}.png`
+                      //   : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
+                      `/cherry/cats/${i + 1}.png`
                     }
                     alt=""
                     width="100%"
@@ -1182,7 +1221,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               >
                 <source src="bg.mp4" type="video/mp4" />
               </video> */}
-                  {(timerObj.isRevealed &&
+                  {/* {(timerObj.isRevealed &&
                     mintedTokenIds.includes((i + 1).toString())) === false && (
                     <Box
                       position="absolute"
@@ -1199,7 +1238,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         },
                       }}
                     />
-                  )}
+                  )} */}
                   <Box
                     position="absolute"
                     top={0}
@@ -1212,6 +1251,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                       borderRadius: "6px",
                       "&:hover": {
                         opacity: "1",
+                        "#makeoffer": {
+                          visibility: "visible",
+                        },
                       },
                     }}
                   >
@@ -1225,12 +1267,44 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                       p={1}
                     >
                       {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                      <Box m={1}>
+                      <Box
+                        m={1}
+                        display="flex"
+                        justifyContent={"space-between"}
+                      >
                         <Typography variant="h6" fontFamily="BenchNine">
                           Feral #{section}
                         </Typography>
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="start"
+                          justifyContent={"end"}
+                        >
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => onFlip(i)}
+                            color="info"
+                          >
+                            offers
+                          </Button>
+                        </Box>
                       </Box>
-                      {timerObj.isRevealed &&
+                      {isTokenMintedByUser(i + 1) && (
+                        <Box display="flex" justifyContent="center">
+                          <Button
+                            variant="contained"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadFile((i + 1).toString());
+                            }}
+                          >
+                            Download
+                          </Button>
+                        </Box>
+                      )}
+                      {/* {timerObj.isRevealed &&
                         isTokenAlreadyMinted(i + 1) &&
                         isTokenMintedByUser(i + 1) && (
                           <Box display="flex" justifyContent="center">
@@ -1244,12 +1318,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                               Download
                             </Button>
                           </Box>
-                        )}
-                      {timerObj.isRevealed === false && (
+                        )} */}
+                      {/* {timerObj.isRevealed === false && (
                         <Button disabled variant="contained">
                           Reveal soon
                         </Button>
-                      )}
+                      )} */}
                       {/* {timerObj.isRevealed &&
                         isTokenAlreadyMinted(i + 1) === false &&
                         (user ? (
@@ -1288,7 +1362,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         ))} */}
                       {user ? (
                         isTokenMintedByUser(i + 1) === false && (
-                          <Box display={"flex"} justifyContent="center">
+                          <Box
+                            display={"flex"}
+                            justifyContent="center"
+                            visibility={"hidden"}
+                            id="makeoffer"
+                          >
                             <Button
                               // size="small"
                               variant="contained"
@@ -1318,7 +1397,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         </Button>
                       )}
                       {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                      {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
+                      {/* {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
                         <Box>
                           <Box
                             display="flex"
@@ -1351,7 +1430,27 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             {timerObj.isRevealed ? " Gas" : "TBA"}
                           </Typography>
                         </Box>
-                      )}
+                      )} */}
+                      <Box>
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="end"
+                          mt={1}
+                        >
+                          <Typography>Minted by:</Typography>
+                          {tokens[i] && (
+                            <AvatarOrNameDicord
+                              user={{
+                                uid: tokens[i].ownerId,
+                                name: tokens[i].name,
+                                discriminator: tokens[i].discriminator,
+                                avatar: tokens[i].avatar,
+                              }}
+                            />
+                          )}
+                        </Box>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
@@ -1449,6 +1548,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           onClose={onProfileClose}
           refreshUser={refreshUser}
           setShowAlertMessage={setShowAlertMessage}
+          ethUsdPrice={ethUsdPrice}
         />
       )}
       <AlertSnackBar
@@ -1467,6 +1567,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           user={user}
           isLoading={isLoading}
           onAcceptOffer={onAcceptOffer}
+          ethUsdPrice={ethUsdPrice}
         />
       )}
     </Box>
