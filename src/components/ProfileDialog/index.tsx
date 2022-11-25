@@ -2,6 +2,7 @@
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
+  Button,
   Chip,
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { User } from "../../models/User";
+import { checkNftBalance, getUserBalance } from "../../utils/helper";
 
 type Props = {
   isOpen: boolean;
@@ -28,111 +30,6 @@ type Props = {
 };
 
 const CREATE_WALLET_URL = `${process.env.REACT_APP_MARKET_API}/wallet/create`;
-
-export const checkNftBalance = async (address: string): Promise<number> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
-  const nftContract = new ethers.Contract(
-    process.env.REACT_APP_CONTRACT_ADDRESS as string,
-    [
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-        ],
-        name: "balanceOf",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-    ],
-    provider
-  );
-  const balanceBn = await nftContract.balanceOf(address);
-  const balance = balanceBn.toNumber();
-  return balance;
-};
-
-export const getUserBalance = async (address: string): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
-  const nftContract = new ethers.Contract(
-    process.env.REACT_APP_MASTER_CONTRACT_ADDRESS as string,
-    [
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-        ],
-        name: "userBalance",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-    ],
-    provider
-  );
-  const balanceBn = await nftContract.userBalance(address);
-  const balance = balanceBn.toString();
-  return balance;
-};
-
-export const getOwnerOfNft = async (tokenId: string): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
-  const nftContract = new ethers.Contract(
-    process.env.REACT_APP_CONTRACT_ADDRESS as string,
-    [
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "ownerOf",
-        outputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-    ],
-    provider
-  );
-  const ownerAddressBn = await nftContract.ownerOf(tokenId);
-  const ownerAddress = ownerAddressBn.toString();
-  return ownerAddress;
-};
 
 const ProfileDialog = (props: Props) => {
   const {
@@ -295,13 +192,24 @@ const ProfileDialog = (props: Props) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={8}>
-                  <Chip
-                    sx={{ ml: 2 }}
-                    color="success"
-                    label={`$${(userBalance * ethUsdPrice).toFixed(
-                      2
-                    )} (${userBalance} ETH)`}
-                  ></Chip>
+                  <Box
+                    display={"flex"}
+                    alignItems="center"
+                    flexWrap={"wrap"}
+                    gap={2}
+                    justifyContent={"center"}
+                  >
+                    <Chip
+                      sx={{ ml: 2 }}
+                      color="success"
+                      label={`$${(userBalance * ethUsdPrice).toFixed(
+                        2
+                      )} (${userBalance} ETH)`}
+                    ></Chip>
+                    {/* <Button variant="outlined" color="info" size="small">
+                      Withdraw
+                    </Button> */}
+                  </Box>
                 </Grid>
               </>
               // <Box my={2} display="flex">

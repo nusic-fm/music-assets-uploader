@@ -47,13 +47,13 @@ import useAuth from "./hooks/useAuth";
 import AvatarOrNameDicord from "./components/AvatarOrNameDiscord";
 import { getTokens, updateTokenOwner } from "./services/db/tokens.service";
 import { Token } from "./models/Token";
-import ProfileDialog, { getOwnerOfNft } from "./components/ProfileDialog";
+import ProfileDialog from "./components/ProfileDialog";
 import { LoadingButton } from "@mui/lab";
 import AlertSnackBar from "./components/AlertSnackBar";
 import AcceptOfferDialog from "./components/AcceptOfferDialog";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
-import { getEthPrice } from "./utils/helper";
+import { getEthPrice, getOwnerOfNft } from "./utils/helper";
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
@@ -641,6 +641,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const onProfileClose = () => {
     setShowProfile(false);
   };
+
+  const onWithdraw = async () => {};
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
