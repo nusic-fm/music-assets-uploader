@@ -4,4 +4,5 @@ export interface User {
   avatar: string;
   discriminator: string;
   artistId?: string;
+  pubkey?: string;
 }

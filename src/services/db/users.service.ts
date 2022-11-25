@@ -11,7 +11,7 @@ import {
 import { User } from "../../models/User";
 import { db } from "../firebase.service";
 
-const createUser = async (uid: string, userDoc: User): Promise<void> => {
+const createUser = async (uid: string, userDoc: User): Promise<null | User> => {
   try {
     const userRef = doc(db, "users", uid);
     const userDocRef = await getDoc(userRef);
@@ -20,10 +20,20 @@ const createUser = async (uid: string, userDoc: User): Promise<void> => {
       if (docData.avatar !== userDoc.avatar) {
         await updateDoc(userRef, { avatar: userDoc.avatar });
       }
+      return userDocRef.data() as User;
     } else {
       await setDoc(userRef, userDoc);
+      return userDoc;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log("ERROR: ", e);
+    return null;
+  }
+};
+const getUserById = async (uid: string): Promise<User> => {
+  const userRef = doc(db, "users", uid);
+  const userDocRef = await getDoc(userRef);
+  return userDocRef.data() as User;
 };
 
 const updateUser = async (uid: string, obj: Partial<User>): Promise<void> => {
@@ -41,4 +51,4 @@ const getUserDocsFromIds = async (ids: string[]) => {
   return users;
 };
 
-export { createUser, updateUser, getUserDocsFromIds };
+export { createUser, updateUser, getUserDocsFromIds, getUserById };

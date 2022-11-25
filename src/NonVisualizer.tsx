@@ -6,9 +6,16 @@ import {
   Chip,
   CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
+  DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -20,13 +27,33 @@ import axios from "axios";
 import { logFirebaseEvent } from "./services/firebase.service";
 import {
   createUser,
+  getUserById,
   getUserDocsFromIds,
   updateUser,
 } from "./services/db/users.service";
 import SaveIcon from "@mui/icons-material/Save";
 import { User } from "./models/User";
 import * as cherryMintDataList from "./data/cherry/cherryData.json";
-
+import {
+  cancelOffer,
+  createOffer,
+  getOffersFromId,
+  updateOffer,
+} from "./services/db/offers.service";
+import { Offer, OfferDbDoc } from "./models/Offer";
+import MakeOfferDialog from "./components/MakeOfferDialog";
+import { useWeb3React } from "@web3-react/core";
+import useAuth from "./hooks/useAuth";
+import AvatarOrNameDicord from "./components/AvatarOrNameDiscord";
+import { getTokens, updateTokenOwner } from "./services/db/tokens.service";
+import { Token } from "./models/Token";
+import ProfileDialog from "./components/ProfileDialog";
+import { LoadingButton } from "@mui/lab";
+import AlertSnackBar from "./components/AlertSnackBar";
+import AcceptOfferDialog from "./components/AcceptOfferDialog";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import { getEthPrice, getOwnerOfNft } from "./utils/helper";
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
@@ -106,21 +133,23 @@ const tracks: TrackMetadata[] = [
   },
 ];
 
-const getTimerObj = () => {
-  const revealDate = "Fri, 14 Oct 2022 07:00:00 GMT";
-  const countDownDate = new Date(revealDate).getTime();
-  const timeleft = countDownDate - Date.now();
-  if (timeleft <= 0) {
-    return { isRevealed: true };
-  }
-  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-  return { days, hours, minutes, seconds, isRevealed: false };
-};
+// const getTimerObj = () => {
+//   const revealDate = "Fri, 14 Oct 2022 07:00:00 GMT";
+//   const countDownDate = new Date(revealDate).getTime();
+//   const timeleft = countDownDate - Date.now();
+//   if (timeleft <= 0) {
+//     return { isRevealed: true };
+//   }
+//   const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+//   const hours = Math.floor(
+//     (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+//   );
+//   const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+//   var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+//   return { days, hours, minutes, seconds, isRevealed: false };
+// };
+
+const ACCEPT_OFFER_URL = `${process.env.REACT_APP_MARKET_API}/accept-offer`;
 
 const NonVisualizer = (props: { trackIdx: number }) => {
   const { trackIdx } = props;
@@ -135,39 +164,74 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [newlyMintedToken, setNewlyMintedToken] = useState<string>();
   const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
-  const [mintedTokenUserDetails, setMintedTokenUserDetails] = useState<{
-    [key: string]: User;
-  }>({});
+  // const [mintedTokenUserDetails, setMintedTokenUserDetails] = useState<{
+  //   [key: string]: User;
+  // }>({});
   const [isNftRevealed, setIsNftRevealed] = useState(false);
+  const [openOfferForTokenId, setOpenOfferForTokenId] = useState(-1);
+  const [flipBoxIndex, setFlipBoxIndex] = useState<number[]>([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [showProfile, setShowProfile] = useState(false);
+  const [user, setUser] = useState<User>();
+  const location = useLocation();
+  const [offersObj, setOffersObj] = useState<{ [i: number]: OfferDbDoc[] }>({
+    // 1: [
+    //   {
+    //     amount: 0.1,
+    //     denom: "weth",
+    //     tokenId: 1,
+    //     userId: user?.id || "",
+    //     duration: new Date().toUTCString(),
+    //     id: "1",
+    //     isCancelled: false,
+    //   },
+    //   {
+    //     amount: 120,
+    //     denom: "usdc",
+    //     tokenId: 1,
+    //     userId: user?.id || "",
+    //     duration: new Date().toUTCString(),
+    //     id: "2",
+    //     isCancelled: false,
+    //   },
+    // ],
+  });
+  const [randamNumber, setRandomNumber] = useState<number>();
+  const [showAlertMessage, setShowAlertMessage] = useState<boolean | string>(
+    false
+  );
   // const timer = useRef<NodeJS.Timer | null>(null);
-  const [timerObj, setTimerObj] = useState(getTimerObj);
-
+  // const [timerObj, setTimerObj] = useState(getTimerObj);
+  const { account, library } = useWeb3React();
+  const { login } = useAuth();
   // const countDown = () => {
   //   const newSeconds = seconds - 1;
   //   console.log({ seconds, newSeconds });
   //   setSeconds(newSeconds);
   // };
+  const [acceptOffer, setAcceptOffer] = useState<OfferDbDoc>();
 
-  useEffect(() => {
-    const myInterval = setInterval(() => {
-      const _newTimerObj = getTimerObj();
-      if (_newTimerObj.isRevealed) {
-        setIsNftRevealed(true);
-      }
-      setTimerObj(_newTimerObj);
-    }, 1000);
-    return () => {
-      clearInterval(myInterval);
-    };
-  }, [timerObj]);
+  const [ethUsdPrice, setEthUsdPrice] = useState<number>(0);
 
-  const [user, setUser] = useState<{
-    name: string;
-    id: string;
-    avatar: string;
-  }>();
-  const location = useLocation();
+  const fetchPrice = async () => {
+    const price = await getEthPrice();
+    setEthUsdPrice(price);
+  };
+
+  // useEffect(() => {
+  //   const myInterval = setInterval(() => {
+  //     const _newTimerObj = getTimerObj();
+  //     if (_newTimerObj.isRevealed) {
+  //       setIsNftRevealed(true);
+  //     }
+  //     setTimerObj(_newTimerObj);
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval(myInterval);
+  //   };
+  // }, [timerObj]);
 
   const fetchUser = async (
     _tokenType: string,
@@ -180,12 +244,26 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         headers: { Authorization: `${_tokenType} ${_accessToken}` },
       });
       const { username, id, avatar, discriminator } = response.data;
-      await createUser(id, { name: username, uid: id, avatar, discriminator });
-      // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
-      setUser({ name: username, id, avatar });
-      window.history.replaceState(null, "", window.location.origin);
+      const userDocDb = await createUser(id, {
+        name: username,
+        uid: id,
+        avatar,
+        discriminator,
+      });
+      if (userDocDb) {
+        // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
+        setUser(userDocDb);
+        window.history.replaceState(null, "", window.location.origin);
+      }
     } catch (e) {
-      if (isAlertOnFail) alert("Please click Sign In to continue");
+      if (isAlertOnFail)
+        setShowAlertMessage("Please click Sign In to continue");
+    }
+  };
+  const refreshUser = async () => {
+    if (user?.uid) {
+      const _user = await getUserById(user?.uid);
+      setUser(_user);
     }
   };
 
@@ -202,12 +280,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (newlyMintedToken) {
-      downloadFile(newlyMintedToken);
-      setListOfMintedTokens(false);
-    }
-  }, [newlyMintedToken]);
+  // useEffect(() => {
+  //   if (newlyMintedToken) {
+  //     downloadFile(newlyMintedToken);
+  //     setListOfMintedTokens(false);
+  //   }
+  // }, [newlyMintedToken]);
 
   useEffect(() => {
     setTrackDetails(tracks[trackIdx]);
@@ -231,61 +309,63 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     //   });
     // }
     // const listOfData = await contract.getChildrenMetadata(0);
-    const listOfData = Array.from(cherryMintDataList);
-    const _mintedTokens = listOfData.filter(
-      (data: any) => data.isMinted
-    ) as any;
+    // const listOfData = Array.from(cherryMintDataList);
+    const listOfTokens = await getTokens();
+    setTokens(listOfTokens);
+    // const _mintedTokens = listOfData.filter(
+    //   (data: any) => data.isMinted
+    // ) as any;
 
-    const userIds = listOfData
-      .map((data: any) => data.id)
-      .filter((data: any) => data.length);
-    const _ownTokenIds = _mintedTokens
-      .filter((data: any) => data.id === user?.id)
-      .map((data: any) => data.tokenId.toString());
-    setOwnTokenIds(_ownTokenIds);
-    if (userIds.length) {
-      const uniqueArray = userIds.filter((id: any, pos: any) => {
-        return userIds.indexOf(id) === pos;
-      });
-      let usersDetails = [];
-      if (uniqueArray.length > 10) {
-        const usersDetailsOne = await getUserDocsFromIds(
-          uniqueArray.slice(0, 10)
-        );
-        const usersDetailsTwo = await getUserDocsFromIds(uniqueArray.slice(10));
-        usersDetails = [...usersDetailsOne, ...usersDetailsTwo];
-      } else {
-        usersDetails = await getUserDocsFromIds(uniqueArray);
-      }
-      const tokenIds = _mintedTokens.map((data: any) =>
-        data.tokenId.toString()
-      );
-      setMintedTokenIds(tokenIds);
-
-      const userDetailsObj: { [key: string]: User } = {};
-      usersDetails.map((user) => {
-        const tokensDetails = _mintedTokens.filter(
-          (data: any) => data.id === user.uid
-        );
-        if (tokensDetails.length)
-          tokensDetails.map(
-            (tokenDetails: any) =>
-              (userDetailsObj[tokenDetails.tokenId.toString()] = user)
-          );
-        return "";
-      });
-      userDetailsObj["12"] = { ...userDetailsObj["12"], name: "RandomPumpkin" };
-      setMintedTokenUserDetails(userDetailsObj);
-    }
-    const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
-    Array.from(buyButtons).map((btn: any) => {
-      const icon = btn?.firstChild;
-      if (icon.tagName === "IMG") {
-        btn?.removeChild(icon);
-        if (btn?.children[0]) btn.children[0].innerText = "Buy";
-      }
-      return "";
-    });
+    // const userIds = listOfData
+    //   .map((data: any) => data.id)
+    //   .filter((data: any) => data.length);
+    // const _ownTokenIds = _mintedTokens
+    //   .filter((data: any) => data.id === user?.id)
+    //   .map((data: any) => data.tokenId.toString());
+    setOwnTokenIds(
+      listOfTokens.filter((t) => t.ownerId === user?.uid).map((t) => t.id)
+    );
+    // if (userIds.length) {
+    // const uniqueArray = userIds.filter((id: any, pos: any) => {
+    //   return userIds.indexOf(id) === pos;
+    // });
+    // let usersDetails = [];
+    // if (uniqueArray.length > 10) {
+    //   const usersDetailsOne = await getUserDocsFromIds(
+    //     uniqueArray.slice(0, 10)
+    //   );
+    //   const usersDetailsTwo = await getUserDocsFromIds(uniqueArray.slice(10));
+    //   usersDetails = [...usersDetailsOne, ...usersDetailsTwo];
+    // } else {
+    //   usersDetails = await getUserDocsFromIds(uniqueArray);
+    // }
+    const tokenIds = listOfTokens.map((t) => t.id);
+    setMintedTokenIds(tokenIds);
+    fetchPrice();
+    // const userDetailsObj: { [key: string]: User } = {};
+    // usersDetails.map((user) => {
+    //   const tokensDetails = _mintedTokens.filter(
+    //     (data: any) => data.id === user.uid
+    //   );
+    //   if (tokensDetails.length)
+    //     tokensDetails.map(
+    //       (tokenDetails: any) =>
+    //         (userDetailsObj[tokenDetails.tokenId.toString()] = user)
+    //     );
+    //   return "";
+    // });
+    // userDetailsObj["12"] = { ...userDetailsObj["12"], name: "RandomPumpkin" };
+    // setMintedTokenUserDetails(userDetailsObj);
+    // }
+    // const buyButtons = document.getElementsByClassName("crossmintButton-0-2-1");
+    // Array.from(buyButtons).map((btn: any) => {
+    //   const icon = btn?.firstChild;
+    //   if (icon.tagName === "IMG") {
+    //     btn?.removeChild(icon);
+    //     if (btn?.children[0]) btn.children[0].innerText = "Buy";
+    //   }
+    //   return "";
+    // });
   };
   useEffect(() => {
     // make it available for all
@@ -309,9 +389,9 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       Number(tokenId) - 1
     ];
     window.open(
-      `https://storage.googleapis.com/nusic-data/marketplace/feral/${id}`
+      `https://storage.googleapis.com/nusic-data/marketplace/feral-v1/${id}`
     );
-    alert("Download Successful");
+    setShowAlertMessage("Download Successful");
     setIsDownloading(false);
     // TODO:
     // fetch("https://storage.googleapis.com/nusic-data/marketplace/feral/2.mov", {
@@ -345,21 +425,224 @@ const NonVisualizer = (props: { trackIdx: number }) => {
     ownTokenIds.includes(id.toString());
 
   const onSpotifyId = (e: any) => {
-    if (!user?.id) {
-      alert("Please sign in and try again.");
+    if (!user?.uid) {
+      setShowAlertMessage("Please sign in and try again.");
       return;
     }
     if (!spotifyArtistId?.length) {
-      alert("Please enter valid Spotify Artist ID");
+      setShowAlertMessage("Please enter valid Spotify Artist ID");
       return;
     }
-    updateUser(user.id, { artistId: spotifyArtistId });
+    updateUser(user.uid, { artistId: spotifyArtistId });
     logFirebaseEvent("select_content", {
       content_type: "spotifyArtistId",
       content_id: spotifyArtistId,
     });
-    alert("successfully submitted");
+    setShowAlertMessage("Successfully submitted");
   };
+  const onSubmitOffer = async (
+    amount: number,
+    denom: "weth" | "usdc",
+    duration: string
+  ) => {
+    if (!account) {
+      setShowAlertMessage("Please connect your wallet and try again.");
+      setOpenOfferForTokenId(-1);
+      return;
+    }
+    if (user && user.uid && account) {
+      setIsLoading(true);
+      let approvedHash: string;
+      try {
+        const signer = library.getSigner();
+        const wethContract = new ethers.Contract(
+          process.env.REACT_APP_WETH as string,
+          [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              name: "approve",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+          signer
+        );
+        const tx = await wethContract.approve(
+          process.env.REACT_APP_MASTER_CONTRACT_ADDRESS,
+          ethers.utils.parseEther(amount.toString())
+        );
+        await tx.wait();
+        approvedHash = tx.hash;
+      } catch (e) {
+        setShowAlertMessage("Transaction failed, please try again");
+        console.log("Error: ", e);
+        setIsLoading(false);
+        return;
+      }
+
+      // signer.signMessage(
+      //   `TokenId: ${openOfferForTokenId} Amount: ${amount} ${denom}, EndTime: ${duration}`
+      // );
+      // setOffersObj({
+      //   ...offersObj,
+      //   [openOfferForTokenId]: [
+      //     ...(offersObj[openOfferForTokenId] || []),
+      //     {
+      //       amount,
+      //       denom,
+      //       duration,
+      //       tokenId: openOfferForTokenId,
+      //       userId: user.id,
+      //       id: (Math.random() + 1).toString(36).substring(7),
+      //       isCancelled: false,
+      //     },
+      //   ],
+      // });
+      try {
+        const newOffer: Offer = {
+          amount,
+          denom,
+          duration,
+          userId: user.uid,
+          userName: user.name,
+          discriminator: user.discriminator || "0000",
+          tokenId: openOfferForTokenId,
+          walletAddress: account,
+          isActive: true,
+          isSold: false,
+          approvedHash,
+        };
+        if (user.avatar) {
+          newOffer.userAvatar = user.avatar;
+        }
+        await createOffer(newOffer);
+      } catch (e) {
+        console.log("Create ERROR: ", e);
+        setShowAlertMessage("Error Occured: please try again later.");
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+      setShowAlertMessage("Your offer has been submitted successfully.");
+    } else {
+      setShowAlertMessage("Plese login and try again.");
+    }
+    setOpenOfferForTokenId(-1);
+  };
+
+  const getAndSetOffers = async (tokenId: number) => {
+    const newOffers = await getOffersFromId(tokenId);
+    setOffersObj({ ...offersObj, [tokenId]: newOffers });
+    setRandomNumber(Math.random() + 1);
+  };
+  const onFlip = async (i: number) => {
+    setFlipBoxIndex([...flipBoxIndex, i]);
+    await getAndSetOffers(i + 1);
+  };
+  const onCancelOffer = async (offer: OfferDbDoc) => {
+    // eslint-disable-next-line no-restricted-globals
+    const result = confirm("Are you sure to cancel your offer");
+    if (!result) return;
+    setIsLoading(true);
+    try {
+      await cancelOffer(offer.id);
+      await getAndSetOffers(offer.tokenId);
+    } catch (e) {
+      console.log("Cancel ERROR: ", e);
+      setShowAlertMessage("Error Occured: Please try again later.");
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+    setShowAlertMessage("Your offer has been removed");
+    const idx = offer.tokenId - 1;
+    const removeIdx = flipBoxIndex.findIndex((f) => f === idx);
+    setFlipBoxIndex([
+      ...flipBoxIndex.slice(0, removeIdx),
+      ...flipBoxIndex.slice(removeIdx + 1),
+    ]);
+  };
+  const onAcceptOffer = async (offer: OfferDbDoc) => {
+    if (ownTokenIds.includes(offer.tokenId.toString())) {
+      setIsLoading(true);
+      if (!user?.pubkey) {
+        setShowAlertMessage(
+          "Kindly create your wallet and import NFT before accepting an offer."
+        );
+        setIsLoading(false);
+        return;
+      }
+      const owner = await getOwnerOfNft(offer.tokenId.toString());
+      if (user.pubkey !== owner) {
+        setShowAlertMessage(
+          `Your wallet does't hold the token id - ${offer.tokenId}. Kindly transfer it to your custodial wallet - ${user.pubkey}`
+        );
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.post(ACCEPT_OFFER_URL, {
+          discordId: user.uid,
+          tokenId: offer.tokenId.toString(),
+          buyerAddress: offer.walletAddress,
+          custodialAddress: user.pubkey,
+          amount: offer.amount,
+        });
+        const acceptedReceiptHash = response.data.acceptedReceiptHash;
+        console.log({ acceptedReceiptHash });
+        await updateTokenOwner(
+          offer.tokenId.toString(),
+          {
+            name: offer.userName,
+            uid: offer.userId,
+            avatar: offer.userAvatar,
+            discriminator: offer.discriminator,
+          },
+          user?.uid as string,
+          offer.id
+        );
+        await updateOffer(offer.id, {
+          isSold: true,
+          acceptedReceiptHash,
+        });
+        setShowAlertMessage("Successfully accepted the offer");
+        window.location.reload();
+      } catch (e) {
+        setShowAlertMessage("Something went wrong, please try again");
+        console.log("ERROR: ", e);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setShowAlertMessage(
+        "Something went wrong with accepting the offer, please refresh the page and try again."
+      );
+    }
+  };
+
+  const onProfileClose = () => {
+    setShowProfile(false);
+  };
+
+  const onWithdraw = async () => {};
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
@@ -380,18 +663,44 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             transform: "scale(2)",
           }}
         ></Box>
-        {user ? (
-          <Chip label={user.name} />
-        ) : (
-          <Button
-            variant="contained"
-            // onClick={onSignInWithFb}
-            href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-            startIcon={<img src="/social/discord.png" alt="" width={"22px"} />}
-          >
-            Sign In
-          </Button>
-        )}
+        <Box display={"flex"} alignItems="center">
+          <Box mr={2}>
+            {account ? (
+              <Tooltip title={account}>
+                <Chip
+                  clickable
+                  label={`${account.slice(0, 6)}...${account.slice(
+                    account.length - 4
+                  )}`}
+                  style={{ marginLeft: "auto" }}
+                  variant="outlined"
+                />
+              </Tooltip>
+            ) : (
+              <Button variant="outlined" onClick={login} color="info">
+                Connect
+              </Button>
+            )}
+          </Box>
+          {user ? (
+            <Chip
+              label={user.name}
+              clickable
+              onClick={() => setShowProfile(true)}
+            />
+          ) : (
+            <Button
+              variant="contained"
+              // onClick={onSignInWithFb}
+              href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+              startIcon={
+                <img src="/social/discord.png" alt="" width={"22px"} />
+              }
+            >
+              Sign In
+            </Button>
+          )}
+        </Box>
       </Box>
       <Box
         display="flex"
@@ -516,7 +825,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           maxWidth={{ md: "30%" }}
         >
           <Box>
-            <Box>
+            {/* <Box>
               {timerObj.isRevealed === false && (
                 <Typography fontWeight="bold" variant="h5">
                   nGenesis Begins In...
@@ -617,7 +926,20 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                   nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
                 </Typography>
               </Box>
-            )}
+            )} */}
+            <Box
+              my={2}
+              // mx={4}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+            >
+              <Typography variant="h4" align="center" fontWeight="bold">
+                nGenesis Live
+              </Typography>
+              <Typography variant="body2" align="center">
+                nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
+              </Typography>
+            </Box>
           </Box>
           <Box>
             <Typography
@@ -702,24 +1024,195 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           .map((section: string, i: number) => (
             <Box
               key={i}
-              width={200}
-              height={200}
+              width={256}
+              height={256}
               position="relative"
               borderRadius="6px"
             >
-              <img
-                src={
-                  timerObj.isRevealed &&
-                  mintedTokenIds.includes((i + 1).toString())
-                    ? `/cherry/cats/${i + 1}.png`
-                    : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
-                }
-                alt=""
-                width="100%"
-                height="100%"
-                style={{ borderRadius: "6px" }}
-              ></img>
-              {/* <video
+              <Box
+                sx={{
+                  transition: "0.5s linear",
+                  transformStyle: "preserve-3d",
+                  transform: flipBoxIndex.includes(i)
+                    ? "rotateY(180deg)"
+                    : "rotateY(0deg)",
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    backfaceVisibility: "hidden",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    transform: "rotateY(180deg)",
+                    boxShadow: "0 8px 18px -4px lightblue",
+                  }}
+                  onClick={() => {
+                    const removeIdx = flipBoxIndex.findIndex((f) => f === i);
+                    setFlipBoxIndex([
+                      ...flipBoxIndex.slice(0, removeIdx),
+                      ...flipBoxIndex.slice(removeIdx + 1),
+                    ]);
+                  }}
+                >
+                  <Box width="100%" height="100%">
+                    {!!randamNumber && offersObj[i + 1]?.length > 0 ? (
+                      <Box m={1} height="100%">
+                        <Typography sx={{ ml: 3 }} fontWeight="bold">
+                          Offers
+                        </Typography>
+                        <Box m={2} sx={{ overflowY: "auto", height: "80%" }}>
+                          {offersObj[i + 1].map((offer, j) => (
+                            <Tooltip
+                              key={j}
+                              title={
+                                // new Date(offer.duration)
+                                //   .toString()
+                                //   .split("(")[0]
+                                offer.userName
+                              }
+                              placement="top"
+                              disableInteractive
+                            >
+                              <Box
+                                p={1}
+                                display={"flex"}
+                                justifyContent="space-between"
+                                sx={{
+                                  ":hover": {
+                                    boxShadow: "0px 0px 3px #c4c4c4",
+                                  },
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (ownTokenIds.includes((i + 1).toString()))
+                                    setAcceptOffer(offer);
+                                }}
+                              >
+                                <Box
+                                  display="flex"
+                                  alignItems={"center"}
+                                  flexBasis="100px"
+                                >
+                                  <Typography>
+                                    ${(offer.amount * ethUsdPrice).toFixed(2)}
+                                  </Typography>
+                                  {/* <Typography
+                                    variant="body2"
+                                    sx={{ pl: 1 }}
+                                    textTransform="uppercase"
+                                  >
+                                    {offer.denom}
+                                  </Typography> */}
+                                </Box>
+                                <Box
+                                  display="flex"
+                                  alignItems={"flex-start"}
+                                  // flexBasis="25px"
+                                >
+                                  <AvatarOrNameDicord
+                                    user={{
+                                      name: offer.userName,
+                                      avatar: offer.userAvatar,
+                                      uid: offer.userId,
+                                    }}
+                                    width={25}
+                                    onlyAvatar
+                                  />
+                                </Box>
+
+                                <Box display="flex" alignItems={"center"}>
+                                  {offer.userId === user?.uid ||
+                                  ownTokenIds.includes((i + 1).toString()) ? (
+                                    <>
+                                      {offer.userId === user?.uid && (
+                                        <LoadingButton
+                                          size="small"
+                                          // variant="outlined"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            onCancelOffer(offer);
+                                          }}
+                                          loading={isLoading}
+                                          color="warning"
+                                        >
+                                          <CancelIcon />
+                                        </LoadingButton>
+                                      )}
+                                      {ownTokenIds.includes(
+                                        (i + 1).toString()
+                                      ) && (
+                                        <LoadingButton
+                                          loading={isLoading}
+                                          // size="small"
+                                          // variant="outlined"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (
+                                              ownTokenIds.includes(
+                                                (i + 1).toString()
+                                              )
+                                            )
+                                              setAcceptOffer(offer);
+                                          }}
+                                          size="small"
+                                          color="success"
+                                        >
+                                          <CheckIcon />
+                                        </LoadingButton>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <Button disabled></Button>
+                                  )}
+                                </Box>
+                              </Box>
+                            </Tooltip>
+                          ))}
+                        </Box>
+                      </Box>
+                    ) : (
+                      <Box
+                        display={"flex"}
+                        justifyContent="center"
+                        alignItems="center"
+                        width={"100%"}
+                        height={"100%"}
+                      >
+                        <Typography>No offers yet</Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    backfaceVisibility: "hidden",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    transform: "rotateY(0deg)",
+                  }}
+                >
+                  <img
+                    src={
+                      // timerObj.isRevealed &&
+                      // mintedTokenIds.includes((i + 1).toString())
+                      //   ? `/cherry/cats/${i + 1}.png`
+                      //   : `/cherry/assets/${i <= 7 ? i + 1 : i - 7}.png`
+                      `/cherry/cats/${i + 1}.png`
+                    }
+                    alt=""
+                    width="100%"
+                    height="100%"
+                    style={{ borderRadius: "6px" }}
+                  ></img>
+                  {/* <video
                 width="100%"
                 height="100%"
                 autoPlay
@@ -730,156 +1223,238 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               >
                 <source src="bg.mp4" type="video/mp4" />
               </video> */}
-              {(timerObj.isRevealed &&
-                mintedTokenIds.includes((i + 1).toString())) === false && (
-                <Box
-                  position="absolute"
-                  top={0}
-                  width="100%"
-                  height="100%"
-                  sx={{
-                    opacity: "0.6",
-                    // transition: "opacity 0.2s",
-                    background: "rgba(0,0,0,0.8)",
-                    borderRadius: "6px",
-                    "&:hover": {
+                  {/* {(timerObj.isRevealed &&
+                    mintedTokenIds.includes((i + 1).toString())) === false && (
+                    <Box
+                      position="absolute"
+                      top={0}
+                      width="100%"
+                      height="100%"
+                      sx={{
+                        opacity: "0.6",
+                        // transition: "opacity 0.2s",
+                        background: "rgba(0,0,0,0.8)",
+                        borderRadius: "6px",
+                        "&:hover": {
+                          opacity: "0",
+                        },
+                      }}
+                    />
+                  )} */}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    width="100%"
+                    height="100%"
+                    sx={{
                       opacity: "0",
-                    },
-                  }}
-                />
-              )}
-              <Box
-                position="absolute"
-                top={0}
-                width="100%"
-                height="100%"
-                sx={{
-                  opacity: "0",
-                  transition: "opacity 0.2s",
-                  background: "rgba(0,0,0,0.8)",
-                  borderRadius: "6px",
-                  "&:hover": {
-                    opacity: "1",
-                  },
-                }}
-              >
-                <Box
-                  boxSizing="border-box"
-                  width="100%"
-                  height="100%"
-                  display="flex"
-                  flexDirection="column"
-                  justifyContent="space-between"
-                  p={1}
-                >
-                  {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                  <Box m={1}>
-                    <Typography variant="h6" fontFamily="BenchNine">
-                      Feral #{section}
-                    </Typography>
-                  </Box>
-                  {timerObj.isRevealed &&
-                    isTokenAlreadyMinted(i + 1) &&
-                    isTokenMintedByUser(i + 1) && (
-                      <Box display="flex" justifyContent="center">
-                        <Button
-                          variant="contained"
-                          onClick={() => downloadFile((i + 1).toString())}
-                        >
-                          Download
-                        </Button>
-                      </Box>
-                    )}
-                  {timerObj.isRevealed === false && (
-                    <Button disabled variant="contained">
-                      Reveal soon
-                    </Button>
-                  )}
-                  {timerObj.isRevealed &&
-                    isTokenAlreadyMinted(i + 1) === false &&
-                    (user ? (
-                      <CrossmintPayButton
-                        onClick={() => {
-                          setIsListening(true);
-                        }}
-                        showOverlay={false}
-                        clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
-                        mintConfig={{
-                          type: "erc-721",
-                          totalPrice: "0",
-                          tokenId: (i + 1).toString(),
-                          parentTokenId: "0",
-                          _id: user.id,
-                          uri: `https://bafybeih55dxz4ooutgdnfsrnovch4s6gs7lt7e3ik4223345ec2ec6to3e.ipfs.nftstorage.link//${
-                            i + 1
-                          }.json`,
-                        }}
-                      />
-                    ) : (
-                      <Button
-                        variant="contained"
-                        // onClick={onSignInWithFb}
-                        href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-                        startIcon={
-                          <img
-                            src="/social/discord.png"
-                            alt=""
-                            width={"22px"}
-                          />
-                        }
-                      >
-                        Sign in
-                      </Button>
-                    ))}
-                  {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
-                  {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
-                    <Box>
+                      transition: "opacity 0.2s",
+                      background: "rgba(0,0,0,0.8)",
+                      borderRadius: "6px",
+                      "&:hover": {
+                        opacity: "1",
+                        "#makeoffer": {
+                          visibility: "visible",
+                        },
+                      },
+                    }}
+                  >
+                    <Box
+                      boxSizing="border-box"
+                      width="100%"
+                      height="100%"
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="space-between"
+                      p={1}
+                    >
+                      {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
                       <Box
+                        m={1}
                         display="flex"
-                        flexDirection="column"
-                        alignItems="end"
-                        mt={1}
+                        justifyContent={"space-between"}
                       >
-                        <Typography>Minted by:</Typography>
+                        <Typography variant="h6" fontFamily="BenchNine">
+                          Feral #{section}
+                        </Typography>
                         <Box
                           display="flex"
                           flexDirection="column"
-                          alignItems="center"
-                          mt={0.5}
+                          alignItems="start"
+                          justifyContent={"end"}
                         >
-                          {mintedTokenUserDetails[(i + 1).toString()]
-                            ?.avatar && (
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => onFlip(i)}
+                            color="info"
+                          >
+                            offers
+                          </Button>
+                        </Box>
+                      </Box>
+                      {isTokenMintedByUser(i + 1) && (
+                        <Box display="flex" justifyContent="center">
+                          <Button
+                            variant="contained"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadFile((i + 1).toString());
+                            }}
+                          >
+                            Download
+                          </Button>
+                        </Box>
+                      )}
+                      {/* {timerObj.isRevealed &&
+                        isTokenAlreadyMinted(i + 1) &&
+                        isTokenMintedByUser(i + 1) && (
+                          <Box display="flex" justifyContent="center">
+                            <Button
+                              variant="contained"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadFile((i + 1).toString());
+                              }}
+                            >
+                              Download
+                            </Button>
+                          </Box>
+                        )} */}
+                      {/* {timerObj.isRevealed === false && (
+                        <Button disabled variant="contained">
+                          Reveal soon
+                        </Button>
+                      )} */}
+                      {/* {timerObj.isRevealed &&
+                        isTokenAlreadyMinted(i + 1) === false &&
+                        (user ? (
+                          <CrossmintPayButton
+                            onClick={() => {
+                              setIsListening(true);
+                            }}
+                            showOverlay={false}
+                            clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
+                            mintConfig={{
+                              type: "erc-721",
+                              totalPrice: "0",
+                              tokenId: (i + 1).toString(),
+                              parentTokenId: "0",
+                              _id: user.id,
+                              uri: `https://bafybeih55dxz4ooutgdnfsrnovch4s6gs7lt7e3ik4223345ec2ec6to3e.ipfs.nftstorage.link//${
+                                i + 1
+                              }.json`,
+                            }}
+                          />
+                        ) : (
+                          <Button
+                            variant="contained"
+                            // onClick={onSignInWithFb}
+                            href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+                            startIcon={
+                              <img
+                                src="/social/discord.png"
+                                alt=""
+                                width={"22px"}
+                              />
+                            }
+                          >
+                            Sign in
+                          </Button>
+                        ))} */}
+                      {user ? (
+                        isTokenMintedByUser(i + 1) === false && (
+                          <Box
+                            display={"flex"}
+                            justifyContent="center"
+                            visibility={"hidden"}
+                            id="makeoffer"
+                          >
+                            <Button
+                              // size="small"
+                              variant="contained"
+                              onClick={(e) => {
+                                setOpenOfferForTokenId(i + 1);
+                                e.stopPropagation();
+                              }}
+                            >
+                              Make Offer
+                            </Button>
+                          </Box>
+                        )
+                      ) : (
+                        <Button
+                          variant="contained"
+                          // onClick={onSignInWithFb}
+                          href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+                          startIcon={
                             <img
-                              src={`https://cdn.discordapp.com/avatars/${
-                                mintedTokenUserDetails[(i + 1).toString()]?.uid
-                              }/${
-                                mintedTokenUserDetails[(i + 1).toString()]
-                                  ?.avatar
-                              }.png`}
-                              alt="profile"
-                              width={45}
-                              style={{ borderRadius: "50%" }}
+                              src="/social/discord.png"
+                              alt=""
+                              width={"22px"}
+                            />
+                          }
+                        >
+                          Sign in
+                        </Button>
+                      )}
+                      {/* {isTokenAlreadyMinted(i + 1) === false && ( */}
+                      {/* {timerObj.isRevealed && isTokenAlreadyMinted(i + 1) ? (
+                        <Box>
+                          <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="end"
+                            mt={1}
+                          >
+                            <Typography>Minted by:</Typography>
+                            {tokens[i] && (
+                              <AvatarOrNameDicord
+                                user={{
+                                  uid: tokens[i].ownerId,
+                                  name: tokens[i].name,
+                                  discriminator: tokens[i].discriminator,
+                                  avatar: tokens[i].avatar,
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Box>
+                          <Typography variant="subtitle2" align="right">
+                            Price
+                          </Typography>
+                          <Typography variant="h6" align="right">
+                            {timerObj.isRevealed && (
+                              <Typography variant="caption">only</Typography>
+                            )}
+                            {timerObj.isRevealed ? " Gas" : "TBA"}
+                          </Typography>
+                        </Box>
+                      )} */}
+                      <Box>
+                        <Box
+                          display="flex"
+                          flexDirection="column"
+                          alignItems="end"
+                          mt={1}
+                        >
+                          <Typography>Minted by:</Typography>
+                          {tokens[i] && (
+                            <AvatarOrNameDicord
+                              user={{
+                                uid: tokens[i].ownerId,
+                                name: tokens[i].name,
+                                discriminator: tokens[i].discriminator,
+                                avatar: tokens[i].avatar,
+                              }}
                             />
                           )}
-                          <Typography fontFamily="BenchNine">
-                            {mintedTokenUserDetails[(i + 1).toString()]?.name}
-                          </Typography>
                         </Box>
                       </Box>
                     </Box>
-                  ) : (
-                    <Box>
-                      <Typography variant="subtitle2" align="right">
-                        Price
-                      </Typography>
-                      <Typography variant="h6" align="right">
-                        {timerObj.isRevealed && (
-                          <Typography variant="caption">only</Typography>
-                        )}
-                        {timerObj.isRevealed ? " Gas" : "TBA"}
-                      </Typography>
-                    </Box>
-                  )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -957,6 +1532,46 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           </Button>
         </Box>
       </Box>
+      {/* {openOfferForTokenId >= 0 && ( */}
+      <MakeOfferDialog
+        isOpen={openOfferForTokenId >= 0}
+        onClose={() => {
+          if (!isLoading) setOpenOfferForTokenId(-1);
+        }}
+        onSubmitOffer={onSubmitOffer}
+        tokenId={openOfferForTokenId}
+        isLoading={isLoading}
+      />
+      {/* )} */}
+      {user && (
+        <ProfileDialog
+          isOpen={showProfile}
+          user={user}
+          onClose={onProfileClose}
+          refreshUser={refreshUser}
+          setShowAlertMessage={setShowAlertMessage}
+          ethUsdPrice={ethUsdPrice}
+        />
+      )}
+      <AlertSnackBar
+        isOpen={!!showAlertMessage}
+        message={showAlertMessage as string}
+        onClose={() => {
+          setShowAlertMessage(false);
+        }}
+      />
+      {!!acceptOffer && !!user && (
+        <AcceptOfferDialog
+          offer={acceptOffer}
+          onClose={() => {
+            setAcceptOffer(undefined);
+          }}
+          user={user}
+          isLoading={isLoading}
+          onAcceptOffer={onAcceptOffer}
+          ethUsdPrice={ethUsdPrice}
+        />
+      )}
     </Box>
   );
 };
