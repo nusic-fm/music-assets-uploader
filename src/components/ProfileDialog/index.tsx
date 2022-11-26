@@ -142,7 +142,15 @@ const ProfileDialog = (props: Props) => {
                   <Box>
                     <Typography>
                       If your NFT is in your wallet, Kindly send the NFT to the
-                      below address
+                      below address. Watch how to export the NFT from Crossmint{" "}
+                      <a
+                        href="https://www.youtube.com/watch?v=hywkZfT2APg"
+                        target={"_blank"}
+                        rel="noreferrer"
+                        style={{ color: "cornflowerblue", cursor: "pointer" }}
+                      >
+                        here
+                      </a>
                     </Typography>
                   </Box>
                   <Typography sx={{ mt: 2 }} fontWeight="bold">

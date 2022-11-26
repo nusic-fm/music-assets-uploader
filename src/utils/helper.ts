@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 export const dataFeedsForUsd: { [key: string]: string } = {
-  mainnet: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+  homestead: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
   maticmum: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
 };
 export const getEthPrice = async (): Promise<number> => {
