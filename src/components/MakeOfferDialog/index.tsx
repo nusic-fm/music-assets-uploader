@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  Typography,
 } from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
