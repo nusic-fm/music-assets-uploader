@@ -124,37 +124,43 @@ export const getOwnerOfNft = async (tokenId: string): Promise<string> => {
   return ownerAddress;
 };
 
-export const withdraw = async (tokenId: string): Promise<string> => {
+export const withdrawForUser = async (
+  custodialWallet: string,
+  toAddress: string
+): Promise<string> => {
   const provider = new ethers.providers.AlchemyProvider(
     process.env.REACT_APP_CHAIN_NAME as string,
     process.env.REACT_APP_ALCHEMY as string
   );
+  const wallet = new ethers.Wallet(
+    process.env.REACT_APP_MASTER_PK as string,
+    provider
+  );
   const nftContract = new ethers.Contract(
-    process.env.REACT_APP_CONTRACT_ADDRESS as string,
+    process.env.REACT_APP_MASTER_CONTRACT_ADDRESS as string,
     [
       {
         inputs: [
           {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
+            internalType: "address",
+            name: "_userAddress",
+            type: "address",
           },
-        ],
-        name: "ownerOf",
-        outputs: [
           {
             internalType: "address",
-            name: "",
+            name: "_to",
             type: "address",
           },
         ],
-        stateMutability: "view",
+        name: "withdrawForUser",
+        outputs: [],
+        stateMutability: "nonpayable",
         type: "function",
       },
     ],
-    provider
+    wallet
   );
-  const ownerAddressBn = await nftContract.ownerOf(tokenId);
-  const ownerAddress = ownerAddressBn.toString();
-  return ownerAddress;
+  const tx = await nftContract.withdrawForUser(custodialWallet, toAddress);
+  await tx.wait();
+  return tx.hash;
 };

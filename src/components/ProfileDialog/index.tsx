@@ -2,6 +2,7 @@
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
+  Button,
   Chip,
   Dialog,
   DialogContent,
@@ -11,13 +12,18 @@ import {
   StepContent,
   StepLabel,
   Stepper,
+  TextField,
   Typography,
 } from "@mui/material";
 import axios from "axios";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { User } from "../../models/User";
-import { checkNftBalance, getUserBalance } from "../../utils/helper";
+import {
+  checkNftBalance,
+  getUserBalance,
+  withdrawForUser,
+} from "../../utils/helper";
 
 type Props = {
   isOpen: boolean;
@@ -43,6 +49,7 @@ const ProfileDialog = (props: Props) => {
   const [userCollection, setUserCollection] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [toAdderss, setToAddress] = useState("");
 
   const fetchUserCollection = async () => {
     if (user.pubkey) {
@@ -175,12 +182,12 @@ const ProfileDialog = (props: Props) => {
           <Grid container rowSpacing={3}>
             {userCollection > 0 && (
               <>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                   <Typography variant="h5" fontFamily={"monospace"}>
                     Collections
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={8}>
+                <Grid item xs={12} md={6}>
                   <Chip sx={{ ml: 2 }} color="info" label={userCollection} />
                 </Grid>
               </>
@@ -193,12 +200,12 @@ const ProfileDialog = (props: Props) => {
             )}
             {userBalance > 0 && (
               <>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                   <Typography variant="h5" fontFamily={"monospace"}>
                     Balance
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={8}>
+                <Grid item xs={12} md={6}>
                   <Box
                     display={"flex"}
                     alignItems="center"
@@ -213,9 +220,36 @@ const ProfileDialog = (props: Props) => {
                         2
                       )} (${userBalance} ETH)`}
                     ></Chip>
-                    {/* <Button variant="outlined" color="info" size="small">
+                  </Box>
+                </Grid>
+                <Grid xs={12}>
+                  <Box display={"flex"} alignItems="center" m={2}>
+                    <TextField
+                      fullWidth
+                      label="Wallet Address"
+                      onChange={(e) => {
+                        setToAddress(e.target.value);
+                      }}
+                      value={toAdderss}
+                    ></TextField>
+                    <Button
+                      variant="outlined"
+                      color="info"
+                      size="small"
+                      onClick={async () => {
+                        if (user.pubkey && toAdderss) {
+                          await withdrawForUser(user.pubkey, toAdderss);
+                          setShowAlertMessage("Successfully withdrawn!");
+                          window.location.reload();
+                        } else {
+                          setShowAlertMessage(
+                            "something went wrong, please try again!"
+                          );
+                        }
+                      }}
+                    >
                       Withdraw
-                    </Button> */}
+                    </Button>
                   </Box>
                 </Grid>
               </>
