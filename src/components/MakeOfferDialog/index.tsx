@@ -82,7 +82,7 @@ const MakeOfferDialog = (props: {
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
-      <DialogTitle fontFamily="BenchNine">
+      <DialogTitle fontFamily="BenchNine" variant="h5">
         Feral #{tokenId} - Make Offer
       </DialogTitle>
       <DialogContent>
@@ -103,11 +103,22 @@ const MakeOfferDialog = (props: {
                   );
               }}
               helperText={
-                account
-                  ? amount.gt(userBal)
-                    ? "Not enough Balance"
-                    : " "
-                  : "Connect your Wallet"
+                account ? (
+                  amount.gt(userBal) ? (
+                    "Not enough Balance"
+                  ) : (
+                    <a
+                      href="//app.uniswap.org/#/tokens/ethereum/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                      style={{ color: "cornflowerblue" }}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Swap for WETH
+                    </a>
+                  )
+                ) : (
+                  "Connect your Wallet"
+                )
               }
               error={!account || amount.gt(userBal)}
             />
