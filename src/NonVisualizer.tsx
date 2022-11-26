@@ -389,7 +389,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       Number(tokenId) - 1
     ];
     window.open(
-      `https://storage.googleapis.com/nusic-data/marketplace/feral-v1/${id}`
+      `https://storage.googleapis.com/nusic-data/marketplace/feral-v1/${id}.mov`
     );
     setShowAlertMessage("Download Successful");
     setIsDownloading(false);

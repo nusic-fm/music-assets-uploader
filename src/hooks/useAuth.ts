@@ -23,10 +23,13 @@ const useAuth = () => {
   const login = useCallback(() => {
     activate(injectedConnector, async (error: Error) => {
       console.error(error);
+      alert(
+        `Unsupported chain, Please connect ETH Mainnet Network to continue`
+      );
       if (error.name === "UnsupportedChainIdError") {
-        alert(
-          `Unsupported chain, Please connect ${process.env.REACT_APP_CHAIN_NAME} Network to continue`
-        );
+        // alert(
+        //   `Unsupported chain, Please connect ${process.env.REACT_APP_CHAIN_NAME} Network to continue`
+        // );
       } else {
         console.log("error", error.name || error.message);
       }
