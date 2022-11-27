@@ -990,12 +990,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               // fontWeight="bold"
               fontFamily="BenchNine"
             >
-              {/* Be the first to hear & publish clips from mmmCherry's track */}
-              ‘The Point of No Return’ is fractionalized into 14 clips that have
+              'The Point of No Return’ is fractionalized into 14 clips that have
               been synchronized with the Kitty Kat Gang masks. These are
-              exclusively available to mint from Cherry’s site, once every part
-              of the song has been minted the Kitty Kat Gang co-ordinates in
-              order to unlock the full song release.
+              available right here on Cherry’s site, once you have purchased a
+              clip you can download it, share it and co-ordinate with the Kitty
+              Kat Gang to unlock the full release.
             </Typography>
           </Box>
         </Box>
