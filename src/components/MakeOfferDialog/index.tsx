@@ -11,41 +11,7 @@ import {
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
 import { useEffect, useState } from "react";
-
-export const getWethBalance = async (address: string): Promise<BigNumber> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
-  const wethContract = new ethers.Contract(
-    process.env.REACT_APP_WETH as string,
-    [
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "account",
-            type: "address",
-          },
-        ],
-        name: "balanceOf",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-    ],
-    provider
-  );
-  const balanceBn = await wethContract.balanceOf(address);
-  // const balance = balanceBn.toString();
-  return balanceBn;
-};
+import { getWethBalance } from "../../utils/helper";
 
 const MakeOfferDialog = (props: {
   onSubmitOffer: (

@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 export const dataFeedsForUsd: { [key: string]: string } = {
   homestead: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
@@ -163,4 +163,39 @@ export const withdrawForUser = async (
   const tx = await nftContract.withdrawForUser(custodialWallet, toAddress);
   await tx.wait();
   return tx.hash;
+};
+
+export const getWethBalance = async (address: string): Promise<BigNumber> => {
+  const provider = new ethers.providers.AlchemyProvider(
+    process.env.REACT_APP_CHAIN_NAME as string,
+    process.env.REACT_APP_ALCHEMY as string
+  );
+  const wethContract = new ethers.Contract(
+    process.env.REACT_APP_WETH as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        name: "balanceOf",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    provider
+  );
+  const balanceBn = await wethContract.balanceOf(address);
+  // const balance = balanceBn.toString();
+  return balanceBn;
 };

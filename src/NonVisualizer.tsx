@@ -53,7 +53,7 @@ import AlertSnackBar from "./components/AlertSnackBar";
 import AcceptOfferDialog from "./components/AcceptOfferDialog";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
-import { getEthPrice, getOwnerOfNft } from "./utils/helper";
+import { getEthPrice, getOwnerOfNft, getWethBalance } from "./utils/helper";
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
@@ -596,6 +596,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
         setIsLoading(false);
         return;
       }
+      const buyerBalanceBn = await getWethBalance(offer.walletAddress);
+      if (buyerBalanceBn.lt(ethers.utils.parseEther(offer.amount.toString()))) {
+        setShowAlertMessage(
+          "Buyer currently has insufficient fund. Please try again later."
+        );
+        setIsLoading(false);
+        return;
+      }
       try {
         const response = await axios.post(ACCEPT_OFFER_URL, {
           discordId: user.uid,
@@ -803,7 +811,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
             >
               {/* Web-3 Music Developer // Epistemologist // Producer // Engineer //
               Artist */}
-              Cherry is a twenty-two year old artist from Pittsburgh,
+              Cherry is a twenty-three year old artist from Pittsburgh,
               Pennsylvania currently based out of Los Angeles. Pushing forward
               the sounds of indie pop, trap & electronic. After an introduction
               to making beats 4 years ago, Cherry started to focus on creating
@@ -948,12 +956,13 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               {/* nGenesis is the foundational Web3 label, powering the evolution
                 of music */}
               Cherry’s alter-ego Feral has become assimilated with the
-              prototypical Web 3 label nGenesis, that is set to start on his
+              prototypical Web 3 label nGenesis, that started on his
               twenty-third birthday. In order to assemble his forces to prepare
-              for the flight to Sovereignty, Cherry is offering 14 early access
-              passes to join the Kitty Kat Gang to devotees. Each of these
-              passes grants access to Kitty Kat Lodge on Petrichor’s outer moon,
-              Feldspar.
+              for the flight to Sovereignty, Cherry made 14 early access Kitty
+              Kat Gang passes available to be minted, these are now available on
+              the secondary market to devotees and collectors alike. Each of
+              these passes grants access to Kitty Kat Lodge on Petrichor’s outer
+              moon, Feldspar.
             </Typography>
           </Box>
         </Box>
