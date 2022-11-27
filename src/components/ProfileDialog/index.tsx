@@ -85,8 +85,11 @@ const ProfileDialog = (props: Props) => {
       });
       console.log(res);
       refreshUser();
+    } catch (e) {
+      setShowAlertMessage("Error occured, please try again later.");
+    } finally {
       setIsLoading(false);
-    } catch (e) {}
+    }
   };
   return (
     <Dialog
