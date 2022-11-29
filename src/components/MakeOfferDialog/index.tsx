@@ -43,8 +43,8 @@ const MakeOfferDialog = (props: {
     }
   };
   useEffect(() => {
-    getBalance();
-  }, [account]);
+    if (isOpen) getBalance();
+  }, [account, isOpen]);
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
