@@ -4,4 +4,5 @@ export interface Token {
   ownerId: string;
   discriminator: string;
   id: string;
+  previousOwnerIds?: string[];
 }

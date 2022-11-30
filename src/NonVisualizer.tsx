@@ -1446,7 +1446,11 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           alignItems="end"
                           mt={1}
                         >
-                          <Typography>Minted by:</Typography>
+                          <Typography>
+                            {tokens[i] && tokens[i].previousOwnerIds
+                              ? "Owned by"
+                              : "Minted by"}
+                          </Typography>
                           {tokens[i] && (
                             <AvatarOrNameDicord
                               user={{
