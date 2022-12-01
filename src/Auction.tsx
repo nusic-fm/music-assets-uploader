@@ -2,6 +2,7 @@ import { Box, Divider, Grid, Typography } from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
 import { motion, Variants } from "framer-motion";
 import { useParams } from "react-router-dom";
+// import FramerModal from "./components/FramerModal";
 import HamburgerMenu from "./components/HamburgerMenu";
 import useAuth from "./hooks/useAuth";
 
@@ -60,9 +61,9 @@ const Auction = () => {
               style={{
                 background: `linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)`,
                 borderRadius: "30px",
-                width: "160px",
+                // width: "160px",
                 // height: "40px",
-                padding: "8px 15px",
+                padding: "8px 20px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -73,12 +74,12 @@ const Auction = () => {
               }}
               onClick={login}
             >
-              <Typography variant="h6" color={"White"} fontWeight="bolder">
+              <Typography variant="body1" color={"White"}>
                 {account
                   ? `${account.slice(0, 6)}...${account.slice(
                       account.length - 4
                     )}`
-                  : "Connect"}
+                  : "CONNECT"}
               </Typography>
             </motion.div>
           </Box>
@@ -91,8 +92,8 @@ const Auction = () => {
         //   mheight="100vh"
         rowSpacing={10}
       >
-        <Grid md={2}></Grid>
-        <Grid container xs={12} md={3} justifyContent="center">
+        <Grid md={3}></Grid>
+        <Grid container xs={12} md={2} justifyContent="center">
           <motion.div
             style={{
               width: "256px",
@@ -150,7 +151,7 @@ const Auction = () => {
                 background: `linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)`,
                 borderRadius: "30px",
                 // width: "150px",
-                padding: "15px 20px",
+                padding: "8px 20px",
                 // height: "80px",
                 display: "flex",
                 justifyContent: "center",
@@ -160,9 +161,13 @@ const Auction = () => {
                 MozUserSelect: "none",
                 msUserSelect: "none",
               }}
+              onClick={() => {
+                if (tokenId === 2) {
+                }
+              }}
             >
-              <Typography variant="h6" align="center" fontWeight="bolder">
-                {tokenId === 2 ? "List for Auction" : "Bid Now"}
+              <Typography variant="h6" align="center">
+                {tokenId === 2 ? "List for Auction" : "BID NOW"}
               </Typography>
             </motion.div>
           </Box>
@@ -186,6 +191,7 @@ const Auction = () => {
           )}
         </Grid>
       </Grid>
+      {/* <FramerModal showModal={true} /> */}
     </Box>
   );
 };
