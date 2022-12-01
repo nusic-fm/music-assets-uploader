@@ -1,12 +1,7 @@
 import { Box, Divider, Grid, Typography } from "@mui/material";
-import {
-  motion,
-  //   MotionValue,
-  //   useScroll,
-  //   useSpring,
-  //   useTransform,
-  Variants,
-} from "framer-motion";
+import { motion, Variants } from "framer-motion";
+import { useParams } from "react-router-dom";
+import HamburgerMenu from "./components/HamburgerMenu";
 
 const food: [string, number, number][] = [
   ["2.2 ETH", 340, 200],
@@ -18,16 +13,43 @@ const food: [string, number, number][] = [
   ["1.2 ETH", 330, 210],
   ["1 ETH", 340, 220],
 ];
+export const sections = [
+  "",
+  "Intro",
+  "Verse",
+  "Pre-Chorus",
+  "Chorus",
+  "Post-Chorus",
+  "Verse",
+  "Pre-Chorus",
+  "Hook",
+  "Post-Chorus",
+  "Bridge",
+  "Bridge",
+  "Breakdown",
+  "Breakdown",
+  "Post-Chorus",
+];
 
-const AnimationTest = () => {
+const Auction = () => {
+  const { id } = useParams();
+  const tokenId = id ? Number(id) : 1;
+
   return (
     <Box p={2} sx={{ bgcolor: "background.paper" }}>
-      <Box display="flex" justifyContent={"space-between"} alignItems="center">
-        <Typography variant="h6">Play to Earn Auction</Typography>
-        <Box>
-          <Typography>Login</Typography>
-        </Box>
-      </Box>
+      <HamburgerMenu />
+      <Grid container>
+        <Grid item xs={12} md={11}>
+          <Box display="flex" alignItems="center" ml={9} mt={1}>
+            <Typography variant="h6">Bid to Earn Auction</Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={1} mt={1}>
+          <Box>
+            <Typography align="center">Login</Typography>
+          </Box>
+        </Grid>
+      </Grid>
       <Grid
         container
         sx={{ py: 30 }}
@@ -35,16 +57,13 @@ const AnimationTest = () => {
         //   mheight="100vh"
         rowSpacing={10}
       >
-        <Grid container xs={12} md={5} justifyContent="end">
+        <Grid md={2}></Grid>
+        <Grid container xs={12} md={3} justifyContent="center">
           <motion.div
             style={{
               width: "256px",
               height: "256px",
               background: "rgba(255, 255, 255, 0.13)",
-              // backgroundColor: "transparent",
-              // background: `url('/cherry/cats/1.png')`,
-              // backgroundPosition: "contain",
-              // backgroundRepeat: "no-repeat",
             }}
             animate={{
               scale: [1, 1.3, 1.3, 1, 1],
@@ -68,7 +87,7 @@ const AnimationTest = () => {
               }}
             >
               <img
-                src="/cherry/cats/1.png"
+                src={`/cherry/cats/${id}.png`}
                 alt="test"
                 style={{ borderRadius: "6px" }}
               ></img>
@@ -79,10 +98,12 @@ const AnimationTest = () => {
         <Grid item xs={12} md={6} alignItems="center">
           <Box mb={5}>
             <Typography variant="h4">The Point of No Return</Typography>
-            <Typography variant="h5">#01</Typography>
+            <Typography variant="h5">
+              #{tokenId < 10 ? `0${tokenId}` : tokenId}
+            </Typography>
           </Box>
           <Box mb={4}>
-            <Typography>#Intro</Typography>
+            <Typography>#{sections[tokenId]}</Typography>
             <Typography>mmmcherry.xyz</Typography>
           </Box>
         </Grid>
@@ -106,6 +127,8 @@ const AnimationTest = () => {
                 alignItems: "center",
                 cursor: "pointer",
                 userSelect: "none",
+                MozUserSelect: "none",
+                msUserSelect: "none",
               }}
             >
               <Typography
@@ -226,100 +249,4 @@ function Card({ emoji, hueA, hueB }: Props) {
   );
 }
 
-// function Bids() {
-//   const containerRef = useRef(null);
-//   const { scrollYProgress } = useScroll({
-//     container: containerRef,
-//   });
-//   const scaleX = useSpring(scrollYProgress, {
-//     stiffness: 100,
-//     damping: 30,
-//     restDelta: 0.001,
-//   });
-
-//   return (
-//     <Box ref={containerRef} overflow="auto" height={"256px"}>
-//       {[5, 4, 3, 2, 1].map((id) => (
-//         <ListBid id={id} />
-//       ))}
-//       <motion.div style={{ scaleX, background: "white" }} />
-//     </Box>
-//   );
-// }
-// function ListBid({ id }: { id: number }) {
-//   const ref = useRef(null);
-//   const { scrollYProgress } = useScroll({ target: ref });
-//   const y = useParallax(scrollYProgress, 256);
-
-//   //   return (
-//   //     <Box
-//   //       style={{
-//   //         backgroundColor: "black",
-//   //         scrollSnapAlign: "center",
-//   //         perspective: "500px",
-//   //       }}
-//   //       height="100%"
-//   //       display={"flex"}
-//   //       justifyContent="center"
-//   //       alignItems={"center"}
-//   //       position="relative"
-//   //     >
-//   //       <Box ref={ref}>
-//   //         <Typography variant="h3" align="center">
-//   //           $$$
-//   //         </Typography>
-//   //       </Box>
-//   //       <motion.h2
-//   //         style={{
-//   //           y,
-//   //           color: "white",
-//   //           position: "absolute",
-//   //           left: "calc(50% + 130px)",
-//   //         }}
-//   //       >{`#00${id}`}</motion.h2>
-//   //     </Box>
-//   //   );
-//   return (
-//     <section
-//       style={{
-//         display: "flex",
-//         justifyContent: "center",
-//         alignItems: "center",
-//         position: "relative",
-//         height: "100%",
-//         scrollSnapAlign: "center",
-//         perspective: "500px",
-//       }}
-//     >
-//       <div
-//         ref={ref}
-//         style={{
-//           width: "256px",
-//           height: "256px",
-//           position: "relative",
-//           overflow: "hidden",
-//         }}
-//       >
-//         <img
-//           src={`/cherry/cats/${id}.png`}
-//           alt="A London skyscraper"
-//           style={{ position: "absolute", top: 0, left: 0 }}
-//         />
-//       </div>
-//       <motion.h2
-//         style={{
-//           y,
-//           color: "white",
-//           position: "absolute",
-//           left: "calc(50% + 130px)",
-//         }}
-//       >{`#00${id}`}</motion.h2>
-//     </section>
-//   );
-// }
-
-export default AnimationTest;
-
-// function useParallax(value: MotionValue<number>, distance: number) {
-//   return useTransform(value, [0, 1], [-distance, distance]);
-// }
+export default Auction;

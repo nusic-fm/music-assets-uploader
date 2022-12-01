@@ -10,11 +10,17 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import WebFont from "webfontloader";
 // import { MarketPlace } from "./MarketPlace";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 import { ethers } from "ethers";
 // import NonVisualizer from "./NonVisualizer";
-import AnimationTest from "./Animation";
+import Auction from "./Auction";
+import NonVisualizer from "./NonVisualizer";
 
 WebFont.load({
   google: {
@@ -87,8 +93,9 @@ root.render(
             {/* <Route path="/" element={<MarketPlace />} />
             <Route path="/upload" element={<App />} />
             <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} /> */}
-            {/* <Route path="/" element={<NonVisualizer trackIdx={1} />} /> */}
-            <Route path="/" element={<AnimationTest />} />
+            <Route path="/" element={<NonVisualizer trackIdx={1} />} />
+            <Route path="/auction" element={<Navigate to="/auction/1" />} />
+            <Route path="/auction/:id" element={<Auction />} />
           </Routes>
         </Router>
       </Web3ReactProvider>
