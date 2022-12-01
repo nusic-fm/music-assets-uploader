@@ -1,10 +1,24 @@
-import { Box, Divider, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
 import { motion, Variants } from "framer-motion";
+import React from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-// import FramerModal from "./components/FramerModal";
 import HamburgerMenu from "./components/HamburgerMenu";
 import useAuth from "./hooks/useAuth";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 const food: [string, number, number][] = [
   ["2.2 ETH", 340, 200],
@@ -40,6 +54,10 @@ const Auction = () => {
 
   const { login } = useAuth();
   const { account } = useWeb3React();
+  const [openAuction, setOpenAuction] = useState(false);
+  const [startDay, setStartDay] = React.useState(dayjs(new Date()));
+  const [endDay, setEndDay] = React.useState(dayjs(new Date()));
+
   return (
     <Box p={2} sx={{ bgcolor: "background.paper" }}>
       <HamburgerMenu />
@@ -60,7 +78,7 @@ const Auction = () => {
               whileTap={{ scale: 0.8 }}
               style={{
                 background: `linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)`,
-                borderRadius: "30px",
+                borderRadius: "6px",
                 // width: "160px",
                 // height: "40px",
                 padding: "8px 20px",
@@ -92,8 +110,8 @@ const Auction = () => {
         //   mheight="100vh"
         rowSpacing={10}
       >
-        <Grid md={3}></Grid>
-        <Grid container xs={12} md={2} justifyContent="center">
+        <Grid item md={3}></Grid>
+        <Grid container item xs={12} md={2} justifyContent="center">
           <motion.div
             style={{
               width: "256px",
@@ -149,7 +167,7 @@ const Auction = () => {
               whileTap={{ scale: 0.8 }}
               style={{
                 background: `linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)`,
-                borderRadius: "30px",
+                borderRadius: "6px",
                 // width: "150px",
                 padding: "8px 20px",
                 // height: "80px",
@@ -163,6 +181,7 @@ const Auction = () => {
               }}
               onClick={() => {
                 if (tokenId === 2) {
+                  setOpenAuction(true);
                 }
               }}
             >
@@ -191,7 +210,78 @@ const Auction = () => {
           )}
         </Grid>
       </Grid>
-      {/* <FramerModal showModal={true} /> */}
+      {/* <FramerModal showModal={openAuction} /> */}
+      <Dialog open={openAuction} onClose={() => setOpenAuction(false)}>
+        <DialogTitle>Auction Configuration #2</DialogTitle>
+        <DialogContent>
+          <Box>
+            <Typography>Time Frame</Typography>
+            <Box my={2} display="flex" gap={2} flexWrap="wrap">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  renderInput={(props) => <TextField {...props} />}
+                  label="Start"
+                  value={startDay}
+                  onChange={(newValue: any) => {
+                    setStartDay(newValue);
+                  }}
+                />
+              </LocalizationProvider>
+              <TextField
+                label="Hammer Time"
+                placeholder="Hours + End Time"
+              ></TextField>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  renderInput={(props) => <TextField {...props} />}
+                  label="End"
+                  value={endDay}
+                  onChange={(newValue: any) => {
+                    setEndDay(newValue);
+                  }}
+                />
+              </LocalizationProvider>
+            </Box>
+            {/* <Box>
+              <TextField label="Hammer Time"></TextField>
+            </Box> */}
+          </Box>
+          <Box mt={2}>
+            <Typography>Bid</Typography>
+            <Box mt={2} display="flex" gap={2} flexWrap="wrap">
+              {/* <TextField label="Step Min"></TextField> */}
+              <TextField label="Step Min" type={"number"}></TextField>
+              <TextField label="Increment Min" type={"number"}></TextField>
+              <TextField label="Increment Max" type={"number"}></TextField>
+              {/* <TextField label="Increment Max"></TextField> */}
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <motion.div
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8 }}
+            style={{
+              background: `linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)`,
+              borderRadius: "6px",
+              // width: "160px",
+              // height: "40px",
+              padding: "8px 20px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+              userSelect: "none",
+              MozUserSelect: "none",
+              msUserSelect: "none",
+            }}
+          >
+            <Typography variant="body1" color={"White"}>
+              SAVE
+            </Typography>
+          </motion.div>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

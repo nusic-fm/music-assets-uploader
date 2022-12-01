@@ -57,7 +57,8 @@ const HamburgerMenu = () => {
           left: 0,
           bottom: 0,
           width: "280px",
-          background: "#fff",
+          backgroundColor: "#D9AFD9",
+          backgroundImage: "linear-gradient(0deg, #D9AFD9 0%, #97D9E1 100%)",
         }}
         variants={sidebar}
       />
