@@ -1,7 +1,9 @@
 import { Box, Divider, Grid, Typography } from "@mui/material";
+import { useWeb3React } from "@web3-react/core";
 import { motion, Variants } from "framer-motion";
 import { useParams } from "react-router-dom";
 import HamburgerMenu from "./components/HamburgerMenu";
+import useAuth from "./hooks/useAuth";
 
 const food: [string, number, number][] = [
   ["2.2 ETH", 340, 200],
@@ -35,24 +37,56 @@ const Auction = () => {
   const { id } = useParams();
   const tokenId = id ? Number(id) : 1;
 
+  const { login } = useAuth();
+  const { account } = useWeb3React();
   return (
     <Box p={2} sx={{ bgcolor: "background.paper" }}>
       <HamburgerMenu />
       <Grid container>
-        <Grid item xs={12} md={11}>
+        <Grid item xs={12} md={10}>
           <Box display="flex" alignItems="center" ml={9} mt={1}>
             <Typography variant="h6">Bid to Earn Auction</Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} md={1} mt={1}>
-          <Box>
-            <Typography align="center">Login</Typography>
+        <Grid item xs={12} md={2}>
+          <Box
+            mt={{ xs: 2, md: 0 }}
+            display={"flex"}
+            justifyContent={{ xs: "center", md: "end" }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.8 }}
+              style={{
+                background: `linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)`,
+                borderRadius: "30px",
+                width: "160px",
+                // height: "40px",
+                padding: "8px 15px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                cursor: "pointer",
+                userSelect: "none",
+                MozUserSelect: "none",
+                msUserSelect: "none",
+              }}
+              onClick={login}
+            >
+              <Typography variant="h6" color={"White"} fontWeight="bolder">
+                {account
+                  ? `${account.slice(0, 6)}...${account.slice(
+                      account.length - 4
+                    )}`
+                  : "Connect"}
+              </Typography>
+            </motion.div>
           </Box>
         </Grid>
       </Grid>
       <Grid
         container
-        sx={{ py: 30 }}
+        sx={{ py: 20 }}
         alignItems={"center"}
         //   mheight="100vh"
         rowSpacing={10}
@@ -113,15 +147,11 @@ const Auction = () => {
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.8 }}
               style={{
-                background: `linear-gradient(
-                                60deg,
-                                #c4c4c4 10%,
-                                #d6cbf6 60%,
-                                #c4c4c4 90%
-                            )`,
+                background: `linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)`,
                 borderRadius: "30px",
-                width: "150px",
-                height: "80px",
+                // width: "150px",
+                padding: "15px 20px",
+                // height: "80px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -131,13 +161,8 @@ const Auction = () => {
                 msUserSelect: "none",
               }}
             >
-              <Typography
-                variant="h6"
-                align="center"
-                color={"black"}
-                fontWeight="bolder"
-              >
-                BID NOW
+              <Typography variant="h6" align="center" fontWeight="bolder">
+                {tokenId === 2 ? "List for Auction" : "Bid Now"}
               </Typography>
             </motion.div>
           </Box>
@@ -152,9 +177,13 @@ const Auction = () => {
         </Grid>
         <Grid item md={6}></Grid>
         <Grid item xs={12} md={12}>
-          {food.map(([emoji, hueA, hueB]) => (
-            <Card emoji={emoji} hueA={hueA} hueB={hueB} key={emoji} />
-          ))}
+          {tokenId !== 2 ? (
+            food.map(([emoji, hueA, hueB]) => (
+              <Card emoji={emoji} hueA={hueA} hueB={hueB} key={emoji} />
+            ))
+          ) : (
+            <Typography align="center">No Bids available</Typography>
+          )}
         </Grid>
       </Grid>
     </Box>
