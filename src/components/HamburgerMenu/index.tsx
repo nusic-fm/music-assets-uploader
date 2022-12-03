@@ -45,7 +45,7 @@ const HamburgerMenu = () => {
         position: "absolute",
         top: 0,
         left: 0,
-        bottom: isOpen ? -320 : "88vh",
+        bottom: isOpen ? -320 : "60vh",
         width: "280px",
       }}
     >

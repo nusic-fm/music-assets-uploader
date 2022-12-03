@@ -1,34 +1,65 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
+  CircularProgress,
   Divider,
   Grid,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
 import { motion, Variants } from "framer-motion";
-import React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import HamburgerMenu from "./components/HamburgerMenu";
 import useAuth from "./hooks/useAuth";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+// import dayjs from "dayjs";
+import BidConfigDialog from "./components/BidConfigDialog";
+import {
+  approveNftForAuction,
+  approveWeth,
+  bid,
+  getAuctionId,
+  // getBidEvents,
+  getHighestBid,
+  getWethAllowance,
+  registerAuction,
+} from "./utils/helper";
+import AlertSnackBar from "./components/AlertSnackBar";
+import { BigNumber, ethers } from "ethers";
+import {
+  createAuction,
+  getAucitonFromTokenId,
+  updateAuction,
+} from "./services/db/auction.servics";
+import { AuctionTokenDoc, BidDoc } from "./models/BidAuction";
+// import "./auction.css";
 
-const food: [string, number, number][] = [
-  ["2.2 ETH", 340, 200],
-  ["2.1 ETH", 340, 220],
-  ["1.8 ETH", 360, 240],
-  ["1.6 ETH", 300, 220],
-  ["1.5 ETH", 310, 240],
-  ["1.4 ETH", 305, 245],
-  ["1.2 ETH", 330, 210],
-  ["1 ETH", 340, 220],
+const bidColors: [number, number][] = [
+  [340, 200],
+  [340, 220],
+  [360, 240],
+  [300, 220],
+  [310, 240],
+  [305, 245],
+  [330, 210],
+  [340, 220],
+  [300, 220],
+  [310, 240],
+  [305, 245],
+  [330, 210],
+  [340, 220],
+  [300, 220],
+  [310, 240],
+  [305, 245],
+  [330, 210],
+  [340, 220],
+  [300, 220],
+  [310, 240],
+  [305, 245],
+  [330, 210],
+  [340, 220],
 ];
 export const sections = [
   "",
@@ -48,15 +79,178 @@ export const sections = [
   "Post-Chorus",
 ];
 
+const selectionRange = {
+  startDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+  endDate: new Date(new Date().setDate(new Date().getDate() + 15)),
+  key: "selection",
+};
+
 const Auction = () => {
   const { id } = useParams();
-  const tokenId = id ? Number(id) : 1;
+  const tokenId = id || "1";
 
   const { login } = useAuth();
-  const { account } = useWeb3React();
+  const { account, library } = useWeb3React();
+  const [isLoading, setIsLoading] = useState(false);
+  const [auctionObj, setAuctionObj] = useState<null | AuctionTokenDoc>();
   const [openAuction, setOpenAuction] = useState(false);
-  const [startDay, setStartDay] = React.useState(dayjs(new Date()));
-  const [endDay, setEndDay] = React.useState(dayjs(new Date()));
+  const [showAlertMessage, setShowAlertMessage] = useState<boolean | string>(
+    false
+  );
+  const [selection, setSelection] = useState(selectionRange);
+  const [highestBid, setHighestBid] = useState<BigNumber>(BigNumber.from("0"));
+
+  const handleSelect = (ranges: any) => {
+    console.log(ranges);
+    setSelection(ranges.selection);
+  };
+  const setHighesBid = async (auctionId: string) => {
+    const highestBid = await getHighestBid(auctionId);
+    setHighestBid(highestBid);
+  };
+  const fetchAuctionDetails = async () => {
+    setIsLoading(true);
+    const auction = await getAucitonFromTokenId(tokenId);
+    setAuctionObj(auction);
+    setIsLoading(false);
+    if (!!auction) {
+      setHighesBid(auction.auctionId);
+    }
+    // await getBidEvents();
+  };
+  useEffect(() => {
+    fetchAuctionDetails();
+  }, [tokenId]);
+  const onListAuction = async () => {
+    if (isLoading) {
+      setShowAlertMessage(
+        `Previous tx is still pending, try again after later`
+      );
+      return;
+    }
+    if (!account) {
+      setShowAlertMessage(`Connect your wallet and try again`);
+      return;
+    }
+    try {
+      setIsLoading(true);
+      setShowAlertMessage(`Kindly approve the NFT for Auction`);
+      const approveHash = await approveNftForAuction(
+        tokenId,
+        library.getSigner()
+      );
+      setShowAlertMessage(`NFT has been Approved`);
+      console.log(approveHash);
+      const provider = new ethers.providers.AlchemyProvider(
+        process.env.REACT_APP_CHAIN_NAME as string,
+        process.env.REACT_APP_ALCHEMY as string
+      );
+      let blockNumberWithMethod = await provider.getBlockNumber();
+      const block = await provider.getBlock(blockNumberWithMethod);
+      // console.log("blockNumberWithMethod = ", blockNumberWithMethod);
+      // console.log("block.timestamp = ", block.timestamp);
+      // console.log("block.number = ", block.number);
+
+      const startTime = new Date(block.timestamp);
+      console.log("startTime = ", startTime);
+      const endTime = new Date(block.timestamp);
+      //let twoDays = 2 * 24 * 60 * 60 * 1000;
+      let twoDays = 2 * 24 * 60 * 60 * 1000;
+      endTime.setTime(endTime.getTime() + twoDays);
+      // selection.startDate.setHours(0, 0, 0, 0);
+      // selection.endDate.setHours(23, 59, 59, 999);
+      const hash = await registerAuction(library.getSigner(), tokenId, {
+        // auction_startTime: Math.round(selection.startDate.getTime() / 1000),
+        // auction_endTime: Math.round(selection.endDate.getTime() / 1000),
+        auction_startTime: startTime.getTime(),
+        auction_endTime: endTime.getTime(),
+        auction_hammerTimeDuration: 5,
+        auction_stepMin: 10000,
+        auction_incMin: 1000,
+        auction_incMax: 1000,
+        auction_bidMultiplier: 11120,
+        auction_bidDecimals: 100000,
+      });
+      console.log(`Hash: ${hash}`);
+      setShowAlertMessage(`Your auction is successfully registered`);
+      const auctionId = await getAuctionId(tokenId);
+      await createAuction(tokenId, {
+        // startTime: selection.startDate.toUTCString(),
+        // endTime: selection.endDate.toUTCString(),
+        startTime: startTime.toUTCString(),
+        endTime: endTime.toUTCString(),
+        auctionId,
+        createdAt: new Date().toUTCString(),
+        ownerAddress: account,
+        // auction_startTime: selection.startDate.getTime(),
+        // auction_endTime: selection.endDate.getTime(),
+        auction_startTime: startTime.getTime(),
+        auction_endTime: endTime.getTime(),
+        auction_hammerTimeDuration: 5,
+        auction_stepMin: 10000,
+        auction_incMin: 1000,
+        auction_incMax: 1000,
+      });
+      setOpenAuction(false);
+      fetchAuctionDetails();
+    } catch (e: any) {
+      console.log(e);
+      setShowAlertMessage(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const onBidNow = async () => {
+    if (isLoading) {
+      setShowAlertMessage(
+        `Previous tx is still pending, try again after later`
+      );
+      return;
+    }
+    if (!account) {
+      setShowAlertMessage(`Connect your wallet and try again`);
+      return;
+    }
+    try {
+      if (auctionObj) {
+        setIsLoading(true);
+        const highestBid = await getHighestBid(auctionObj?.auctionId);
+        setHighestBid(highestBid);
+        const newBid = highestBid.add(ethers.utils.parseEther("1"));
+        const allowance = await getWethAllowance(
+          library,
+          account,
+          process.env.REACT_APP_AUCTION_CONTROLLER as string
+        );
+        if (allowance.lt(newBid)) {
+          setShowAlertMessage(`Kindly approve the bid amount`);
+          await approveWeth(
+            library.getSigner(),
+            newBid,
+            process.env.REACT_APP_AUCTION_CONTROLLER as string
+          );
+        }
+        const hash = await bid(
+          library.getSigner(),
+          auctionObj.auctionId,
+          newBid,
+          highestBid
+        );
+        console.log(`Hash: ${hash}`);
+        await updateAuction(tokenId, {
+          bidderAddress: account,
+          amount: ethers.utils.formatEther(newBid),
+          time: new Date().getTime(),
+        });
+        setShowAlertMessage(`You bid has been successfully added: ${hash}`);
+        fetchAuctionDetails();
+      }
+    } catch (e: any) {
+      setShowAlertMessage(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Box p={2} sx={{ bgcolor: "background.paper" }}>
@@ -152,12 +346,15 @@ const Auction = () => {
           <Box mb={5}>
             <Typography variant="h4">The Point of No Return</Typography>
             <Typography variant="h5">
-              #{tokenId < 10 ? `0${tokenId}` : tokenId}
+              #{Number(tokenId) < 10 ? `0${tokenId}` : tokenId}
             </Typography>
           </Box>
           <Box mb={4}>
-            <Typography>#{sections[tokenId]}</Typography>
+            <Typography>#{sections[Number(tokenId)]}</Typography>
             <Typography>mmmcherry.xyz</Typography>
+            <Typography>{auctionObj?.startTime}</Typography>
+            <Typography>{auctionObj?.endTime}</Typography>
+            <Typography>{ethers.utils.formatEther(highestBid)} WETH</Typography>
           </Box>
         </Grid>
         <Grid item xs={12}>
@@ -180,14 +377,20 @@ const Auction = () => {
                 msUserSelect: "none",
               }}
               onClick={() => {
-                if (tokenId === 2) {
+                if (!!auctionObj) {
+                  onBidNow();
+                } else {
                   setOpenAuction(true);
                 }
               }}
             >
-              <Typography variant="h6" align="center">
-                {tokenId === 2 ? "List for Auction" : "BID NOW"}
-              </Typography>
+              {isLoading ? (
+                <CircularProgress size={36} color="secondary" />
+              ) : (
+                <Typography variant="h6" align="center">
+                  {!!auctionObj ? "BID NOW" : "List for Auction"}
+                </Typography>
+              )}
             </motion.div>
           </Box>
         </Grid>
@@ -201,87 +404,39 @@ const Auction = () => {
         </Grid>
         <Grid item md={6}></Grid>
         <Grid item xs={12} md={12}>
-          {tokenId !== 2 ? (
-            food.map(([emoji, hueA, hueB]) => (
-              <Card emoji={emoji} hueA={hueA} hueB={hueB} key={emoji} />
-            ))
+          {!!auctionObj && auctionObj.bids && auctionObj.bids.length > 0 ? (
+            auctionObj.bids
+              .sort((a, b) => b.time - a.time)
+              .map((bid, i) => (
+                <Card
+                  hueA={bidColors[i][0]}
+                  hueB={bidColors[i][1]}
+                  key={i}
+                  bid={bid}
+                />
+              ))
           ) : (
             <Typography align="center">No Bids available</Typography>
           )}
         </Grid>
       </Grid>
-      {/* <FramerModal showModal={openAuction} /> */}
-      <Dialog open={openAuction} onClose={() => setOpenAuction(false)}>
-        <DialogTitle>Auction Configuration #2</DialogTitle>
-        <DialogContent>
-          <Box>
-            <Typography>Time Frame</Typography>
-            <Box my={2} display="flex" gap={2} flexWrap="wrap">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  renderInput={(props) => <TextField {...props} />}
-                  label="Start"
-                  value={startDay}
-                  onChange={(newValue: any) => {
-                    setStartDay(newValue);
-                  }}
-                />
-              </LocalizationProvider>
-              <TextField
-                label="Hammer Time"
-                placeholder="Hours + End Time"
-              ></TextField>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  renderInput={(props) => <TextField {...props} />}
-                  label="End"
-                  value={endDay}
-                  onChange={(newValue: any) => {
-                    setEndDay(newValue);
-                  }}
-                />
-              </LocalizationProvider>
-            </Box>
-            {/* <Box>
-              <TextField label="Hammer Time"></TextField>
-            </Box> */}
-          </Box>
-          <Box mt={2}>
-            <Typography>Bid</Typography>
-            <Box mt={2} display="flex" gap={2} flexWrap="wrap">
-              {/* <TextField label="Step Min"></TextField> */}
-              <TextField label="Step Min" type={"number"}></TextField>
-              <TextField label="Increment Min" type={"number"}></TextField>
-              <TextField label="Increment Max" type={"number"}></TextField>
-              {/* <TextField label="Increment Max"></TextField> */}
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <motion.div
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.8 }}
-            style={{
-              background: `linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)`,
-              borderRadius: "6px",
-              // width: "160px",
-              // height: "40px",
-              padding: "8px 20px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              cursor: "pointer",
-              userSelect: "none",
-              MozUserSelect: "none",
-              msUserSelect: "none",
-            }}
-          >
-            <Typography variant="body1" color={"White"}>
-              SAVE
-            </Typography>
-          </motion.div>
-        </DialogActions>
-      </Dialog>
+      <BidConfigDialog
+        onClose={() => {
+          if (isLoading === false) setOpenAuction(false);
+        }}
+        isOpen={openAuction}
+        handleSelect={handleSelect}
+        selection={selection}
+        onSave={onListAuction}
+        isLoading={isLoading}
+      />
+      <AlertSnackBar
+        isOpen={!!showAlertMessage}
+        message={showAlertMessage as string}
+        onClose={() => {
+          setShowAlertMessage(false);
+        }}
+      />
     </Box>
   );
 };
@@ -302,12 +457,12 @@ const cardVariants: Variants = {
 };
 
 interface Props {
-  emoji: string;
   hueA: number;
   hueB: number;
+  bid: BidDoc;
 }
 const hue = (h: number) => `hsl(${h}, 40%, 30%)`;
-function Card({ emoji, hueA, hueB }: Props) {
+function Card({ hueA, hueB, bid }: Props) {
   const background = `linear-gradient(306deg, ${hue(hueA)}, ${hue(hueB)})`;
 
   return (
@@ -363,9 +518,10 @@ function Card({ emoji, hueA, hueB }: Props) {
             {/* <Typography variant="h3">
             {(Math.random() * 10).toFixed(1)} ETH
           </Typography> */}
-            <Typography variant="h3">{emoji}</Typography>
+            <Typography variant="h3">{bid.amount} WETH</Typography>
             <Typography variant="body2" align="center">
-              0x07C9...272B
+              {bid.bidderAddress.slice(0, 6)}...
+              {bid.bidderAddress.slice(bid.bidderAddress.length - 4)}
             </Typography>
           </Box>
         </motion.div>

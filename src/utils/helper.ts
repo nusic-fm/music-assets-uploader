@@ -1,4 +1,5 @@
 import { BigNumber, ethers } from "ethers";
+import { AuctionConfig } from "../models/BidAuction";
 
 export const dataFeedsForUsd: { [key: string]: string } = {
   homestead: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
@@ -199,3 +200,354 @@ export const getWethBalance = async (address: string): Promise<BigNumber> => {
   // const balance = balanceBn.toString();
   return balanceBn;
 };
+
+const auctionABI = [
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_contract",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes4",
+        name: "_tokenKind",
+        type: "bytes4",
+      },
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "auction_startTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_endTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_hammerTimeDuration",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_bidDecimals",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_stepMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_incMin",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_incMax",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "auction_bidMultiplier",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct AuctionController.AuctionConfig",
+        name: "_auctionConfig",
+        type: "tuple",
+      },
+    ],
+    name: "registerAnAuctionToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_auctionID",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_bidAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_highestBid",
+        type: "uint256",
+      },
+    ],
+    name: "bid",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
+
+export const registerAuction = async (
+  signer: any,
+  tokenId: string,
+  config: AuctionConfig
+): Promise<string> => {
+  // const provider = new ethers.providers.AlchemyProvider(
+  //   process.env.REACT_APP_CHAIN_NAME as string,
+  //   process.env.REACT_APP_ALCHEMY as string
+  // );
+  const auctionContract = new ethers.Contract(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    auctionABI,
+    signer
+  );
+  const nftAddress = process.env.REACT_APP_CONTRACT_ADDRESS as string;
+  const tx = await auctionContract.registerAnAuctionToken(
+    nftAddress,
+    tokenId,
+    "0x73ad2146",
+    config
+  );
+  await tx.wait();
+  // const balance = balanceBn.toString();
+  return tx.hash;
+};
+export const getAuctionId = async (tokenId: string): Promise<string> => {
+  const provider = new ethers.providers.AlchemyProvider(
+    process.env.REACT_APP_CHAIN_NAME as string,
+    process.env.REACT_APP_ALCHEMY as string
+  );
+  const auctionContract = new ethers.Contract(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "_contract",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "_tokenID",
+            type: "uint256",
+          },
+        ],
+        name: "getAuctionID",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    provider
+  );
+  const nftAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
+  const auctionIdBn = await auctionContract.getAuctionID(nftAddress, tokenId);
+  // const balance = balanceBn.toString();
+  return auctionIdBn.toString();
+};
+export const getHighestBid = async (auctionId: string): Promise<BigNumber> => {
+  const provider = new ethers.providers.AlchemyProvider(
+    process.env.REACT_APP_CHAIN_NAME as string,
+    process.env.REACT_APP_ALCHEMY as string
+  );
+  const auctionContract = new ethers.Contract(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "_auctionID",
+            type: "uint256",
+          },
+        ],
+        name: "getAuctionHighestBid",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    provider
+  );
+  const highestBid = await auctionContract.getAuctionHighestBid(auctionId);
+  return highestBid;
+};
+export const bid = async (
+  signer: any,
+  auctionId: string,
+  amount: BigNumber,
+  highestBid: BigNumber
+): Promise<string> => {
+  const auctionContract = new ethers.Contract(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    auctionABI,
+    signer
+  );
+  const tx = await auctionContract.bid(auctionId, amount, highestBid);
+  await tx.wait();
+  return tx.hash;
+};
+
+export const approveNftForAuction = async (
+  tokenId: string,
+  signer: any
+): Promise<string> => {
+  // const provider = new ethers.providers.AlchemyProvider(
+  //   process.env.REACT_APP_CHAIN_NAME as string,
+  //   process.env.REACT_APP_ALCHEMY as string
+  // );
+  const nftContract = new ethers.Contract(
+    process.env.REACT_APP_CONTRACT_ADDRESS as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "tokenId",
+            type: "uint256",
+          },
+        ],
+        name: "approve",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+    signer
+  );
+  const tx = await nftContract.approve(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    tokenId
+  );
+  await tx.wait();
+  return tx.hash;
+};
+export const approveWeth = async (
+  signer: any,
+  amount: BigNumber,
+  toAddress: string
+): Promise<string> => {
+  const wethContract = new ethers.Contract(
+    process.env.REACT_APP_WETH as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "approve",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+    signer
+  );
+  const tx = await wethContract.approve(toAddress, amount);
+  await tx.wait();
+  return tx.hash;
+};
+
+export const getWethAllowance = async (
+  library: any,
+  from: string,
+  toAddress: string
+): Promise<BigNumber> => {
+  const wethContract = new ethers.Contract(
+    process.env.REACT_APP_WETH as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+        ],
+        name: "allowance",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    library
+  );
+  const tx = await wethContract.allowance(from, toAddress);
+  return tx;
+};
+
+// function hex2a(hexx: string) {
+//   var hex = hexx.toString(); //force conversion
+//   var str = "";
+//   for (var i = 0; i < hex.length; i += 2)
+//     str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+//   return str;
+// }
+
+// export const getBidEvents = async (): Promise<any> => {
+//   const provider = new ethers.providers.AlchemyProvider(
+//     process.env.REACT_APP_CHAIN_NAME as string,
+//     process.env.REACT_APP_ALCHEMY as string
+//   );
+//   const auctionContract = new ethers.Contract(
+//     process.env.REACT_APP_AUCTION_CONTROLLER as string,
+//     auctionABI,
+//     provider
+//   );
+//   const bids = await auctionContract.queryFilter("*");
+//   debugger;
+//   // BidPlaced;
+// };

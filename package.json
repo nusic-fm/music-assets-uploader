@@ -24,12 +24,14 @@
     "chart.js": "^3.8.0",
     "colormap": "^2.3.2",
     "crypto-js": "^4.1.1",
+    "date-fns": "^2.29.3",
     "dayjs": "^1.11.6",
     "ethers": "^5.6.9",
     "firebase": "^9.10.0",
     "framer-motion": "^7.6.15",
     "react": "^18.1.0",
     "react-chartjs-2": "^4.2.0",
+    "react-date-range": "^1.4.0",
     "react-dom": "^18.1.0",
     "react-dropzone": "^14.2.1",
     "react-firebase-hooks": "^5.0.3",
@@ -69,6 +71,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-date-range": "^1.4.4",
     "@types/wavesurfer.js": "^6.0.3",
     "@types/webfontloader": "^1.6.34"
   }
