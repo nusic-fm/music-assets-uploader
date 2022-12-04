@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { sections } from "../../Auction";
@@ -61,12 +61,18 @@ export const MenuItem = ({
         display: "flex",
         alignItems: "center",
         cursor: "pointer",
+        position: "relative",
       }}
       onClick={() => {
         toggleOpen();
-        navigate(`/auction/${i}`);
+        navigate(`/auction/8`);
       }}
     >
+      {i === 8 && (
+        <Box position={"absolute"} right={0} top={-10}>
+          <Chip label="live" color="success" variant="filled" size="small" />
+        </Box>
+      )}
       <div
         className="icon-placeholder"
         style={{

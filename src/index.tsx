@@ -94,8 +94,8 @@ root.render(
             <Route path="/upload" element={<App />} />
             <Route path="/mackenzie" element={<NonVisualizer trackIdx={0} />} /> */}
             {/* <Route path="/" element={<NonVisualizer trackIdx={1} />} /> */}
-            <Route path="/" element={<Navigate to="/auction/1" />} />
-            <Route path="/auction" element={<Navigate to="/auction/1" />} />
+            <Route path="/" element={<Navigate to="/auction/8" />} />
+            <Route path="/auction" element={<Navigate to="/auction/8" />} />
             <Route path="/auction/:id" element={<Auction />} />
           </Routes>
         </Router>

@@ -21,6 +21,7 @@ import {
   approveWeth,
   bid,
   getAuctionId,
+  getEnsName,
   // getBidEvents,
   getHighestBid,
   getOwnerOfNft,
@@ -505,6 +506,16 @@ interface Props {
 const hue = (h: number) => `hsl(${h}, 40%, 30%)`;
 function Card({ hueA, hueB, bid }: Props) {
   const background = `linear-gradient(306deg, ${hue(hueA)}, ${hue(hueB)})`;
+  const [ensName, setEnsName] = useState<string | null>();
+  useEffect(() => {
+    if (bid) {
+      getEnsName(bid.bidderAddress).then((name) => {
+        if (name) {
+          setEnsName(name);
+        }
+      });
+    }
+  }, [bid]);
 
   return (
     <Box maxWidth={"500px"} mx="auto">
@@ -560,10 +571,16 @@ function Card({ hueA, hueB, bid }: Props) {
             {(Math.random() * 10).toFixed(1)} ETH
           </Typography> */}
             <Typography variant="h3">{bid.amount} WETH</Typography>
-            <Typography variant="body2" align="center">
-              {bid.bidderAddress.slice(0, 6)}...
-              {bid.bidderAddress.slice(bid.bidderAddress.length - 4)}
-            </Typography>
+            {ensName ? (
+              <Typography variant="body2" align="center">
+                {ensName}
+              </Typography>
+            ) : (
+              <Typography variant="body2" align="center">
+                {bid.bidderAddress.slice(0, 6)}...
+                {bid.bidderAddress.slice(bid.bidderAddress.length - 4)}
+              </Typography>
+            )}
           </Box>
         </motion.div>
       </motion.div>

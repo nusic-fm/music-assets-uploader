@@ -551,3 +551,11 @@ export const getWethAllowance = async (
 //   debugger;
 //   // BidPlaced;
 // };
+
+export const getEnsName = (address: string): Promise<string | null> => {
+  const provider = new ethers.providers.AlchemyProvider(
+    process.env.REACT_APP_CHAIN_NAME as string,
+    process.env.REACT_APP_ALCHEMY as string
+  );
+  return provider.lookupAddress(address);
+};
