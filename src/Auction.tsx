@@ -140,7 +140,7 @@ const Auction = () => {
     }
   }, [account]);
 
-  const onListAuction = async () => {
+  const onListAuction = async (ignoreApproval: boolean) => {
     if (isLoading) {
       setShowAlertMessage(
         `Previous tx is still pending, try again after later`
@@ -153,13 +153,15 @@ const Auction = () => {
     }
     try {
       setIsLoading(true);
-      setShowAlertMessage(`Kindly approve the NFT for Auction`);
-      const approveHash = await approveNftForAuction(
-        tokenId,
-        library.getSigner()
-      );
-      setShowAlertMessage(`NFT has been Approved`);
-      console.log(approveHash);
+      if (ignoreApproval === false) {
+        setShowAlertMessage(`Kindly approve the NFT for Auction`);
+        const approveHash = await approveNftForAuction(
+          tokenId,
+          library.getSigner()
+        );
+        setShowAlertMessage(`NFT has been Approved`);
+        console.log(approveHash);
+      }
       const provider = new ethers.providers.AlchemyProvider(
         process.env.REACT_APP_CHAIN_NAME as string,
         process.env.REACT_APP_ALCHEMY as string

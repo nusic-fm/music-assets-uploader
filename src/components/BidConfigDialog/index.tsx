@@ -8,14 +8,17 @@ import {
   Divider,
   Grid,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import DateTimeRangePicker from "../DateTimeRangePicker";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (ignoreApproval: boolean) => void;
   handleSelect: (ranges: any) => void;
   selection: any;
   isLoading: boolean;
@@ -31,6 +34,8 @@ const BidConfigDialog = ({
   isLoading,
   tokenId,
 }: Props) => {
+  const [ignoreApproval, setIgnoreApproval] = useState(false);
+
   return (
     <Dialog open={isOpen} onClose={onClose} sx={{ zIndex: 1 }}>
       <DialogTitle>Auction Configuration #{tokenId}</DialogTitle>
@@ -109,14 +114,26 @@ const BidConfigDialog = ({
               </Grid>
               <Grid item xs={1}></Grid>
               <Grid item xs={6}>
-                <Typography fontWeight={"bold"}>1%</Typography>
+                <Typography fontWeight={"bold"}>10%</Typography>
               </Grid>
               <Grid item xs={5}>
                 <Typography textAlign={"right"}>Max Incentive:</Typography>
               </Grid>
               <Grid item xs={1}></Grid>
               <Grid item xs={6}>
-                <Typography fontWeight={"bold"}>5%</Typography>
+                <Typography fontWeight={"bold"}>10%</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value={ignoreApproval}
+                      onChange={(e, checked) => setIgnoreApproval(checked)}
+                      color="secondary"
+                    />
+                  }
+                  label="Ignore Approve"
+                />
               </Grid>
             </Grid>
           </Box>
@@ -190,7 +207,7 @@ const BidConfigDialog = ({
             MozUserSelect: "none",
             msUserSelect: "none",
           }}
-          onClick={onSave}
+          onClick={() => onSave(ignoreApproval)}
         >
           {isLoading ? (
             <CircularProgress size={36} color="secondary" />
