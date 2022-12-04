@@ -19,6 +19,7 @@ type Props = {
   handleSelect: (ranges: any) => void;
   selection: any;
   isLoading: boolean;
+  tokenId: string;
 };
 
 const BidConfigDialog = ({
@@ -28,10 +29,11 @@ const BidConfigDialog = ({
   handleSelect,
   selection,
   isLoading,
+  tokenId,
 }: Props) => {
   return (
     <Dialog open={isOpen} onClose={onClose} sx={{ zIndex: 1 }}>
-      <DialogTitle>Auction Configuration #2</DialogTitle>
+      <DialogTitle>Auction Configuration #{tokenId}</DialogTitle>
       <Divider />
       <DialogContent>
         <Box>

@@ -26,7 +26,7 @@ const BidTextField = ({
     setBidValue(BigNumber.from(ethers.utils.parseEther(e.target.value)));
   };
   return (
-    <Box display={"flex"}>
+    <Box display={"flex"} alignItems="center">
       <TextField
         type={"number"}
         onChange={onBidChange}

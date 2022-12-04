@@ -377,6 +377,7 @@ const Auction = () => {
           <Box mb={4}>
             <Typography>#{sections[Number(tokenId)]}</Typography>
             <Typography>mmmcherry.xyz</Typography>
+            <Typography sx={{ mt: 1 }}>Bidding Incentive: 10%</Typography>
             <Typography sx={{ mt: 1 }}>
               {auctionObj?.startTime} - {auctionObj?.endTime}
             </Typography>
@@ -465,6 +466,7 @@ const Auction = () => {
         </Grid>
       </Grid>
       <BidConfigDialog
+        tokenId={tokenId}
         onClose={() => {
           if (isLoading === false) setOpenAuction(false);
         }}
