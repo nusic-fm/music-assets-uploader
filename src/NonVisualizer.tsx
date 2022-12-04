@@ -53,7 +53,12 @@ import AlertSnackBar from "./components/AlertSnackBar";
 import AcceptOfferDialog from "./components/AcceptOfferDialog";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
-import { getEthPrice, getOwnerOfNft, getWethBalance } from "./utils/helper";
+import {
+  approveWeth,
+  getEthPrice,
+  getOwnerOfNft,
+  getWethBalance,
+} from "./utils/helper";
 // signInWithFacebook();
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
@@ -453,42 +458,12 @@ const NonVisualizer = (props: { trackIdx: number }) => {
       let approvedHash: string;
       try {
         const signer = library.getSigner();
-        const wethContract = new ethers.Contract(
-          process.env.REACT_APP_WETH as string,
-          [
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "spender",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "amount",
-                  type: "uint256",
-                },
-              ],
-              name: "approve",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-          ],
-          signer
+        const hash = await approveWeth(
+          signer,
+          ethers.utils.parseEther(amount.toString()),
+          process.env.REACT_APP_MASTER_CONTRACT_ADDRESS as string
         );
-        const tx = await wethContract.approve(
-          process.env.REACT_APP_MASTER_CONTRACT_ADDRESS,
-          ethers.utils.parseEther(amount.toString())
-        );
-        await tx.wait();
-        approvedHash = tx.hash;
+        approvedHash = hash;
       } catch (e) {
         setShowAlertMessage("Transaction failed, please try again");
         console.log("Error: ", e);
