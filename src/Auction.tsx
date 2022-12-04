@@ -572,7 +572,9 @@ function Card({ hueA, hueB, bid }: Props) {
             {/* <Typography variant="h3">
             {(Math.random() * 10).toFixed(1)} ETH
           </Typography> */}
-            <Typography variant="h3">{bid.amount} WETH</Typography>
+            <Typography variant="h3" align="center">
+              {Number(bid.amount).toFixed(2)} WETH
+            </Typography>
             {ensName ? (
               <Typography variant="body2" align="center">
                 {ensName}
