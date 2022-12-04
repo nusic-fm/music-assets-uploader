@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  Link,
   Typography,
 } from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
@@ -38,6 +39,7 @@ import {
 import { AuctionTokenDoc, BidDoc } from "./models/BidAuction";
 import BidTextField from "./components/BidTextField";
 // import "./auction.css";
+const moment = require("moment");
 
 const bidColors: [number, number][] = [
   [340, 200],
@@ -164,24 +166,18 @@ const Auction = () => {
       );
       let blockNumberWithMethod = await provider.getBlockNumber();
       const block = await provider.getBlock(blockNumberWithMethod);
-      // console.log("blockNumberWithMethod = ", blockNumberWithMethod);
-      // console.log("block.timestamp = ", block.timestamp);
-      // console.log("block.number = ", block.number);
 
-      const startTime = new Date(block.timestamp);
-      console.log("startTime = ", startTime);
-      const endTime = new Date(block.timestamp);
-      //let twoDays = 2 * 24 * 60 * 60 * 1000;
-      let twoDays = 20 * 60 * 1000;
-      endTime.setTime(endTime.getTime() + twoDays);
-      // selection.startDate.setHours(0, 0, 0, 0);
-      // selection.endDate.setHours(23, 59, 59, 999);
+      const startTime = moment.unix(block.timestamp);
+      const endTime = moment.unix(block.timestamp).add(7, "days");
+
+      const startTimeStamp = startTime.unix();
+      const endTimeStamp = endTime.unix();
       const hash = await registerAuction(library.getSigner(), tokenId, {
         // auction_startTime: Math.round(selection.startDate.getTime() / 1000),
         // auction_endTime: Math.round(selection.endDate.getTime() / 1000),
-        auction_startTime: startTime.getTime(),
-        auction_endTime: endTime.getTime(),
-        auction_hammerTimeDuration: 5 * 1000 * 60,
+        auction_startTime: startTimeStamp,
+        auction_endTime: endTimeStamp,
+        auction_hammerTimeDuration: 2 * 1000 * 60,
         auction_stepMin: 10000,
         auction_incMin: 10000,
         auction_incMax: 10000,
@@ -194,15 +190,15 @@ const Auction = () => {
       await createAuction(tokenId, {
         // startTime: selection.startDate.toUTCString(),
         // endTime: selection.endDate.toUTCString(),
-        startTime: startTime.toUTCString(),
-        endTime: endTime.toUTCString(),
+        startTime: startTime.utc().format(),
+        endTime: endTime.utc().format(),
         auctionId,
         createdAt: new Date().toUTCString(),
         ownerAddress: account,
         // auction_startTime: selection.startDate.getTime(),
         // auction_endTime: selection.endDate.getTime(),
-        auction_startTime: startTime.getTime(),
-        auction_endTime: endTime.getTime(),
+        auction_startTime: startTime.utc().format(),
+        auction_endTime: endTime.utc().format(),
         auction_hammerTimeDuration: 5,
         auction_stepMin: 10000,
         auction_incMin: 1000,
@@ -375,12 +371,19 @@ const Auction = () => {
             </Typography>
           </Box>
           <Box mb={4}>
-            <Typography>#{sections[Number(tokenId)]}</Typography>
-            <Typography>mmmcherry.xyz</Typography>
+            <Typography sx={{ mb: 1 }}>#{sections[Number(tokenId)]}</Typography>
+            <Link href="mmmcherry.xyz" target={"_blank"} color="secondary">
+              mmmcherry.xyz
+            </Link>
             <Typography sx={{ mt: 1 }}>Bidding Incentive: 10%</Typography>
-            <Typography sx={{ mt: 1 }}>
-              {auctionObj?.startTime} - {auctionObj?.endTime}
-            </Typography>
+            {auctionObj?.endTime && (
+              <Typography sx={{ mt: 1 }}>
+                {/* {moment(auctionObj.startTime).format("MMMM Do YYYY, h:mm:ss a")}
+                {" - "} */}
+                Ends at:{" "}
+                {moment(auctionObj.endTime).format("MMMM Do YYYY, h:mm:ss a")}
+              </Typography>
+            )}
             <Box mt={2} display="flex" alignItems={"end"}>
               <Typography variant="h4">
                 {ethers.utils.formatEther(highestBid)} WETH

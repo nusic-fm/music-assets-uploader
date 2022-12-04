@@ -13,9 +13,12 @@ const AlertSnackBar = ({ isOpen, message, action, onClose }: Props) => {
       open={isOpen}
       autoHideDuration={10000}
       onClose={onClose}
-      message={message}
+      message={message && message.slice(0, 300)}
       action={action}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      sx={{
+        maxWidth: "80%",
+      }}
     />
   );
 };
