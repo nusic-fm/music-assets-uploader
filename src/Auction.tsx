@@ -112,12 +112,12 @@ const Auction = () => {
     const highestBid = await getHighestBid(auctionId);
     setHighestBid(highestBid);
   };
-  const fetchAuctionDetails = async () => {
+  const fetchAuctionDetails = async (ignore: boolean = false) => {
     setIsLoading(true);
     const auction = await getAucitonFromTokenId(tokenId);
     setAuctionObj(auction);
     setIsLoading(false);
-    if (!!auction) {
+    if (!!auction && !ignore) {
       setHighesBid(auction.auctionId);
     }
     // await getBidEvents();
@@ -209,7 +209,7 @@ const Auction = () => {
         auction_incMax: 1000,
       });
       setOpenAuction(false);
-      fetchAuctionDetails();
+      fetchAuctionDetails(true);
     } catch (e: any) {
       console.log(e);
       setShowAlertMessage(e.message);
@@ -233,10 +233,12 @@ const Auction = () => {
         setIsLoading(true);
         const highestBid = await getHighestBid(auctionObj?.auctionId);
         setHighestBid(highestBid);
-        if (newBid.lte(highestBid)) {
+        const _nexStepBid = highestBid.add(highestBid.mul(10).div(100));
+        if (newBid.lte(_nexStepBid)) {
           setShowAlertMessage(
-            `Oops new bid is just added, please enter a higher bid`
+            `Oops new bid is just added, please enter a higher bid than ${_nexStepBid} WETH`
           );
+          fetchAuctionDetails(true);
           return;
         }
         // const newBid = highestBid.add(ethers.utils.parseEther("1"));

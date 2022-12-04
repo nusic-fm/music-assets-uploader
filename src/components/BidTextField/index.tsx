@@ -19,7 +19,7 @@ const BidTextField = ({
   previousBid,
   setShowAlertMessage,
 }: Props) => {
-  const [bidValueUi, setBidValueUi] = useState<Number>(0);
+  const [bidValueUi, setBidValueUi] = useState<Number>();
   const [bidValue, setBidValue] = useState(BigNumber.from("0"));
   const onBidChange = (e: any) => {
     setBidValueUi(Number(e.target.value));
@@ -53,11 +53,12 @@ const BidTextField = ({
           msUserSelect: "none",
         }}
         onClick={() => {
-          if (bidValue.lte(previousBid)) {
+          const _nextStepBid = previousBid.add(previousBid.mul(10).div(100));
+          if (bidValue.lte(_nextStepBid)) {
             setShowAlertMessage(
-              `Previous Highest Bid is ${ethers.utils.formatEther(
-                previousBid
-              )} WETH, pleaes enter more Amount`
+              `Place higher bid than ${ethers.utils.formatEther(
+                _nextStepBid
+              )} WETH`
             );
             return;
           }
