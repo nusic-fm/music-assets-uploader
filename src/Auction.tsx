@@ -23,6 +23,7 @@ import {
   getAuctionId,
   // getBidEvents,
   getHighestBid,
+  getOwnerOfNft,
   getWethAllowance,
   registerAuction,
 } from "./utils/helper";
@@ -99,6 +100,7 @@ const Auction = () => {
   );
   const [selection, setSelection] = useState(selectionRange);
   const [highestBid, setHighestBid] = useState<BigNumber>(BigNumber.from("0"));
+  const [isNftOwner, setIsNftOwner] = useState<boolean>(false);
 
   const handleSelect = (ranges: any) => {
     console.log(ranges);
@@ -121,6 +123,19 @@ const Auction = () => {
   useEffect(() => {
     fetchAuctionDetails();
   }, [tokenId]);
+
+  const fetchNftOwner = async () => {
+    if (account) {
+      const owner = await getOwnerOfNft(tokenId);
+      if (owner === account) setIsNftOwner(true);
+    }
+  };
+  useEffect(() => {
+    if (account) {
+      fetchNftOwner();
+    }
+  }, [account]);
+
   const onListAuction = async () => {
     if (isLoading) {
       setShowAlertMessage(
@@ -380,6 +395,9 @@ const Auction = () => {
                 if (!!auctionObj) {
                   onBidNow();
                 } else {
+                  if (isNftOwner === false) {
+                    return;
+                  }
                   setOpenAuction(true);
                 }
               }}
@@ -388,7 +406,11 @@ const Auction = () => {
                 <CircularProgress size={36} color="secondary" />
               ) : (
                 <Typography variant="h6" align="center">
-                  {!!auctionObj ? "BID NOW" : "List for Auction"}
+                  {!!auctionObj
+                    ? "BID NOW"
+                    : isNftOwner
+                    ? "List for Auction"
+                    : "Not Available for Auction"}
                 </Typography>
               )}
             </motion.div>
