@@ -172,7 +172,7 @@ const Auction = () => {
       console.log("startTime = ", startTime);
       const endTime = new Date(block.timestamp);
       //let twoDays = 2 * 24 * 60 * 60 * 1000;
-      let twoDays = 2 * 24 * 60 * 60 * 1000;
+      let twoDays = 20 * 60 * 1000;
       endTime.setTime(endTime.getTime() + twoDays);
       // selection.startDate.setHours(0, 0, 0, 0);
       // selection.endDate.setHours(23, 59, 59, 999);
@@ -181,10 +181,10 @@ const Auction = () => {
         // auction_endTime: Math.round(selection.endDate.getTime() / 1000),
         auction_startTime: startTime.getTime(),
         auction_endTime: endTime.getTime(),
-        auction_hammerTimeDuration: 5,
+        auction_hammerTimeDuration: 5 * 1000 * 60,
         auction_stepMin: 10000,
         auction_incMin: 1000,
-        auction_incMax: 1000,
+        auction_incMax: 10000,
         auction_bidMultiplier: 11120,
         auction_bidDecimals: 100000,
       });
