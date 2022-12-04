@@ -35,6 +35,7 @@ import {
   updateAuction,
 } from "./services/db/auction.servics";
 import { AuctionTokenDoc, BidDoc } from "./models/BidAuction";
+import BidTextField from "./components/BidTextField";
 // import "./auction.css";
 
 const bidColors: [number, number][] = [
@@ -215,7 +216,7 @@ const Auction = () => {
       setIsLoading(false);
     }
   };
-  const onBidNow = async () => {
+  const onBidNow = async (newBid: BigNumber) => {
     if (isLoading) {
       setShowAlertMessage(
         `Previous tx is still pending, try again after later`
@@ -231,7 +232,13 @@ const Auction = () => {
         setIsLoading(true);
         const highestBid = await getHighestBid(auctionObj?.auctionId);
         setHighestBid(highestBid);
-        const newBid = highestBid.add(ethers.utils.parseEther("1"));
+        if (newBid.lte(highestBid)) {
+          setShowAlertMessage(
+            `Oops new bid is just added, please enter a higher bid`
+          );
+          return;
+        }
+        // const newBid = highestBid.add(ethers.utils.parseEther("1"));
         const allowance = await getWethAllowance(
           library,
           account,
@@ -367,53 +374,65 @@ const Auction = () => {
           <Box mb={4}>
             <Typography>#{sections[Number(tokenId)]}</Typography>
             <Typography>mmmcherry.xyz</Typography>
-            <Typography>{auctionObj?.startTime}</Typography>
-            <Typography>{auctionObj?.endTime}</Typography>
-            <Typography>{ethers.utils.formatEther(highestBid)} WETH</Typography>
+            <Typography sx={{ mt: 1 }}>
+              {auctionObj?.startTime} - {auctionObj?.endTime}
+            </Typography>
+            <Box mt={2} display="flex" alignItems={"end"}>
+              <Typography variant="h4">
+                {ethers.utils.formatEther(highestBid)} WETH
+              </Typography>
+              <Typography sx={{ ml: 1 }} variant="caption">
+                Current Highest Bid
+              </Typography>
+            </Box>
           </Box>
         </Grid>
         <Grid item xs={12}>
           <Box display={"flex"} justifyContent="center">
-            <motion.div
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.8 }}
-              style={{
-                background: `linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)`,
-                borderRadius: "6px",
-                // width: "150px",
-                padding: "8px 20px",
-                // height: "80px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: "pointer",
-                userSelect: "none",
-                MozUserSelect: "none",
-                msUserSelect: "none",
-              }}
-              onClick={() => {
-                if (!!auctionObj) {
-                  onBidNow();
-                } else {
+            {!!auctionObj ? (
+              <BidTextField
+                previousBid={highestBid}
+                auctionObj={auctionObj}
+                isLoading={isLoading}
+                onBidNow={onBidNow}
+                setShowAlertMessage={setShowAlertMessage}
+              />
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.8 }}
+                style={{
+                  background: `linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)`,
+                  borderRadius: "6px",
+                  // width: "150px",
+                  padding: "8px 20px",
+                  // height: "80px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  MozUserSelect: "none",
+                  msUserSelect: "none",
+                }}
+                onClick={() => {
                   if (isNftOwner === false) {
                     return;
                   }
                   setOpenAuction(true);
-                }
-              }}
-            >
-              {isLoading ? (
-                <CircularProgress size={36} color="secondary" />
-              ) : (
-                <Typography variant="h6" align="center">
-                  {!!auctionObj
-                    ? "BID NOW"
-                    : isNftOwner
-                    ? "List for Auction"
-                    : "Not Available for Auction"}
-                </Typography>
-              )}
-            </motion.div>
+                }}
+              >
+                {isLoading ? (
+                  <CircularProgress size={36} color="secondary" />
+                ) : (
+                  <Typography variant="h6" align="center">
+                    {isNftOwner
+                      ? "List for Auction"
+                      : "Not Available for Auction"}
+                  </Typography>
+                )}
+              </motion.div>
+            )}
           </Box>
         </Grid>
         <Grid item xs={12}>
