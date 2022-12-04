@@ -183,7 +183,7 @@ const Auction = () => {
         auction_endTime: endTime.getTime(),
         auction_hammerTimeDuration: 5 * 1000 * 60,
         auction_stepMin: 10000,
-        auction_incMin: 1000,
+        auction_incMin: 10000,
         auction_incMax: 10000,
         auction_bidMultiplier: 11120,
         auction_bidDecimals: 100000,
