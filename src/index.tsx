@@ -57,6 +57,9 @@ const themeSettings = createTheme({
     info: {
       main: "#A794FF",
     },
+    warning: {
+      main: "#ffcc00",
+    },
     background: { paper: "#16162A" },
   },
   typography: {

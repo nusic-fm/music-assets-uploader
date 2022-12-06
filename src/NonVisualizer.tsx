@@ -1034,6 +1034,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               height={256}
               position="relative"
               borderRadius="6px"
+              boxShadow={i === 7 ? "0px 0px 6px 8px #FFD700" : "unset"}
             >
               <Box
                 sx={{
@@ -1294,6 +1295,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             size="small"
                             onClick={() => onFlip(i)}
                             color="info"
+                            disabled={i === 7}
                           >
                             offers
                           </Button>
@@ -1375,17 +1377,30 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                             justifyContent="center"
                             visibility={"hidden"}
                             id="makeoffer"
+                            mt={tokens[i].avatar ? "auto" : 0}
                           >
-                            <Button
-                              // size="small"
-                              variant="contained"
-                              onClick={(e) => {
-                                setOpenOfferForTokenId(i + 1);
-                                e.stopPropagation();
-                              }}
-                            >
-                              Make Offer
-                            </Button>
+                            {i === 7 ? (
+                              <Button
+                                // size="small"
+                                variant="contained"
+                                href="//auction.mmmcherry.xyz"
+                                target={"_blank"}
+                                color="warning"
+                              >
+                                Auction
+                              </Button>
+                            ) : (
+                              <Button
+                                // size="small"
+                                variant="contained"
+                                onClick={(e) => {
+                                  setOpenOfferForTokenId(i + 1);
+                                  e.stopPropagation();
+                                }}
+                              >
+                                Make Offer
+                              </Button>
+                            )}
                           </Box>
                         )
                       ) : (
