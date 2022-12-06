@@ -46,7 +46,7 @@ const HamburgerMenu = () => {
         top: 0,
         left: 0,
         bottom: isOpen ? -320 : "60vh",
-        width: "280px",
+        width: isOpen ? "280px" : "100px",
       }}
     >
       <motion.div
@@ -56,7 +56,7 @@ const HamburgerMenu = () => {
           top: 0,
           left: 0,
           bottom: 0,
-          width: "280px",
+          width: isOpen ? "280px" : "100px",
           backgroundColor: "#D9AFD9",
           backgroundImage: "linear-gradient(0deg, #D9AFD9 0%, #97D9E1 100%)",
         }}
