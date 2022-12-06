@@ -1036,6 +1036,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
               borderRadius="6px"
               boxShadow={i === 7 ? "0px 0px 6px 8px #FFD700" : "unset"}
             >
+              {i === 7 && (
+                <Chip
+                  sx={{ position: "absolute", top: -20, zIndex: 2, right: -10 }}
+                  variant="filled"
+                  color="warning"
+                  label="Bid to Earn"
+                />
+              )}
               <Box
                 sx={{
                   transition: "0.5s linear",
