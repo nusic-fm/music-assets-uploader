@@ -374,7 +374,7 @@ const Auction = () => {
           </Box>
           <Box mb={4}>
             <Typography sx={{ mb: 1 }}>#{sections[Number(tokenId)]}</Typography>
-            <Link href="mmmcherry.xyz" target={"_blank"} color="secondary">
+            <Link href="//mmmcherry.xyz" target={"_blank"} color="secondary">
               mmmcherry.xyz
             </Link>
             <Typography sx={{ mt: 1 }}>Bidding Incentive: 10%</Typography>
