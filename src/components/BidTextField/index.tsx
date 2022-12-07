@@ -41,6 +41,7 @@ const BidTextField = ({
           InputProps={{
             inputProps: { min: 0.1, step: "0.1" },
           }}
+          sx={{ mr: 1, width: "150px" }}
         />
         <motion.div
           whileHover={{ scale: 1.2 }}
@@ -86,8 +87,7 @@ const BidTextField = ({
       <Link
         href="//app.uniswap.org/#/tokens/ethereum/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         target={"_blank"}
-        color="secondary"
-        sx={{ mt: 1 }}
+        sx={{ mt: 1, color: "cornflowerblue" }}
       >
         Get WETH
       </Link>

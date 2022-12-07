@@ -5,6 +5,7 @@ import {
   Divider,
   Grid,
   Link,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
@@ -38,6 +39,7 @@ import {
 } from "./services/db/auction.servics";
 import { AuctionTokenDoc, BidDoc } from "./models/BidAuction";
 import BidTextField from "./components/BidTextField";
+import { getIncentivesAmount } from "./services/graphql";
 // import "./auction.css";
 const moment = require("moment");
 
@@ -105,6 +107,7 @@ const Auction = () => {
   const [selection, setSelection] = useState(selectionRange);
   const [highestBid, setHighestBid] = useState<BigNumber>(BigNumber.from("0"));
   const [isNftOwner, setIsNftOwner] = useState<boolean>(false);
+  const [earnedEth, setEarnedEth] = useState<string>("0.00");
 
   const handleSelect = (ranges: any) => {
     console.log(ranges);
@@ -134,9 +137,16 @@ const Auction = () => {
       if (owner === account) setIsNftOwner(true);
     }
   };
+  const fetchIncentives = async () => {
+    if (account) {
+      const earned = await getIncentivesAmount(account);
+      setEarnedEth(earned);
+    }
+  };
   useEffect(() => {
     if (account) {
       fetchNftOwner();
+      fetchIncentives();
     }
   }, [account]);
 
@@ -372,29 +382,83 @@ const Auction = () => {
               #{Number(tokenId) < 10 ? `0${tokenId}` : tokenId}
             </Typography>
           </Box>
-          <Box mb={4}>
+          <Box mb={2}>
             <Typography sx={{ mb: 1 }}>#{sections[Number(tokenId)]}</Typography>
             <Link href="//mmmcherry.xyz" target={"_blank"} color="secondary">
               mmmcherry.xyz
             </Link>
-            <Typography sx={{ mt: 1 }}>Bidding Incentive: 10%</Typography>
-            {auctionObj?.endTime && (
-              <Typography sx={{ mt: 1 }}>
-                {/* {moment(auctionObj.startTime).format("MMMM Do YYYY, h:mm:ss a")}
-                {" - "} */}
-                Ends at:{" "}
-                {moment(auctionObj.endTime).format("MMMM Do YYYY, h:mm:ss a")}
-              </Typography>
-            )}
+            {/* <Typography sx={{ mt: 1 }}>Bidding Incentive: 10%</Typography>
             <Box mt={2} display="flex" alignItems={"end"}>
               <Typography variant="h4">
                 {ethers.utils.formatEther(highestBid)} WETH
               </Typography>
               <Typography sx={{ ml: 1 }} variant="caption">
-                Current Highest Bid
+                Highest Bid
               </Typography>
-            </Box>
+            </Box> */}
           </Box>
+          <Grid container columnGap={4} rowGap={2}>
+            <Grid item>
+              <Box display={"flex"} flexDirection="column">
+                <Typography>Highest Bid</Typography>
+                <Tooltip
+                  title={
+                    auctionObj?.bids?.length
+                      ? auctionObj?.bids[0].bidderAddress !== account
+                        ? auctionObj?.bids[0].bidderAddress
+                        : "Me"
+                      : "..."
+                  }
+                  arrow
+                >
+                  <Box display={"flex"} alignItems="center">
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        background:
+                          "linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {ethers.utils.formatEther(highestBid)}
+                    </Typography>
+                    <img src="/eth.svg" alt="" width={26} />
+                  </Box>
+                </Tooltip>
+              </Box>
+            </Grid>
+            <Grid item>
+              <Tooltip
+                title="You will earn a 10% incentive when your bid is outbid by other bidders"
+                arrow
+              >
+                <Box
+                  display={"flex"}
+                  flexDirection="column"
+                  justifyContent={"space-between"}
+                  height="100%"
+                >
+                  <Typography>Incentive</Typography>
+                  <Typography variant="h6">10%</Typography>
+                </Box>
+              </Tooltip>
+            </Grid>
+            <Grid item>
+              <Box
+                display={"flex"}
+                flexDirection="column"
+                justifyContent={"space-between"}
+                height="100%"
+              >
+                <Typography>Ends at</Typography>
+                <Typography variant="h6">
+                  {moment(auctionObj?.endTime).format("MMMM Do, h:mm a")}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <Box display={"flex"} justifyContent="center">
@@ -450,15 +514,36 @@ const Auction = () => {
         <Grid item xs={12} md={6}>
           <Box display={"flex"} alignItems="center" justifyContent={"center"}>
             <Typography variant="h4">Bids</Typography>
+            {auctionObj?.bids?.length && (
+              <Typography variant="caption">{` (${auctionObj.bids.length})`}</Typography>
+            )}
           </Box>
         </Grid>
-        <Grid item md={6}></Grid>
+        <Grid item xs={12} md={6}>
+          <Box display={"flex"} alignItems="center" justifyContent={"center"}>
+            <Tooltip title="Place a Bid to Earn Incentives">
+              <Typography
+                variant="h6"
+                sx={{
+                  background:
+                    "linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontWeight: "bold",
+                }}
+              >
+                EARNINGS: {account ? `${earnedEth}` : `--CONNECT WALLET--`}
+              </Typography>
+            </Tooltip>
+            {account && <img src="/eth.svg" alt="" width={26} />}
+          </Box>
+        </Grid>
         <Grid item xs={12} md={12}>
           {!!auctionObj && auctionObj.bids && auctionObj.bids.length > 0 ? (
             auctionObj.bids
               .sort((a, b) => b.time - a.time)
               .map((bid, i) => (
-                <Card
+                <BidCard
                   hueA={bidColors[i][0]}
                   hueB={bidColors[i][1]}
                   key={i}
@@ -513,7 +598,7 @@ interface Props {
   bid: BidDoc;
 }
 const hue = (h: number) => `hsl(${h}, 40%, 30%)`;
-function Card({ hueA, hueB, bid }: Props) {
+function BidCard({ hueA, hueB, bid }: Props) {
   const background = `linear-gradient(306deg, ${hue(hueA)}, ${hue(hueB)})`;
   const [ensName, setEnsName] = useState<string | null>();
   useEffect(() => {
