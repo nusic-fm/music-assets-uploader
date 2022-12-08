@@ -15,11 +15,13 @@ import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { ethers } from "ethers";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const price = Number(process.env.REACT_APP_MATIC_PRICE || "199");
 export const data = {
-  labels: ["Your Contribution", "Total mint value"],
+  labels: ["Your Contribution", "Total Raised"],
   datasets: [
     {
       // label: "# of Votes",
@@ -65,9 +67,10 @@ const getTimerObj = () => {
 const App = () => {
   const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
   const { login } = useAuth();
-  const { account } = useWeb3React();
+  const { account, library } = useWeb3React();
 
   const [timerObj, setTimerObj] = useState(getTimerObj);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const myInterval = setInterval(() => {
@@ -88,6 +91,15 @@ const App = () => {
       content_id: spotifyArtistId,
     });
     alert("successfully submitted");
+  };
+
+  const onMint = async () => {
+    const nftContract = new ethers.Contract(
+      process.env.REACT_APP_CONTRACT_ADDRESS as string,
+      [],
+      library
+    );
+    nftContract.mint("");
   };
 
   return (
@@ -232,8 +244,7 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              The Captain Haiti Foundation is raising money to buy them and
-              create a Crypto-City.
+              Captain Haiti is raising money to create a Smart City
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
               Also, 90% of Haitian Mom and Pop Shops only have Month to Month
@@ -354,7 +365,7 @@ const App = () => {
               </Box>
             )}
           </Box>
-          <Box>
+          <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
               HOW WILL WE RAISE THE MONEY NEEDED?
             </Typography>
@@ -364,7 +375,7 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              Dance, sing, buy, donate or share "Bare Yo!" to make it platinum!.
+              Mint "Bare Yo!" to make it platinum!
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
               The Captain Haiti Foundation is raising money with the song "Bare
@@ -390,7 +401,7 @@ const App = () => {
             allowFullScreen
           ></iframe>
 
-          <Box>
+          <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
               WHAT IS THE FORMAT OF THE SONG?
             </Typography>
@@ -399,14 +410,13 @@ const App = () => {
               // fontWeight="bold"
               fontFamily="BenchNine"
               variant="h4"
-              pb={5}
             >
-              "Bare Yo!" is a NFT
+              "Bare Yo!" is an NFT
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
               Like CDs have been a vinyl killer and mp3s have been a CD
-              killer... NFTs is a new technology certifying your rights to the
-              song.
+              killer... Non-Fungible Tokens (NFTs) are a new technology that
+              certify your ownership of the music.
             </Typography>
           </Box>
         </Box>
@@ -432,7 +442,13 @@ const App = () => {
       <Box mt={6} pb={6}>
         <Grid container>
           <Grid item xs={12} md={6}>
-            <Box m={2} width={"100%"} display="flex" justifyContent={"center"}>
+            <Box
+              width={"100%"}
+              display="flex"
+              justifyContent={"center"}
+              alignItems="center"
+              height="100%"
+            >
               <Box width={"80%"} position={"relative"}>
                 <img src="/captain-mint.png" alt="" width={"100%"} />
                 <Box position={"absolute"} top={0} width={"100%"}>
@@ -442,8 +458,12 @@ const App = () => {
                       width={"100%"}
                       p={2}
                     >
-                      <Typography align="center" variant="h4">
-                        199 MATIC
+                      <Typography
+                        align="center"
+                        variant="h4"
+                        fontFamily={"BenchNine"}
+                      >
+                        {quantity * price} MATIC
                       </Typography>
                     </Box>
                   </Box>
@@ -452,6 +472,8 @@ const App = () => {
                   <Box
                     display={"flex"}
                     justifyContent="space-around"
+                    alignItems={"center"}
+                    flexWrap={"wrap"}
                     sx={{ background: "rgba(0,0,0,40%)" }}
                     p={2}
                   >
@@ -459,14 +481,35 @@ const App = () => {
                       onClick={() => {
                         // setIsListening(true);
                       }}
-                      showOverlay={false}
+                      showOverlay
                       clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
                       mintConfig={{
                         type: "erc-721",
-                        totalPrice: "0",
+                        totalPrice: (quantity * 199).toString(),
                       }}
                     />
-                    <Button variant="contained">Mint with MATIC</Button>
+                    <TextField
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value))}
+                      inputProps={{ step: 1, min: 1 }}
+                      type="number"
+                      // variant="filled"
+                      sx={{
+                        width: "70px",
+                        background: "rgb(30, 30, 30)",
+                        borderRadius: "6px",
+                      }}
+                    />
+                    <Button
+                      variant="contained"
+                      sx={{
+                        // fontFamily: "monospace",
+                        textTransform: "unset",
+                      }}
+                      onChange={onMint}
+                    >
+                      Mint with MATIC
+                    </Button>
                   </Box>
                 </Box>
               </Box>
