@@ -13,6 +13,23 @@ import { useEffect, useState } from "react";
 import { logFirebaseEvent } from "./services/firebase.service";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+export const data = {
+  labels: ["Your Contribution", "Total mint value"],
+  datasets: [
+    {
+      // label: "# of Votes",
+      data: [19, 28],
+      backgroundColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
+      borderColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
+      borderWidth: 2,
+    },
+  ],
+};
 
 const trackDetails = {
   artist: "Captain Haiti",
@@ -415,35 +432,59 @@ const App = () => {
       <Box mt={6} pb={6}>
         <Grid container>
           <Grid item xs={12} md={6}>
-            <Box
-              display={"flex"}
-              flexDirection="column"
-              justifyContent={"center"}
-              alignItems="center"
-            >
-              <img src="/polygon.png" alt="" width={"100%"} />
-              <CrossmintPayButton
-                onClick={() => {
-                  // setIsListening(true);
-                }}
-                showOverlay={false}
-                clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
-                mintConfig={{
-                  type: "erc-721",
-                  totalPrice: "0",
-                }}
-              />
+            <Box m={2} width={"100%"} display="flex" justifyContent={"center"}>
+              <Box width={"80%"} position={"relative"}>
+                <img src="/captain-mint.png" alt="" width={"100%"} />
+                <Box position={"absolute"} top={0} width={"100%"}>
+                  <Box display={"flex"} justifyContent="center" width={"100%"}>
+                    <Box
+                      sx={{ background: "rgba(0,0,0,40%)" }}
+                      width={"100%"}
+                      p={2}
+                    >
+                      <Typography align="center" variant="h4">
+                        199 MATIC
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                <Box position={"absolute"} bottom={0} width={"100%"}>
+                  <Box
+                    display={"flex"}
+                    justifyContent="space-around"
+                    sx={{ background: "rgba(0,0,0,40%)" }}
+                    p={2}
+                  >
+                    <CrossmintPayButton
+                      onClick={() => {
+                        // setIsListening(true);
+                      }}
+                      showOverlay={false}
+                      clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
+                      mintConfig={{
+                        type: "erc-721",
+                        totalPrice: "0",
+                      }}
+                    />
+                    <Button variant="contained">Mint with MATIC</Button>
+                  </Box>
+                </Box>
+              </Box>
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
             <Box
               display={"flex"}
               flexDirection="column"
-              justifyContent={"center"}
+              justifyContent={"space-between"}
               alignItems="center"
             >
-              <img src="/polygon.png" alt="" width={"100%"} />
-              <Button variant="contained">Mint</Button>
+              <Box width={"50%"} py={2}>
+                <Doughnut data={data} />
+              </Box>
+              <Box width={"50%"} py={2}>
+                <img src="/map.png" alt="" width={"100%"} />
+              </Box>
             </Box>
           </Grid>
         </Grid>
