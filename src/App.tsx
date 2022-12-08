@@ -21,12 +21,12 @@ const trackDetails = {
   profileUrl:
     "https://d1fdloi71mui9q.cloudfront.net/EDUJ2p7SIOcMrrZapo6r_4oHS4REbRjov2OJA",
   socials: {
-    tiktok: "tiktok.com/@mmmcherry",
-    twitter: "twitter.com/mmmcherry",
-    discord: "discord.gg/N8kPyFVavQ",
-    instagram: "instagram.com/mmmcherrymusic",
-    youtube: "youtube.com/@captainhaiti720",
-    spotify: "open.spotify.com/artist/2pjOLjJD4lElSnRaeYad57",
+    tiktok: "tiktok.com/@captainhaiti",
+    twitter: "twitter.com/haiticaptain",
+    instagram: "instagram.com/captainhaiti",
+    youtube: "youtube.com/channel/UCFn86vJtQff1Lk8co5obm1g",
+    facebook: "facebook.com/gaming/RealCaptainHaiti",
+    linkedin: "linkedin.com/in/captain-haiti-816b59208",
   },
 };
 const getTimerObj = () => {
@@ -170,10 +170,10 @@ const App = () => {
                 </IconButton>
                 <IconButton
                   sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.discord}`}
+                  href={`//${trackDetails?.socials?.facebook}`}
                   target="_blank"
                 >
-                  <img src="/social/discord-icon.png" alt="discord" />
+                  <img src="/social/facebook.svg" alt="fb" />
                 </IconButton>
                 <IconButton
                   sx={{ p: 0 }}
@@ -191,10 +191,10 @@ const App = () => {
                 </IconButton>
                 <IconButton
                   sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.spotify}`}
+                  href={`//${trackDetails?.socials?.linkedin}`}
                   target="_blank"
                 >
-                  <img src="/social/spotify.png" alt="spotify" />
+                  <img src="/social/linkedin.svg" alt="fb" />
                 </IconButton>
               </Box>
               {/* <Box mt={3}>
