@@ -37,8 +37,7 @@ const trackDetails = {
   artist: "Captain Haiti",
   title: "Bare Yo!",
   coverUrl: "/cover.jpeg",
-  profileUrl:
-    "https://d1fdloi71mui9q.cloudfront.net/EDUJ2p7SIOcMrrZapo6r_4oHS4REbRjov2OJA",
+  profileUrl: "/captainhaiti.webp",
   socials: {
     tiktok: "tiktok.com/@captainhaiti",
     twitter: "twitter.com/haiticaptain",
@@ -94,12 +93,40 @@ const App = () => {
   };
 
   const onMint = async () => {
-    const nftContract = new ethers.Contract(
-      process.env.REACT_APP_CONTRACT_ADDRESS as string,
-      [],
-      library
-    );
-    nftContract.mint("");
+    if (!account) {
+      alert("Please connect your wallet and continue.");
+      return;
+    }
+    try {
+      const nftContract = new ethers.Contract(
+        process.env.REACT_APP_CONTRACT_ADDRESS as string,
+        [
+          {
+            inputs: [
+              {
+                internalType: "uint256",
+                name: "tokenQuantity",
+                type: "uint256",
+              },
+            ],
+            name: "mint",
+            outputs: [],
+            stateMutability: "payable",
+            type: "function",
+          },
+        ],
+        library.getSigner()
+      );
+      const options = {
+        value: ethers.utils.parseEther((price * quantity).toString()),
+      };
+      const tx = await nftContract.mint(quantity, options);
+      await tx.wait();
+      alert("You have successfully minted the NFT(s), thanks.");
+    } catch (e: any) {
+      console.log(e.message);
+      alert(e.data?.message || e.message);
+    }
   };
 
   return (
@@ -357,10 +384,10 @@ const App = () => {
                 sx={{ border: "2px solid white", borderRadius: "6px" }}
               >
                 <Typography variant="h4" align="center" fontWeight="bold">
-                  nGenesis Live
+                  Bare Yo Live
                 </Typography>
                 <Typography variant="body2" align="center">
-                  nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
+                  Mint went live on Dec 10th 00:05 hrs PDT
                 </Typography>
               </Box>
             )}
@@ -450,7 +477,12 @@ const App = () => {
               height="100%"
             >
               <Box width={"80%"} position={"relative"}>
-                <img src="/captain-mint.png" alt="" width={"100%"} />
+                <img
+                  src="/captain-mint.png"
+                  alt=""
+                  width={"100%"}
+                  style={{ objectFit: "cover" }}
+                />
                 <Box position={"absolute"} top={0} width={"100%"}>
                   <Box display={"flex"} justifyContent="center" width={"100%"}>
                     <Box
@@ -485,7 +517,7 @@ const App = () => {
                       clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
                       mintConfig={{
                         type: "erc-721",
-                        totalPrice: (quantity * 199).toString(),
+                        totalPrice: (quantity * price).toString(),
                       }}
                     />
                     <TextField
@@ -506,7 +538,7 @@ const App = () => {
                         // fontFamily: "monospace",
                         textTransform: "unset",
                       }}
-                      onChange={onMint}
+                      onClick={onMint}
                     >
                       Mint with MATIC
                     </Button>
