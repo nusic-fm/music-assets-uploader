@@ -2,18 +2,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import {
+  Alert,
   Button,
   Chip,
   CircularProgress,
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogTitle,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
+  Link,
+  Snackbar,
   TextField,
   Tooltip,
   Typography,
@@ -21,19 +18,15 @@ import {
 import { Box } from "@mui/system";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import SolAbi from "./abis/SolAbi.json";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { logFirebaseEvent } from "./services/firebase.service";
 import {
   createUser,
   getUserById,
-  getUserDocsFromIds,
   updateUser,
 } from "./services/db/users.service";
-import SaveIcon from "@mui/icons-material/Save";
 import { User } from "./models/User";
-import * as cherryMintDataList from "./data/cherry/cherryData.json";
 import {
   cancelOffer,
   createOffer,
@@ -54,7 +47,8 @@ import AcceptOfferDialog from "./components/AcceptOfferDialog";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
 import { getEthPrice, getOwnerOfNft, getWethBalance } from "./utils/helper";
-// signInWithFacebook();
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = process.env.REACT_APP_DISCORD_CLIENT_ID as string;
 const redirectUri = process.env.REACT_APP_REDIRECT_URL as string;
@@ -417,8 +411,8 @@ const NonVisualizer = (props: { trackIdx: number }) => {
   //     `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`
   //   );
   // };
-  const isTokenAlreadyMinted = (id: number) =>
-    mintedTokenIds.includes(id.toString());
+  // const isTokenAlreadyMinted = (id: number) =>
+  //   mintedTokenIds.includes(id.toString());
   const isTokenMintedByUser = (id: number) =>
     ownTokenIds.includes(id.toString());
 
@@ -1104,7 +1098,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (ownTokenIds.includes((i + 1).toString()))
+                                  if (isTokenMintedByUser(i + 1))
                                     setAcceptOffer(offer);
                                 }}
                               >
@@ -1142,7 +1136,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
 
                                 <Box display="flex" alignItems={"center"}>
                                   {offer.userId === user?.uid ||
-                                  ownTokenIds.includes((i + 1).toString()) ? (
+                                  isTokenMintedByUser(i + 1) ? (
                                     <>
                                       {offer.userId === user?.uid && (
                                         <LoadingButton
@@ -1158,20 +1152,14 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                                           <CancelIcon />
                                         </LoadingButton>
                                       )}
-                                      {ownTokenIds.includes(
-                                        (i + 1).toString()
-                                      ) && (
+                                      {isTokenMintedByUser(i + 1) && (
                                         <LoadingButton
                                           loading={isLoading}
                                           // size="small"
                                           // variant="outlined"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            if (
-                                              ownTokenIds.includes(
-                                                (i + 1).toString()
-                                              )
-                                            )
+                                            if (isTokenMintedByUser(i + 1))
                                               setAcceptOffer(offer);
                                           }}
                                           size="small"
@@ -1298,18 +1286,26 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                           alignItems="start"
                           justifyContent={"end"}
                         >
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => onFlip(i)}
-                            color="info"
-                            disabled={i === 7}
-                          >
-                            offers
-                          </Button>
+                          {isTokenMintedByUser(i + 1) ? (
+                            <IconButton
+                              onClick={() => downloadFile((i + 1).toString())}
+                            >
+                              <FileDownloadOutlinedIcon />
+                            </IconButton>
+                          ) : (
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => onFlip(i)}
+                              color="info"
+                              disabled={i === 7}
+                            >
+                              offers
+                            </Button>
+                          )}
                         </Box>
                       </Box>
-                      {isTokenMintedByUser(i + 1) && (
+                      {isTokenMintedByUser(i + 1) && i !== 7 && (
                         <Box display="flex" justifyContent="center">
                           <Button
                             variant="contained"
@@ -1605,6 +1601,24 @@ const NonVisualizer = (props: { trackIdx: number }) => {
           ethUsdPrice={ethUsdPrice}
         />
       )}
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        open
+        sx={{ borderRadius: "6px" }}
+      >
+        <Alert variant="filled" severity="info">
+          <Link
+            color={"#fff"}
+            href="//auction.mmmcherry.xyz"
+            target={"_blank"}
+            sx={{ fontWeight: "bold" }}
+            variant="body1"
+          >
+            Bid to Earn
+          </Link>{" "}
+          auction is now launched!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
