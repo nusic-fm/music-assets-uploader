@@ -16,6 +16,7 @@ import { useWeb3React } from "@web3-react/core";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { ethers } from "ethers";
+import { LoadingButton } from "@mui/lab";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -25,7 +26,7 @@ export const data = {
   datasets: [
     {
       // label: "# of Votes",
-      data: [19, 28],
+      data: [0, 1],
       backgroundColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
       borderColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
       borderWidth: 2,
@@ -70,6 +71,7 @@ const App = () => {
 
   const [timerObj, setTimerObj] = useState(getTimerObj);
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const myInterval = setInterval(() => {
@@ -98,6 +100,7 @@ const App = () => {
       return;
     }
     try {
+      setIsLoading(true);
       const nftContract = new ethers.Contract(
         process.env.REACT_APP_CONTRACT_ADDRESS as string,
         [
@@ -126,6 +129,8 @@ const App = () => {
     } catch (e: any) {
       console.log(e.message);
       alert(e.data?.message || e.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -510,14 +515,12 @@ const App = () => {
                     p={2}
                   >
                     <CrossmintPayButton
-                      showOverlay
+                      showOverlay={false}
                       environment="staging"
                       clientId="81899aac-3f5d-49b6-a06f-ec67c8c2ee3d"
                       mintConfig={{
                         type: "erc-721",
-                        totalPrice: ethers.utils
-                          .parseEther((quantity * price).toString())
-                          .toString(),
+                        totalPrice: (quantity * price).toString(),
                         tokenQuantity: quantity,
                       }}
                     />
@@ -533,7 +536,8 @@ const App = () => {
                         borderRadius: "6px",
                       }}
                     />
-                    <Button
+                    <LoadingButton
+                      loading={isLoading}
                       variant="contained"
                       sx={{
                         // fontFamily: "monospace",
@@ -542,7 +546,7 @@ const App = () => {
                       onClick={onMint}
                     >
                       Mint with MATIC
-                    </Button>
+                    </LoadingButton>
                   </Box>
                 </Box>
               </Box>
