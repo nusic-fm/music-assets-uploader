@@ -1,836 +1,507 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import {
-  Box,
   Button,
+  Chip,
   Grid,
+  IconButton,
   TextField,
   Typography,
-  OutlinedInput,
-  InputAdornment,
-  IconButton,
-  Select,
-  MenuItem,
-  Checkbox,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import MusicUploader from "./components/MusicUploader";
-import WaveForm from "./components/WaveForm";
-import CachedIcon from "@mui/icons-material/Cached";
-import AcceptStems from "./components/Dropzone";
-import { useDropzone } from "react-dropzone";
-// import axios from "axios";
-import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
-import TransactionDialog from "./components/TransactionDialog";
-import { Web3Storage } from "web3.storage";
-import { useNavigate } from "react-router-dom";
+import { Box } from "@mui/system";
+// import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { logFirebaseEvent } from "./services/firebase.service";
+import useAuth from "./hooks/useAuth";
+import { useWeb3React } from "@web3-react/core";
 
-const CryptoJS = require("crypto-js");
-
-const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
-// type StemType = "Vocal" | "Instrumental" | "Bass" | "Drums";
-const musicKeys = [
-  { key: "C major", id: "CMa" },
-  { key: "D♭ major", id: "DflMa" },
-  { key: "D major", id: "DMa" },
-  { key: "E♭ major", id: "EflMa" },
-  { key: "E major", id: "EMa" },
-  { key: "F major", id: "FMa" },
-  { key: "F# major", id: "FshMa" },
-  { key: "G major", id: "GMa" },
-  { key: "A♭ major", id: "AflMa" },
-  { key: "A major", id: "AMa" },
-  { key: "B♭ major", id: "BflMa" },
-  { key: "B major", id: "BMa" },
-  { key: "C minor", id: "CMi" },
-  { key: "C# minor", id: "CshMi" },
-  { key: "D minor", id: "DMi" },
-  { key: "E♭ minor", id: "EflMi" },
-  { key: "E minor", id: "EMi" },
-  { key: "F minor", id: "FMi" },
-  { key: "F# minor", id: "FshMi" },
-  { key: "G minor", id: "GMi" },
-  { key: "G# minor", id: "GshMi" },
-  { key: "A minor", id: "AMi" },
-  { key: "A♭ minor", id: "AflMi" },
-  { key: "B♭ minor", id: "BflMi" },
-  { key: "B minor", id: "BMi" },
-];
-
-type Stem = { file: File; name: string; type: string };
-type StemsObj = {
-  [key: string]: Stem;
+const trackDetails = {
+  artist: "Captain Haiti",
+  title: "Bare Yo!",
+  coverUrl: "/cover.jpeg",
+  profileUrl:
+    "https://d1fdloi71mui9q.cloudfront.net/EDUJ2p7SIOcMrrZapo6r_4oHS4REbRjov2OJA",
+  socials: {
+    tiktok: "tiktok.com/@mmmcherry",
+    twitter: "twitter.com/mmmcherry",
+    discord: "discord.gg/N8kPyFVavQ",
+    instagram: "instagram.com/mmmcherrymusic",
+    youtube: "youtube.com/@captainhaiti720",
+    spotify: "open.spotify.com/artist/2pjOLjJD4lElSnRaeYad57",
+  },
 };
-type Section = { name: string; start: number; end: number; bars: number };
-type SectionsObj = {
-  [internalId: string]: Section;
+const getTimerObj = () => {
+  const revealDate = "Fri, 9 Dec 2022 07:00:00 GMT";
+  const countDownDate = new Date(revealDate).getTime();
+  const timeleft = countDownDate - Date.now();
+  if (timeleft <= 0) {
+    return { isRevealed: true };
+  }
+  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+  return { days, hours, minutes, seconds, isRevealed: false };
 };
 
-const getWithoutSpace = (str: string) => str.split(" ").join("");
+const App = () => {
+  const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
+  const { login } = useAuth();
+  const { account } = useWeb3React();
 
-function App() {
-  const [fullTrackFile, setFullTrackFile] = useState<File>();
-  const [cid, setCid] = useState<string>();
-  const [artist, setArtist] = useState<string>();
-  const [duration, setDuration] = useState<number>();
-  const [title, setTitle] = useState<string>();
-  const [album, setAlbum] = useState<string>();
-  const [genre, setGenre] = useState<string>();
-  const [bpm, setBpm] = useState<number>();
-  const [key, setKey] = useState<string>();
-  const [timeSignature, setTimeSignature] = useState<string>();
-  const [noOfBeatsPerBar, setNoOfBeatsPerBar] = useState<number>(0);
-  const [noOfBars, setNoOfBars] = useState<number>();
-  const [noOfBeats, setNoOfBeats] = useState<number>();
-  const [fileUrl, setFileUrl] = useState<string>();
-  const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
-  const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
-    useState<number>();
-  const [sectionsObj, setSectionsObj] = useState<SectionsObj>({});
-  const [stemsObj, setStemsObj] = useState<StemsObj>({});
-
-  const getSelectedBeatOffet = useRef(null);
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
-  const [activeTxStep, setActiveTxStep] = useState<number>(0);
-  const [isTxDialogOpen, setIsTxDialogOpen] = useState<boolean>(false);
-  const [isEncryptFiles, setIsEncryptFiles] = useState<boolean>(false);
-
-  const [fullTrackHash, setFullTrackHash] = useState<string>();
-  const [stemsHash, setStemsHash] = useState<string[]>([]);
-  const [sectionsHash, setSectionsHash] = useState<string[]>([]);
-
-  const navigate = useNavigate();
+  const [timerObj, setTimerObj] = useState(getTimerObj);
 
   useEffect(() => {
-    if (acceptedFiles.length) {
-      const obj = {} as StemsObj;
-      acceptedFiles.map((acceptedFile, i) => {
-        obj[i] = {
-          file: acceptedFile,
-          name: acceptedFile.name,
-          type: StemTypes[i] || "",
-        };
-        return "";
-      });
-      setStemsObj(obj);
-    }
-  }, [acceptedFiles]);
-
-  useEffect(() => {
-    if (duration && bpm && timeSignature?.includes("/4")) {
-      const beatsPerSecond = bpm / 60;
-      const totalNoOfBeats =
-        beatsPerSecond * (duration - startBeatOffsetMs / 1000);
-      setNoOfBeats(totalNoOfBeats);
-      const noOfBeatsPerBar = parseFloat(timeSignature.split("/")[0]);
-      setNoOfBeatsPerBar(noOfBeatsPerBar);
-      const noOfMeasures = Math.floor(totalNoOfBeats / noOfBeatsPerBar);
-      setNoOfBars(noOfMeasures);
-      const durationOfEachBar = duration / noOfMeasures;
-      setDurationOfEachBarInSec(durationOfEachBar);
-    }
-  }, [duration, bpm, timeSignature, startBeatOffsetMs]);
-
-  const onFetchStartBeatOffet = async () => {
-    if (fileUrl) {
-      const time = document.getElementsByTagName("audio")[0]?.currentTime;
-      setStartBeatOffsetMs(Math.floor(time * 1000));
-    }
-    // const response = await fetch(
-    //   "http://localhost:8080/cid/bafybeianjehxvg3qpore2bkt5vjmou5qovxuxl46izid4wm4kugxtxcq5e"
-    // );
-    // const content = await response.arrayBuffer();
-    // const blob = new Blob([content], { type: "audio/wav" });
-    // const a = new Audio(URL.createObjectURL(blob));
-    // a.play();
-  };
-
-  const download = (content: any, fileName: string, contentType: string) => {
-    var a = document.createElement("a");
-    var file = new Blob([content], { type: contentType });
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
-  };
-
-  const onTx = async () => {
-    //wss://rpc.polkadot.io
-    // let wsProvider;
-    // let api: ApiPromise;
-    // try {
-    //   wsProvider = new WsProvider(
-    //     "wss://node-6948493832736464896.rz.onfinality.io/ws?apikey=78d805ee-1473-4737-a764-1b9fece4dd60"
-    //   );
-    //   api = await ApiPromise.create({
-    //     provider: wsProvider,
-    //     throwOnConnect: true,
-    //   });
-    // } catch (e) {
-    //   setFullTrackHash("error");
-    //   setActiveTxStep(4);
-    //   return;
-    // }
-    // // // Do something
-    // // console.log(api.genesisHash.toHex());
-    // const keyring = new Keyring({ type: "sr25519" });
-    // const account = keyring.addFromUri("//Alice", { name: "Alice default" });
-
-    // const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
-    // const account = keyring.addFromUri(PHRASE);
-    const titleWithoutSpace = getWithoutSpace(title as string).slice(0, 10);
-    const genreWithoutSpace = getWithoutSpace(genre as string);
-    const fullTrackContent = {
-      id: `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-      cid,
-      artist,
-      title,
-      album,
-      genre,
-      bpm,
-      key,
-      timeSignature,
-      noOfBars,
-      noOfBeats,
-      duration,
-      startBeatOffsetMs: startBeatOffsetMs.toString(),
-      sections: Object.keys(sectionsObj).length,
-      stems: Object.keys(stemsObj).length,
+    const myInterval = setInterval(() => {
+      const _newTimerObj = getTimerObj();
+      setTimerObj(_newTimerObj);
+    }, 1000);
+    return () => {
+      clearInterval(myInterval);
     };
-    // try {
-    //   const fullTrackTxHash = await new Promise<string>((res) => {
-    //     api.tx.uploadModule
-    //       .createFulltrack(
-    //         `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-    //         cid,
-    //         artist?.slice(0, 128),
-    //         title?.slice(0, 128),
-    //         album?.slice(0, 128),
-    //         genre,
-    //         bpm,
-    //         key,
-    //         timeSignature,
-    //         noOfBars,
-    //         noOfBeats,
-    //         duration,
-    //         startBeatOffsetMs.toString(),
-    //         Object.keys(sectionsObj).length,
-    //         Object.keys(stemsObj).length
-    //       )
-    //       .signAndSend(account, ({ events = [], status }) => {
-    //         if (status.isFinalized) {
-    //           console.log(
-    //             `Transaction included at blockHash ${status.asFinalized}`
-    //           );
-
-    //           // Loop through Vec<EventRecord> to display all events
-    //           events.forEach(({ phase, event: { data, method, section } }) => {
-    //             console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-    //           });
-    //           res(status.hash.toString());
-    //         }
-    //       });
-    //   });
-    //   setFullTrackHash(fullTrackTxHash);
-    // } catch (e) {
-    //   alert(e);
-    // }
-    setActiveTxStep(2);
-    // Stems
-    const stems = Object.values(stemsObj);
-    const stemsContent = [];
-    for (let i = 0; i < stems.length; i++) {
-      const stemObj = stems[i];
-      stemsContent.push({
-        id: `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-        cid,
-        name: stemObj.name,
-        type: stemObj.type,
-      });
-      // const stemHash = await new Promise<string>((res) => {
-      //   api.tx.uploadModule
-      //     .createStem(
-      //       `stem${i + 1}${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-      //       cid,
-      //       stemObj.name,
-      //       stemObj.type
-      //     )
-      //     .signAndSend(account, ({ events = [], status }) => {
-      //       if (status.isFinalized) {
-      //         console.log(
-      //           `Transaction included at blockHash ${status.asFinalized}`
-      //         );
-
-      //         // Loop through Vec<EventRecord> to display all events
-      //         events.forEach(({ phase, event: { data, method, section } }) => {
-      //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-      //         });
-      //         res(status.hash.toString());
-      //       }
-      //     });
-      // });
-      // setStemsHash([...stemsHash, stemHash]);
-    }
-    setActiveTxStep(3);
-
-    // Section
-    const sections = Object.values(sectionsObj);
-    const sectionsContent = [];
-    for (let i = 0; i < sections.length; i++) {
-      const section = sections[i];
-      sectionsContent.push({
-        id: `section${
-          i + 1
-        }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-        name: section.name,
-        startMs: section.start * 1000,
-        endMs: section.end * 1000,
-        bars: section.bars,
-        beats: section.bars * noOfBeatsPerBar,
-      });
-      // const sectionHash = await new Promise<string>((res) => {
-      //   api.tx.uploadModule
-      //     .createSection(
-      //       `section${
-      //         i + 1
-      //       }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-      //       section.name,
-      //       section.start * 1000,
-      //       section.end * 1000,
-      //       section.bars,
-      //       section.bars * noOfBeatsPerBar
-      //     )
-      //     .signAndSend(account, ({ events = [], status }) => {
-      //       if (status.isFinalized) {
-      //         console.log(
-      //           `Transaction included at blockHash ${status.asFinalized}`
-      //         );
-
-      //         // Loop through Vec<EventRecord> to display all events
-      //         events.forEach(({ phase, event: { data, method, section } }) => {
-      //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-      //         });
-      //         res(status.hash.toString());
-      //       }
-      //     });
-      // });
-      // setSectionsHash([...sectionsHash, sectionHash]);
-    }
-    download(
-      JSON.stringify({ fullTrackContent, stemsContent, sectionsContent }),
-      "NUSIC-song-metadata.json",
-      "text/plain"
-    );
-    setActiveTxStep(4);
-    // const sectionTxs = await Promise.all(sectionsTxPromises);
-    // console.log({ sectionTxs });
-    // debugger;
-    // const queried = await api.query.uploadModule.proofs(
-    //   "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
-    // );
-    // const data = await api.query.system.account(
-    //   "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
-    // );
-    // console.log(
-    //   `${(data as any).now}: balance of ${
-    //     (data as any).data.free
-    //   } and a nonce of ${(data as any).nonce}`
-    // );
-    // The length of an epoch (session) in Babe
-    // console.log(api.consts.babe.epochDuration.toNumber());
-    // // The amount required to create a new account
-    // console.log(api.consts.balances.existentialDeposit.toNumber());
-    // // The amount required per byte on an extrinsic
-    // console.log(api.consts.transactionPayment.transactionByteFee.toNumber());
-  };
-
-  // const transfer = async () => {
-  //   // Sign and send a transfer from Alice to Bob
-  //   // const txHash = await api.tx.balances
-  //   //   .transfer("5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty", 12345)
-  //   //   .signAndSend("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY");
-  //   // const txHash = await api.tx.uploadModule.createClaim()
-  // };
-  const onTxClick = async () => {
-    if (!fullTrackFile) {
-      alert("Upload Full Track.");
+  }, [timerObj]);
+  const onSpotifyId = (e: any) => {
+    if (!spotifyArtistId?.length) {
+      alert("Please enter valid Spotify Artist ID");
       return;
-    } else if (acceptedFiles.length === 0) {
-      // alert("Submit PoC/stem files");
-      // return;
     }
-    setIsTxDialogOpen(true);
-    const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
-    const allFiles = [fullTrackFile, ...stemFiles];
-    let finalFiles;
-    if (isEncryptFiles) {
-      finalFiles = await encryptFiles(allFiles);
-    } else {
-      finalFiles = allFiles;
-    }
-    const client = new Web3Storage({
-      token: process.env.REACT_APP_WEB3_STORAGE as string,
+    logFirebaseEvent("select_content", {
+      content_type: "spotifyArtistId",
+      content_id: spotifyArtistId,
     });
-    const cid = await client.put(finalFiles);
-    setCid(cid);
-    // const formData = new FormData();
-    // files.map((file) => {
-    //   if (file) {
-    //     formData.append(file.name, file);
-    //   }
-    //   return false;
-    // });
-    // const response = await axios.post(
-    //   "https://music-assets-storage-ynfarb57wa-uc.a.run.app/upload",
-    //   formData
-    // );
-    // if (response.data.cid) {
-    //   setCid(response.data.cid);
-    // } else {
-    //   alert("Some error Occured, please try again later.");
-    //   setIsTxDialogOpen(false);
-    //   return;
-    // }
-    setActiveTxStep(1);
-  };
-  useEffect(() => {
-    if (cid) {
-      onTx();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cid]);
-
-  const encryptFiles = async (files: File[]): Promise<File[]> => {
-    const filePromises = files.map((file) => {
-      return new Promise<File>((res) => {
-        const reader = new FileReader();
-        reader.addEventListener("load", (event: any) => {
-          const buff = event.target.result;
-          var wordArray = CryptoJS.lib.WordArray.create(buff);
-          var encrypted = CryptoJS.AES.encrypt(
-            wordArray,
-            process.env.REACT_APP_ENCRYPTION_KEY
-          ).toString();
-          const newEncryptedFile = new File([encrypted], file.name);
-          res(newEncryptedFile);
-        });
-        reader.readAsArrayBuffer(file);
-      });
-    });
-    return Promise.all(filePromises);
-    // await new Promise((res) => {
-    //   const reader = new FileReader();
-    //   reader.addEventListener("load", async (event: any) => {
-    //     const buff = event.target.result;
-    //     var wordArray = CryptoJS.lib.WordArray.create(buff);
-    //     var encrypted = CryptoJS.AES.encrypt(
-    //       wordArray,
-    //       "1234567887654321"
-    //     ).toString();
-    //     const file = new File([encrypted], "fileName");
-    //     console.log(file);
-    //   });
-    //   reader.readAsArrayBuffer(fullTrackFile as File);
-    // });
-  };
-  const onTxDialogClose = () => {
-    setIsTxDialogOpen(false);
-    navigate("/");
+    alert("successfully submitted");
   };
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
-      <Box p={{ xs: 4, md: 10 }}>
-        <Typography variant="h4" fontWeight="600" align="left">
-          Music Metadata Information
-        </Typography>
-        <Grid container mt={8} gap={{ xs: 2 }}>
-          <Grid item xs={12} md={7}>
-            <Grid container gap={2}>
-              <Grid item xs={10} md={4}>
-                <Box display="flex" justifyContent="start">
-                  <Box>
-                    <Typography>Artist</Typography>
-                    <TextField
-                      variant="outlined"
-                      onChange={(e: any) => setArtist(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box display="flex" justifyContent="start">
-                  <Box>
-                    <Typography>Track Title</Typography>
-                    <TextField
-                      variant="outlined"
-                      onChange={(e: any) => setTitle(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Album Name</Typography>
-                  <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setAlbum(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Genre</Typography>
-                  <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setGenre(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Key</Typography>
-                  {/* <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setKey(e.target.value)}
-                  ></TextField> */}
-                  <Select
-                    variant="outlined"
-                    onChange={(e: any) => setKey(e.target.value)}
-                  >
-                    {musicKeys.map(({ key, id }) => {
-                      return (
-                        <MenuItem value={id}>{key.toUpperCase()}</MenuItem>
-                      );
-                    })}
-                    {/* 
-                    <MenuItem value={"Vocal"}>C Minor</MenuItem>
-                    <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
-                    <MenuItem value={"Bass"}>Bass</MenuItem>
-                    <MenuItem value={"Drums"}>Drums</MenuItem> */}
-                  </Select>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <MusicUploader
-                    fullTrackFile={fullTrackFile}
-                    setFullTrackFile={setFullTrackFile}
-                    setFileUrl={setFileUrl}
-                    setDuration={setDuration}
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Duration</Typography>
-                  <TextField
-                    variant="outlined"
-                    value={duration}
-                    disabled
-                    placeholder="Fetched from upload"
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Start Beat offset(ms)</Typography>
-                  <OutlinedInput
-                    value={startBeatOffsetMs}
-                    onChange={(e) =>
-                      setStartBeatOffsetMs(parseInt(e.target.value))
-                    }
-                    type="number"
-                    placeholder="Waveform Selection"
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton onClick={onFetchStartBeatOffet} edge="end">
-                          <CachedIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Bpm</Typography>
-                  <TextField
-                    variant="outlined"
-                    type={"number"}
-                    onChange={(e: any) => setBpm(parseInt(e.target.value))}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Time Signature</Typography>
-                  <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setTimeSignature(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>No Of Measures</Typography>
-                  <TextField
-                    variant="outlined"
-                    type="number"
-                    value={noOfBars}
-                    disabled
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Encrypt Assets</Typography>
-                  <Checkbox
-                    value={isEncryptFiles}
-                    onChange={(e) => setIsEncryptFiles(e.target.checked)}
-                    sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
-                  />
-                </Box>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Box>
-              <Box
-                style={{
-                  backgroundColor: "white",
-                  color: "black",
-                  borderRadius: "4px",
-                }}
-                p={1}
-              >
-                <Typography
-                  variant="h5"
-                  p={1}
-                  color={"black"}
-                  textAlign="center"
-                >
-                  Metadata Information
-                </Typography>
-                <Grid container>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Artist:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{artist}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Track Title:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{title}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Album:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{album}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Genre:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{genre}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Bpm:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{bpm}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Key:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{key}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Time Signature:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{timeSignature}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          No Of Measures:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{noOfBars}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Duration:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{duration}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Start Beat Offset:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">
-                          {startBeatOffsetMs}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Music Cid:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          color="black"
-                          overflow={"hidden"}
-                          textOverflow={"ellipsis"}
-                          whiteSpace="nowrap"
-                        >
-                          {cid}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Box>
-            </Box>
-          </Grid>
-        </Grid>
-        <WaveForm
-          url={fileUrl}
-          durationOfEachBarInSec={durationOfEachBarInSec}
-          noOfBars={noOfBars}
-          startBeatOffsetMs={startBeatOffsetMs}
-          getSelectedBeatOffet={getSelectedBeatOffet}
-          sectionsObj={sectionsObj}
-          setSectionsObj={setSectionsObj}
-        />
-        <Box mt={8}>
-          <Typography variant="h6">Proof of Creation</Typography>
-          <Box mt={4} display="flex" justifyContent="center">
-            <AcceptStems
-              getRootProps={getRootProps}
-              getInputProps={getInputProps}
-            />
-          </Box>
+      <Box
+        p={2}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Box
+          sx={{
+            background: `url(/dao_logo.png)`,
+            width: "80px",
+            height: "20px",
+            backgroundSize: "contain",
+            backgroundPosition: "center",
+            transform: "scale(2)",
+            backgroundRepeat: "no-repeat",
+          }}
+        ></Box>
+        {account ? (
+          <Chip
+            label={`${account.slice(0, 6)}...${account.slice(
+              account.length - 4
+            )}`}
+          />
+        ) : (
+          <Button
+            variant="contained"
+            onClick={() => {
+              login();
+            }}
+          >
+            Connect
+          </Button>
+        )}
+      </Box>
+      <Box
+        display="flex"
+        gap={6}
+        justifyContent="space-around"
+        flexWrap="wrap"
+        p={{ xs: 2, sm: 5 }}
+        style={{
+          backgroundImage: `url('${trackDetails?.coverUrl}')`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "top right",
+          boxShadow: "inset 0 0 0 1000px rgba(0,0,0,75%)",
+        }}
+      >
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          gap={2}
+          maxWidth={{ md: "35%" }}
+        >
           <Box
-            mt={4}
             display="flex"
-            gap={2}
+            gap={6}
+            alignItems="center"
             justifyContent="center"
             flexWrap="wrap"
           >
-            {Object.values(stemsObj).map(({ file, name, type }, i) => (
+            <Box>
+              <img
+                src={trackDetails?.profileUrl}
+                alt=""
+                width="150px"
+                height="150px"
+                style={{ borderRadius: "6px" }}
+              ></img>
+            </Box>
+            <Box>
               <Box>
-                <Box display="flex" justifyContent="center">
-                  <Select
-                    size="small"
-                    value={type}
-                    onChange={(e) => {
-                      const newObject = { ...stemsObj };
-                      newObject[i].type = String(e.target.value);
-                      setStemsObj(newObject);
-                    }}
-                  >
-                    <MenuItem value={"Vocal"}>Vocal</MenuItem>
-                    <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
-                    <MenuItem value={"Bass"}>Bass</MenuItem>
-                    <MenuItem value={"Drums"}>Drums</MenuItem>
-                  </Select>
-                </Box>
-                <Box mt={2}>
-                  <TextField
-                    placeholder="Name"
-                    value={name}
-                    onChange={(e) => {
-                      const newObject = { ...stemsObj };
-                      newObject[i].name = e.target.value;
-                      setStemsObj(newObject);
-                    }}
-                  ></TextField>
-                </Box>
+                <Typography variant="h5" fontWeight="bold">
+                  {trackDetails?.title}
+                </Typography>
+                <Typography variant="body1">{trackDetails?.artist}</Typography>
               </Box>
-            ))}
+              <Box mt={3} display="flex" flexWrap="wrap">
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.tiktok}`}
+                  target="_blank"
+                >
+                  <img src="/social/tiktok.png" alt="tiktok" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.twitter}`}
+                  target="_blank"
+                >
+                  <img src="/social/twitter.png" alt="twitter" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.discord}`}
+                  target="_blank"
+                >
+                  <img src="/social/discord-icon.png" alt="discord" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.instagram}`}
+                  target="_blank"
+                >
+                  <img src="/social/instagram.png" alt="instagram" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.youtube}`}
+                  target="_blank"
+                >
+                  <img src="/social/youtube.png" alt="youtube" />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.spotify}`}
+                  target="_blank"
+                >
+                  <img src="/social/spotify.png" alt="spotify" />
+                </IconButton>
+              </Box>
+              {/* <Box mt={3}>
+              <Typography>Genre: {trackDetails?.genre}</Typography>
+              <Typography> Bpm: {trackDetails?.bpm} </Typography>
+              <Typography>Key: {trackDetails?.key}</Typography>
+            </Box> */}
+            </Box>
+          </Box>
+          <Box>
+            <Typography fontFamily="BenchNine">
+              17 BUILDINGS OF LITTLE HAITI-MIAMI WILL BE AUCTIONED ON DECEMBER
+              15TH @ 11AM
+            </Typography>
+            <Typography
+              // variant="caption"
+              // fontWeight="bold"
+              fontFamily="BenchNine"
+              variant="h4"
+            >
+              The Captain Haiti Foundation is raising money to buy them and
+              create a Crypto-City.
+            </Typography>
+            <Typography fontFamily="BenchNine" variant="body1">
+              Also, 90% of Haitian Mom and Pop Shops only have Month to Month
+              leases. If their buildings are sold to someone else, they will be
+              removed sooner or later!
+            </Typography>
           </Box>
         </Box>
-        <Box mt={8} display="flex" justifyContent="center">
-          <Button variant="contained" color="primary" onClick={onTxClick}>
-            Send To Blockchain
+
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          gap={2}
+          maxWidth={{ md: "30%" }}
+        >
+          <Box>
+            <Box>
+              {timerObj.isRevealed === false && (
+                <Typography fontWeight="bold" variant="h5">
+                  Mint Bare Yo In...
+                </Typography>
+              )}
+            </Box>
+            {timerObj.isRevealed === false ? (
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                justifyContent="center"
+                gap={4}
+              >
+                <Box
+                  // mr={2}
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
+                  fontWeight="bold"
+                >
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.days}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    days
+                  </Typography>
+                </Box>
+                <Box
+                  // mr={2}
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
+                >
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.hours}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    hrs
+                  </Typography>
+                </Box>
+                <Box
+                  // mr={2}
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
+                >
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.minutes}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    min
+                  </Typography>
+                </Box>
+                <Box
+                  mt={2}
+                  p={2}
+                  sx={{ border: "2px solid white", borderRadius: "6px" }}
+                  width="35px"
+                >
+                  <Typography fontWeight="bold" variant="h4" align="center">
+                    {timerObj.seconds}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    fontFamily="BenchNine"
+                  >
+                    sec
+                  </Typography>
+                </Box>
+              </Box>
+            ) : (
+              <Box
+                my={2}
+                // mx={4}
+                p={2}
+                sx={{ border: "2px solid white", borderRadius: "6px" }}
+              >
+                <Typography variant="h4" align="center" fontWeight="bold">
+                  nGenesis Live
+                </Typography>
+                <Typography variant="body2" align="center">
+                  nGenesis went live at Block 15744745 Oct 14th 00:05 hrs PDT
+                </Typography>
+              </Box>
+            )}
+          </Box>
+          <Box>
+            <Typography fontFamily="BenchNine">
+              HOW WILL WE RAISE THE MONEY NEEDED?
+            </Typography>
+            <Typography
+              // variant="caption"
+              // fontWeight="bold"
+              fontFamily="BenchNine"
+              variant="h4"
+            >
+              Dance, sing, buy, donate or share "Bare Yo!" to make it platinum!.
+            </Typography>
+            <Typography fontFamily="BenchNine" variant="body1">
+              The Captain Haiti Foundation is raising money with the song "Bare
+              Yo!" to help them win the bid on their buildings!
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          gap={2}
+          maxWidth={{ md: "20%" }}
+        >
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/gENgcFL6LnM"
+            title="Take the #BareYoChallenge - Make the song go Platinum and fund a smart village in Miami."
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+
+          <Box>
+            <Typography fontFamily="BenchNine">
+              WHAT IS THE FORMAT OF THE SONG?
+            </Typography>
+            <Typography
+              // variant="caption"
+              // fontWeight="bold"
+              fontFamily="BenchNine"
+              variant="h4"
+              pb={5}
+            >
+              "Bare Yo!" is a NFT
+            </Typography>
+            <Typography fontFamily="BenchNine" variant="body1">
+              Like CDs have been a vinyl killer and mp3s have been a CD
+              killer... NFTs is a new technology certifying your rights to the
+              song.
+            </Typography>
+          </Box>
+        </Box>
+        {/* <Box>
+          <Typography
+            // variant="caption"
+            // fontWeight="bold"
+            fontFamily="BenchNine"
+          >
+            Cherry is a twenty-two year old artist from Pittsburgh, Pennsylvania
+            currently based out of Los Angeles. Pushing forward the sounds of
+            indie pop, trap & electronic. After an introduction to making beats
+            4 years ago, Cherry started to focus on creating music, and has been
+            working. Being around music his whole life, becoming a creative was
+            the outlet Cherry needed to find his own path. Cherry is a producer,
+            engineer, mix&master, singer/songwriter and composes all of his own
+            projects. Recently dropping his latest EP in l.a. he is set to focus
+            on his connection to music, and release new music in 2022.
+          </Typography>
+        </Box> */}
+      </Box>
+
+      <Box mt={6} pb={6}>
+        <Grid container>
+          <Grid item xs={12} md={6}>
+            <Box
+              display={"flex"}
+              flexDirection="column"
+              justifyContent={"center"}
+              alignItems="center"
+            >
+              <img src="/polygon.png" alt="" width={"100%"} />
+              <CrossmintPayButton
+                onClick={() => {
+                  // setIsListening(true);
+                }}
+                showOverlay={false}
+                clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
+                mintConfig={{
+                  type: "erc-721",
+                  totalPrice: "0",
+                }}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box
+              display={"flex"}
+              flexDirection="column"
+              justifyContent={"center"}
+              alignItems="center"
+            >
+              <img src="/polygon.png" alt="" width={"100%"} />
+              <Button variant="contained">Mint</Button>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+      <Box mt={4} pb={8}>
+        <Typography variant="h5" align="center" fontFamily="monospace">
+          Powered By
+        </Typography>
+        {/* <Typography variant="h3" align="center">
+          NUSIC
+        </Typography> */}
+        <Box display="flex" justifyContent="center" p={2}>
+          <Button href="//nusic.fm" target="_blank">
+            <img src="/nusic-white.png" alt="nusic" width="250px"></img>
+          </Button>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="h5" fontFamily="monospace" align="center">
+            The Decentralized Financial Rails for Music
+          </Typography>
+          <Box maxWidth={{ md: "33%" }} mt={2} px={2}>
+            <Typography align="center" fontFamily="BenchNine" variant="h5">
+              NUSIC empowers you to release music into Web 3 on your own terms,
+              under your own brand, for your own community. Our solutions have
+              won multiple awards from top Web 3 infrastructure providers & our
+              distributed team is ready to plug your music into the
+              decentralized financial rails that power music on the next
+              generation of the internet.
+            </Typography>
+          </Box>
+          <Box my={2}>
+            <TextField
+              placeholder="Spotify Artist ID"
+              onChange={(e) => setSpotifyArtistId(e.target.value)}
+            />
+          </Box>
+          <Button
+            variant="contained"
+            onClick={onSpotifyId}
+            // size="small"
+            sx={{
+              fontFamily: "BenchNine",
+              borderRadius: "18px",
+              // textTransform: "unset",
+              // fontWeight: "900",
+            }}
+          >
+            Plug in your music now
           </Button>
         </Box>
       </Box>
-      <TransactionDialog
-        isTxDialogOpen={isTxDialogOpen}
-        activeTxStep={activeTxStep}
-        onTxDialogClose={onTxDialogClose}
-        fullTrackHash={fullTrackHash}
-        stemsHash={stemsHash}
-        sectionsHash={sectionsHash}
-        isEncryptFiles={isEncryptFiles}
-      />
     </Box>
   );
-}
+};
 
 export default App;
