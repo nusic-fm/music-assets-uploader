@@ -292,7 +292,7 @@ const App = () => {
             <Box>
               {timerObj.isRevealed === false && (
                 <Typography fontWeight="bold" variant="h5">
-                  Mint Bare Yo In...
+                  Mint "Bare Yo!" In...
                 </Typography>
               )}
             </Box>
@@ -384,10 +384,10 @@ const App = () => {
                 sx={{ border: "2px solid white", borderRadius: "6px" }}
               >
                 <Typography variant="h4" align="center" fontWeight="bold">
-                  Bare Yo Live
+                  "Bare Yo!" Live
                 </Typography>
                 <Typography variant="body2" align="center">
-                  Mint went live on Dec 10th 00:05 hrs PDT
+                  Mint went live on Dec 10th 00:00 hrs PDT
                 </Typography>
               </Box>
             )}
@@ -510,14 +510,15 @@ const App = () => {
                     p={2}
                   >
                     <CrossmintPayButton
-                      onClick={() => {
-                        // setIsListening(true);
-                      }}
                       showOverlay
-                      clientId="284d3037-de14-4c1e-9e9e-e76c2f120c8a"
+                      environment="staging"
+                      clientId="81899aac-3f5d-49b6-a06f-ec67c8c2ee3d"
                       mintConfig={{
                         type: "erc-721",
-                        totalPrice: (quantity * price).toString(),
+                        totalPrice: ethers.utils
+                          .parseEther((quantity * price).toString())
+                          .toString(),
+                        tokenQuantity: quantity,
                       }}
                     />
                     <TextField
