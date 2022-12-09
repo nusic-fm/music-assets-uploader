@@ -141,7 +141,9 @@ const App = () => {
     try {
       setIsLoading(true);
       const nftContract = new ethers.Contract(
-        process.env.REACT_APP_CONTRACT_ADDRESS as string,
+        price === 9.9
+          ? "0x91cb12fb7a1678B6CDC1B18Ef8D5eC0d7697c4A0"
+          : "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
         [
           {
             inputs: [
@@ -578,11 +580,13 @@ const App = () => {
                           background: "rgb(30, 30, 30)",
                           borderRadius: "6px",
                         }}
+                        disabled={isLoading}
                       />
                       <Select
                         onChange={(e) => {
                           setPrice(Number(e.target.value));
                         }}
+                        disabled={isLoading}
                         value={price}
                         sx={{
                           background: "rgb(30, 30, 30)",
