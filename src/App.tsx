@@ -1,11 +1,10 @@
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import {
+  Badge,
   Button,
   Chip,
   Grid,
   IconButton,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -20,6 +19,7 @@ import { Pie } from "react-chartjs-2";
 import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
 import { getMints } from "./services/graphql";
+import { motion } from "framer-motion";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 // export const data = {
@@ -73,6 +73,12 @@ const getEtherForQuantity = (price: number, quantity: number): string => {
   return ethers.utils.formatEther(
     getEthValue(price).mul(BigNumber.from(quantity))
   );
+};
+
+const spring = {
+  type: "spring",
+  stiffness: 700,
+  damping: 30,
 };
 
 const App = () => {
@@ -537,14 +543,57 @@ const App = () => {
                       width={"100%"}
                       p={2}
                     >
-                      <Typography
+                      <Box
+                        display={"flex"}
+                        justifyContent="center"
+                        alignItems={"center"}
+                        gap={2}
+                      >
+                        <Typography variant="h6">199 MATIC</Typography>
+                        <Box
+                          width="80px"
+                          // height="80px"
+                          display={"flex"}
+                          justifyContent={
+                            price === 199 ? "flex-start" : "flex-end"
+                          }
+                          borderRadius={"25px"}
+                          p={1}
+                          sx={{
+                            cursor: "pointer",
+                            // backgroundColor: "rgba(255,255,255,0.4)",
+                            background:
+                              "linear-gradient(225deg, rgb(255, 60, 172) 0%, rgb(120, 75, 160) 50%, rgb(43, 134, 197) 100%)",
+                          }}
+                          onClick={() => {
+                            if (price === 9.9) {
+                              setPrice(199);
+                            } else {
+                              setPrice(9.9);
+                            }
+                          }}
+                        >
+                          <motion.div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "#fff",
+                              borderRadius: "40px",
+                            }}
+                            layout
+                            transition={spring}
+                          />
+                        </Box>
+                        <Typography variant="h6">9.9 MATIC</Typography>
+                      </Box>
+                      {/* <Typography
                         align="center"
                         variant="h4"
                         fontFamily={"BenchNine"}
                         fontWeight="bold"
                       >
                         {parseFloat(getEtherForQuantity(price, quantity))} MATIC
-                      </Typography>
+                      </Typography> */}
                     </Box>
                   </Box>
                 </Box>
@@ -572,20 +621,50 @@ const App = () => {
                       }}
                     />
                     <Box>
-                      <TextField
-                        value={quantity}
-                        onChange={(e) => setQuantity(parseInt(e.target.value))}
-                        inputProps={{ step: 1, min: 1 }}
-                        type="number"
-                        // variant="filled"
+                      <Badge
+                        badgeContent={
+                          quantity > 1
+                            ? parseFloat(getEtherForQuantity(price, quantity))
+                            : null
+                        }
+                        color="success"
+                        max={999999999999999999999999}
+                      >
+                        <TextField
+                          value={quantity}
+                          onChange={(e) => {
+                            setQuantity(parseInt(e.target.value));
+                          }}
+                          inputProps={{ step: 1, min: 1 }}
+                          type="number"
+                          // variant="filled"
+                          sx={{
+                            width: "70px",
+                            background: "rgb(30, 30, 30)",
+                            borderRadius: "6px",
+                          }}
+                          disabled={isLoading}
+                        />
+                      </Badge>
+                      {/* <TextField
+                        value={parseFloat(getEtherForQuantity(price, quantity))}
                         sx={{
                           width: "70px",
                           background: "rgb(30, 30, 30)",
                           borderRadius: "6px",
                         }}
-                        disabled={isLoading}
-                      />
-                      <Select
+                      /> */}
+                      {/* <Box
+                        sx={{
+                          background: "rgb(30, 30, 30)",
+                        }}
+                        p={2}
+                      >
+                        <Typography>
+                          {getEtherForQuantity(price, quantity)}
+                        </Typography>
+                      </Box> */}
+                      {/* <Select
                         onChange={(e) => {
                           setPrice(Number(e.target.value));
                         }}
@@ -597,7 +676,7 @@ const App = () => {
                       >
                         <MenuItem value={199}>199 MATIC</MenuItem>
                         <MenuItem value={9.9}>9.9 MATIC</MenuItem>
-                      </Select>
+                      </Select> */}
                     </Box>
                     <LoadingButton
                       loading={isLoading}
