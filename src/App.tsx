@@ -47,6 +47,7 @@ const trackDetails = {
     youtube: "youtube.com/channel/UCFn86vJtQff1Lk8co5obm1g",
     facebook: "facebook.com/gaming/RealCaptainHaiti",
     linkedin: "linkedin.com/in/captain-haiti-816b59208",
+    soundcloud: "soundcloud.com/nandev-parolier",
   },
 };
 const getTimerObj = () => {
@@ -298,12 +299,19 @@ const App = () => {
                 >
                   <img src="/social/youtube.png" alt="youtube" />
                 </IconButton>
-                <IconButton
+                {/* <IconButton
                   sx={{ p: 0 }}
                   href={`//${trackDetails?.socials?.linkedin}`}
                   target="_blank"
                 >
                   <img src="/social/linkedin.svg" alt="fb" />
+                </IconButton> */}
+                <IconButton
+                  sx={{ p: 0 }}
+                  href={`//${trackDetails?.socials?.soundcloud}`}
+                  target="_blank"
+                >
+                  <img src="/social/soundcloud.png" alt="fb" />
                 </IconButton>
               </Box>
               {/* <Box mt={3}>
@@ -539,7 +547,7 @@ const App = () => {
                 <Box position={"absolute"} top={0} width={"100%"}>
                   <Box display={"flex"} justifyContent="center" width={"100%"}>
                     <Box
-                      sx={{ background: "rgba(0,0,0,40%)" }}
+                      sx={{ background: "rgba(0,0,0,60%)" }}
                       width={"100%"}
                       p={2}
                     >
@@ -549,7 +557,20 @@ const App = () => {
                         alignItems={"center"}
                         gap={2}
                       >
-                        <Typography variant="h6">199 MATIC</Typography>
+                        <Box>
+                          <Typography
+                            sx={{
+                              background:
+                                "linear-gradient(43deg, #90D5EC 10%, #F907FC 100%)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent",
+                              fontWeight: "bolder",
+                            }}
+                          >
+                            Whole Music
+                          </Typography>
+                          <Typography variant="h6">199 MATIC</Typography>
+                        </Box>
                         <Box
                           width="80px"
                           // height="80px"
@@ -584,7 +605,21 @@ const App = () => {
                             transition={spring}
                           />
                         </Box>
-                        <Typography variant="h6">9.9 MATIC</Typography>
+
+                        <Box>
+                          <Typography
+                            sx={{
+                              background:
+                                "linear-gradient(43deg, #90D5EC 10%, #F907FC 100%)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent",
+                              fontWeight: "bolder",
+                            }}
+                          >
+                            Chorus
+                          </Typography>
+                          <Typography variant="h6">9.9 MATIC</Typography>
+                        </Box>
                       </Box>
                       {/* <Typography
                         align="center"
@@ -701,7 +736,31 @@ const App = () => {
               justifyContent={"space-between"}
               alignItems="center"
             >
-              <Box width={"50%"} py={2}>
+              <Box width={"50%"} py={2} position="relative">
+                {!account && (
+                  <Box
+                    position={"absolute"}
+                    width="100%"
+                    height="100%"
+                    display={"flex"}
+                    alignItems="center"
+                    justifyContent={"center"}
+                  >
+                    <Box
+                      p={{ xs: 1, md: 2 }}
+                      sx={{
+                        background: "rgba(0,0,0,40%)",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        login();
+                      }}
+                    >
+                      <Typography color={"#c4c4c4"}>Connect Wallet</Typography>
+                    </Box>
+                  </Box>
+                )}
                 <Pie
                   data={{
                     labels: ["Your Contribution", "Total Raised"],
