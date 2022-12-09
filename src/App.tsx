@@ -4,6 +4,8 @@ import {
   Chip,
   Grid,
   IconButton,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -14,14 +16,12 @@ import { logFirebaseEvent } from "./services/firebase.service";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
 import { getMints } from "./services/graphql";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-const price = Number(process.env.REACT_APP_MATIC_PRICE || "199");
 // export const data = {
 //   labels: ["Your Contribution", "Total Raised"],
 //   datasets: [
@@ -65,6 +65,16 @@ const getTimerObj = () => {
   return { days, hours, minutes, seconds, isRevealed: false };
 };
 
+const getEthValue = (price: number): BigNumber => {
+  return ethers.utils.parseEther(price.toString());
+};
+
+const getEtherForQuantity = (price: number, quantity: number): string => {
+  return ethers.utils.formatEther(
+    getEthValue(price).mul(BigNumber.from(quantity))
+  );
+};
+
 const App = () => {
   const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
   const { login } = useAuth();
@@ -76,6 +86,7 @@ const App = () => {
 
   const [totalRaised, setTotalRaised] = useState(1);
   const [contributions, setContributions] = useState(0);
+  const [price, setPrice] = useState(9.9);
 
   useEffect(() => {
     const myInterval = setInterval(() => {
@@ -149,8 +160,9 @@ const App = () => {
         library.getSigner()
       );
       const options = {
-        value: ethers.utils.parseEther((price * quantity).toString()),
+        value: getEthValue(price).mul(BigNumber.from(quantity)),
       };
+      console.log(ethers.utils.formatEther(options.value.toString()));
       const tx = await nftContract.mint(quantity, options);
       await tx.wait();
       alert("You have successfully minted the NFT(s), thanks.");
@@ -527,8 +539,9 @@ const App = () => {
                         align="center"
                         variant="h4"
                         fontFamily={"BenchNine"}
+                        fontWeight="bold"
                       >
-                        {quantity * price} MATIC
+                        {getEtherForQuantity(price, quantity)} MATIC
                       </Typography>
                     </Box>
                   </Box>
@@ -540,6 +553,7 @@ const App = () => {
                     alignItems={"center"}
                     flexWrap={"wrap"}
                     sx={{ background: "rgba(0,0,0,40%)" }}
+                    gap={1}
                     p={2}
                   >
                     <CrossmintPayButton
@@ -548,22 +562,36 @@ const App = () => {
                       clientId="81899aac-3f5d-49b6-a06f-ec67c8c2ee3d"
                       mintConfig={{
                         type: "erc-721",
-                        totalPrice: (quantity * price).toString(),
+                        totalPrice: getEtherForQuantity(price, quantity),
                         tokenQuantity: quantity,
                       }}
                     />
-                    <TextField
-                      value={quantity}
-                      onChange={(e) => setQuantity(parseInt(e.target.value))}
-                      inputProps={{ step: 1, min: 1 }}
-                      type="number"
-                      // variant="filled"
-                      sx={{
-                        width: "70px",
-                        background: "rgb(30, 30, 30)",
-                        borderRadius: "6px",
-                      }}
-                    />
+                    <Box>
+                      <TextField
+                        value={quantity}
+                        onChange={(e) => setQuantity(parseInt(e.target.value))}
+                        inputProps={{ step: 1, min: 1 }}
+                        type="number"
+                        // variant="filled"
+                        sx={{
+                          width: "70px",
+                          background: "rgb(30, 30, 30)",
+                          borderRadius: "6px",
+                        }}
+                      />
+                      <Select
+                        onChange={(e) => {
+                          setPrice(Number(e.target.value));
+                        }}
+                        value={price}
+                        sx={{
+                          background: "rgb(30, 30, 30)",
+                        }}
+                      >
+                        <MenuItem value={9.9}>9.9 MATIC</MenuItem>
+                        <MenuItem value={199}>199 MATIC</MenuItem>
+                      </Select>
+                    </Box>
                     <LoadingButton
                       loading={isLoading}
                       variant="contained"
@@ -588,7 +616,7 @@ const App = () => {
               alignItems="center"
             >
               <Box width={"50%"} py={2}>
-                <Doughnut
+                <Pie
                   data={{
                     labels: ["Your Contribution", "Total Raised"],
                     datasets: [
