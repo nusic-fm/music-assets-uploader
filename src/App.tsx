@@ -15,24 +15,25 @@ import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
+import { getMints } from "./services/graphql";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const price = Number(process.env.REACT_APP_MATIC_PRICE || "199");
-export const data = {
-  labels: ["Your Contribution", "Total Raised"],
-  datasets: [
-    {
-      // label: "# of Votes",
-      data: [0, 1],
-      backgroundColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
-      borderColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
-      borderWidth: 2,
-    },
-  ],
-};
+// export const data = {
+//   labels: ["Your Contribution", "Total Raised"],
+//   datasets: [
+//     {
+//       // label: "# of Votes",
+//       data: [0, 1],
+//       backgroundColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
+//       borderColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
+//       borderWidth: 2,
+//     },
+//   ],
+// };
 
 const trackDetails = {
   artist: "Captain Haiti",
@@ -73,6 +74,9 @@ const App = () => {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [totalRaised, setTotalRaised] = useState(1);
+  const [contributions, setContributions] = useState(0);
+
   useEffect(() => {
     const myInterval = setInterval(() => {
       const _newTimerObj = getTimerObj();
@@ -93,6 +97,30 @@ const App = () => {
     });
     alert("successfully submitted");
   };
+  const fetchMintsAnalytics = async () => {
+    const mints = await getMints();
+    // const mints = [
+    //   { amountTransfered: "10000000000000000000", to: "me" },
+    //   { amountTransfered: "20000000000000000000", to: "a" },
+    //   { amountTransfered: "30000000000000000000", to: "asdf" },
+    // ];
+    if (mints?.length) {
+      const total = mints
+        .map((mint) => BigNumber.from(mint.amountTransfered))
+        .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
+      setTotalRaised(Number(ethers.utils.formatEther(total)));
+      const totalContributions = mints
+        .filter((mint) => mint.to === "me")
+        .map((mint) => BigNumber.from(mint.amountTransfered))
+        .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
+      setContributions(Number(ethers.utils.formatEther(totalContributions)));
+    }
+  };
+  useEffect(() => {
+    if (account) {
+      fetchMintsAnalytics();
+    }
+  }, [account]);
 
   const onMint = async () => {
     if (!account) {
@@ -560,7 +588,26 @@ const App = () => {
               alignItems="center"
             >
               <Box width={"50%"} py={2}>
-                <Doughnut data={data} />
+                <Doughnut
+                  data={{
+                    labels: ["Your Contribution", "Total Raised"],
+                    datasets: [
+                      {
+                        // label: "# of Votes",
+                        data: [contributions, totalRaised],
+                        backgroundColor: [
+                          "rgba(153, 102, 255, 0.2)",
+                          "rgba(54, 162, 235, 0.2)",
+                        ],
+                        borderColor: [
+                          "rgba(153, 102, 255, 0.2)",
+                          "rgba(54, 162, 235, 0.2)",
+                        ],
+                        borderWidth: 2,
+                      },
+                    ],
+                  }}
+                />
               </Box>
               <Box width={"50%"} py={2}>
                 <img src="/map.png" alt="" width={"100%"} />
