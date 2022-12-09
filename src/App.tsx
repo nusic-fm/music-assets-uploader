@@ -559,9 +559,12 @@ const App = () => {
                     p={2}
                   >
                     <CrossmintPayButton
-                      showOverlay={false}
-                      environment="staging"
-                      clientId="81899aac-3f5d-49b6-a06f-ec67c8c2ee3d"
+                      showOverlay
+                      clientId={
+                        price === 9.9
+                          ? "3d040d1a-f2eb-4b48-8036-a20bcc6dd8fe"
+                          : "959b0097-d4a5-4990-bc69-7039c054753e"
+                      }
                       mintConfig={{
                         type: "erc-721",
                         totalPrice: getEtherForQuantity(price, quantity),
