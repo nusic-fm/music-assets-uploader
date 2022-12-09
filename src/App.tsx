@@ -50,7 +50,7 @@ const trackDetails = {
   },
 };
 const getTimerObj = () => {
-  const revealDate = "Fri, 9 Dec 2022 07:00:00 GMT";
+  const revealDate = "Fri, 9 Dec 2022 06:00:00 GMT";
   const countDownDate = new Date(revealDate).getTime();
   const timeleft = countDownDate - Date.now();
   if (timeleft <= 0) {
@@ -88,15 +88,15 @@ const App = () => {
   const [contributions, setContributions] = useState(0);
   const [price, setPrice] = useState(9.9);
 
-  useEffect(() => {
-    const myInterval = setInterval(() => {
-      const _newTimerObj = getTimerObj();
-      setTimerObj(_newTimerObj);
-    }, 1000);
-    return () => {
-      clearInterval(myInterval);
-    };
-  }, [timerObj]);
+  // useEffect(() => {
+  //   const myInterval = setInterval(() => {
+  //     const _newTimerObj = getTimerObj();
+  //     setTimerObj(_newTimerObj);
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval(myInterval);
+  //   };
+  // }, [timerObj]);
   const onSpotifyId = (e: any) => {
     if (!spotifyArtistId?.length) {
       alert("Please enter valid Spotify Artist ID");
@@ -434,7 +434,7 @@ const App = () => {
                   "Bare Yo!" Live
                 </Typography>
                 <Typography variant="body2" align="center">
-                  Mint went live on Dec 10th 00:00 hrs PDT
+                  Mint went live on Dec 8th 22:00 hrs PT
                 </Typography>
               </Box>
             )}
