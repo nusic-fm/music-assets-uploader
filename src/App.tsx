@@ -567,7 +567,7 @@ const App = () => {
                               fontWeight: "bolder",
                             }}
                           >
-                            Whole Music
+                            Whole Song
                           </Typography>
                           <Typography variant="h6">199 MATIC</Typography>
                         </Box>
@@ -616,7 +616,7 @@ const App = () => {
                               fontWeight: "bolder",
                             }}
                           >
-                            Chorus
+                            Chorus Only
                           </Typography>
                           <Typography variant="h6">9.9 MATIC</Typography>
                         </Box>
