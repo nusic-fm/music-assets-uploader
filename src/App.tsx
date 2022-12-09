@@ -80,7 +80,7 @@ const App = () => {
   const { login } = useAuth();
   const { account, library } = useWeb3React();
 
-  const [timerObj, setTimerObj] = useState(getTimerObj);
+  const [timerObj] = useState(getTimerObj);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
