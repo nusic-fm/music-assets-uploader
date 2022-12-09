@@ -86,7 +86,7 @@ const App = () => {
 
   const [totalRaised, setTotalRaised] = useState(1);
   const [contributions, setContributions] = useState(0);
-  const [price, setPrice] = useState(9.9);
+  const [price, setPrice] = useState(199);
 
   // useEffect(() => {
   //   const myInterval = setInterval(() => {
@@ -434,7 +434,7 @@ const App = () => {
                   "Bare Yo!" Live
                 </Typography>
                 <Typography variant="body2" align="center">
-                  Mint went live on Dec 8th 22:00 hrs PT
+                  Mint went live on Dec 9th 01:00 hrs ET
                 </Typography>
               </Box>
             )}
@@ -543,7 +543,7 @@ const App = () => {
                         fontFamily={"BenchNine"}
                         fontWeight="bold"
                       >
-                        {getEtherForQuantity(price, quantity)} MATIC
+                        {parseFloat(getEtherForQuantity(price, quantity))} MATIC
                       </Typography>
                     </Box>
                   </Box>
@@ -595,8 +595,8 @@ const App = () => {
                           background: "rgb(30, 30, 30)",
                         }}
                       >
-                        <MenuItem value={9.9}>9.9 MATIC</MenuItem>
                         <MenuItem value={199}>199 MATIC</MenuItem>
+                        <MenuItem value={9.9}>9.9 MATIC</MenuItem>
                       </Select>
                     </Box>
                     <LoadingButton
