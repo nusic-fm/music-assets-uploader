@@ -22,9 +22,9 @@ const useAuth = () => {
   const login = useCallback(() => {
     activate(injectedConnector, async (error: Error) => {
       console.error(error);
+      alert(`Unsupported chain, Please connect Polygon Network to continue.`);
       if (error.name === "UnsupportedChainIdError") {
         console.log("error", error.message);
-        alert(`Unsupported chain, Please connect mumbai Network to continue.`);
       } else {
         console.log("error", error.name || error.message);
       }
