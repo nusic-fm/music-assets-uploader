@@ -323,8 +323,8 @@ const App = () => {
           </Box>
           <Box>
             <Typography fontFamily="BenchNine">
-              17 BUILDINGS OF LITTLE HAITI-MIAMI WILL BE AUCTIONED ON DECEMBER
-              15TH @ 11AM
+              Residents and businesses of Little Haiti-Miami are being displaced
+              by Real Estate development
             </Typography>
             <Typography
               // variant="caption"
@@ -332,12 +332,13 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              Captain Haiti is raising money to create a Smart City
+              Why? The value of each sq.ft. of their community has increased
+              56,1% within a year
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
-              Also, 90% of Haitian Mom and Pop Shops only have Month to Month
-              leases. If their buildings are sold to someone else, they will be
-              removed sooner or later!
+              The Captain Haiti Foundation is creating a digital twin of the
+              neighborhood in the metaverse to raise money and save Little
+              Haiti-Miami from gentrification
             </Typography>
           </Box>
         </Box>
@@ -455,7 +456,8 @@ const App = () => {
           </Box>
           <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
-              HOW WILL WE RAISE THE MONEY NEEDED?
+              Each Music-NFT of “Bare Yo!” is geolocated to 1 square foot of
+              Little Haiti
             </Typography>
             <Typography
               // variant="caption"
@@ -463,11 +465,13 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              Mint "Bare Yo!" to make it platinum!
+              Each Music-NFT will fund Captain Haiti’s bid to buy back his
+              neighborhood
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
-              The Captain Haiti Foundation is raising money with the song "Bare
-              Yo!" to help them win the bid on their buildings!
+              The NFT-funded smart village will serve as a “living lab” for
+              year-round living, working, and playing, with the goal of becoming
+              a destination for WEB3 innovation
             </Typography>
           </Box>
         </Box>
@@ -491,7 +495,7 @@ const App = () => {
 
           <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
-              WHAT IS THE FORMAT OF THE SONG?
+              Hurry! 17 buildings are going on auction on December 15th
             </Typography>
             <Typography
               // variant="caption"
@@ -499,12 +503,12 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              "Bare Yo!" is an NFT
+              Most tenants only have Month to Month leases. If their buildings
+              are sold to someone else, they will be removed sooner or later!
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
-              Like CDs have been a vinyl killer and mp3s have been a CD
-              killer... Non-Fungible Tokens (NFTs) are a new technology that
-              certify your ownership of the music.
+              By purchasing the Music-NFT “Bare Yo!” , you are joining in saving
+              these buildings and bringing innovation and opportunity for all!
             </Typography>
           </Box>
         </Box>
@@ -789,6 +793,26 @@ const App = () => {
           </Grid>
         </Grid>
       </Box>
+      {/* <Box mt={4} pb={8}>
+        <Grid container>
+          <Grid item></Grid>
+          <Grid item>
+            <Typography>Song</Typography>
+          </Grid>
+          <Grid item>
+            <Typography>Chorus</Typography>
+          </Grid>
+          <Grid item>
+            <Typography>Geo-Location</Typography>
+          </Grid>
+          <Grid item>
+            <Typography>Song</Typography>
+          </Grid>
+          <Grid item>
+            <Typography>Chorus</Typography>
+          </Grid>
+        </Grid>
+      </Box> */}
       <Box mt={4} pb={8}>
         <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
