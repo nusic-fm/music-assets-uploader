@@ -541,7 +541,7 @@ const App = () => {
               alignItems="center"
               height="100%"
             >
-              <Box width={"80%"} position={"relative"}>
+              <Box width={{ sx: "100%", md: "80%" }} position={"relative"}>
                 <img
                   src="/captain-mint.png"
                   alt=""
@@ -793,26 +793,165 @@ const App = () => {
           </Grid>
         </Grid>
       </Box>
-      {/* <Box mt={4} pb={8}>
-        <Grid container>
-          <Grid item></Grid>
-          <Grid item>
-            <Typography>Song</Typography>
+      <Box mt={4} pb={8} display="flex" justifyContent="center">
+        <Grid
+          container
+          rowSpacing={2}
+          xs={11}
+          md={6}
+          sx={{
+            ".MuiGrid-item": { borderBottom: "1px solid #c4c4c4", p: 1.5 },
+          }}
+        >
+          <Grid item xs={4} borderBottom="1px solid #c4c4c4"></Grid>
+          <Grid item xs={4} borderBottom="1px solid #c4c4c4">
+            <Typography textAlign={"center"}>Song</Typography>
           </Grid>
-          <Grid item>
-            <Typography>Chorus</Typography>
+          <Grid item xs={4} borderBottom="1px solid #c4c4c4">
+            <Typography textAlign={"center"}>Chorus</Typography>
           </Grid>
-          <Grid item>
+          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
             <Typography>Geo-Location</Typography>
           </Grid>
-          <Grid item>
-            <Typography>Song</Typography>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid item xs={4}>
+            <Typography>Location</Typography>
           </Grid>
-          <Grid item>
-            <Typography>Chorus</Typography>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>17 Physical Addresses</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>Little Haiti</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography noWrap>Circulation</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>112,171 Sq. Ft.</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>9,634,750 Sq. Ft.</Typography>
+          </Grid>
+          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
+            <Typography>Social Club</Typography>
+          </Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid item xs={4}>
+            <Typography>Discounts</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography>Free Samples and Goods</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}></Grid>
+          <Grid item xs={4}>
+            <Typography>Free Events</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}></Grid>
+          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
+            <Typography>Metaverse</Typography>
+          </Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid item xs={4}>
+            <Typography>Metaverse Concert</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography>Metaverse Listing</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}></Grid>
+          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
+            <Typography>Airdrops</Typography>
+          </Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid
+            item
+            xs={4}
+            sx={{ background: "rgba(204, 204, 204, 15%)" }}
+          ></Grid>
+          <Grid item xs={4}>
+            <Typography>“Bare Yo!” Party Mix</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography>$CAPH tokens</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography noWrap textAlign={"center"}>
+              10,000,000
+            </Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"} noWrap>
+              1,000,000
+            </Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography noWrap>$LittleHaitiCoin</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>10</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>1</Typography>
           </Grid>
         </Grid>
-      </Box> */}
+      </Box>
       <Box mt={4} pb={8}>
         <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
