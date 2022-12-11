@@ -809,6 +809,20 @@ const App = () => {
                       },
                     ],
                   }}
+                  options={{
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          title: (item) => {
+                            return item[0].label;
+                          },
+                          label: (item) => {
+                            return `${item.formattedValue} MATIC`;
+                          },
+                        },
+                      },
+                    },
+                  }}
                 />
               </Box>
               <Box width={"50%"} py={2}>
