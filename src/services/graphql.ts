@@ -10,6 +10,8 @@ export const getMints = async () => {
                     to
                     tokenQuantity
                     amountTransfered
+                    _type
+                    transactionHash
                 }
             }
     `;

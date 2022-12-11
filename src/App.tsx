@@ -93,6 +93,7 @@ const App = () => {
 
   const [totalRaised, setTotalRaised] = useState(1);
   const [contributions, setContributions] = useState(0);
+  const [crossmint, setCrossmint] = useState(0);
   const [price, setPrice] = useState(199);
 
   // useEffect(() => {
@@ -123,21 +124,43 @@ const App = () => {
     //   { amountTransfered: "30000000000000000000", to: "asdf" },
     // ];
     if (mints?.length) {
-      const total = mints
-        .map((mint) => BigNumber.from(mint.amountTransfered))
-        .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
+      let total = BigNumber.from("0");
+      let totalContributions = BigNumber.from("0");
+      let fiatTx = BigNumber.from("0");
+      const hashes: string[] = [];
+      // eslint-disable-next-line array-callback-return
+      mints.map((mint) => {
+        if (hashes.includes(mint.transactionHash)) {
+          return "";
+        }
+        total = total.add(BigNumber.from(mint.amountTransfered));
+        hashes.push(mint.transactionHash);
+        if (mint.to === account) {
+          totalContributions = totalContributions.add(
+            BigNumber.from(mint.amountTransfered)
+          );
+        }
+        if (mint._type === "CrossMint") {
+          fiatTx = fiatTx.add(BigNumber.from(mint.amountTransfered));
+        }
+      });
+      // const total = mints
+      //   .map((mint) => BigNumber.from(mint.amountTransfered))
+      //   .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
       setTotalRaised(Number(ethers.utils.formatEther(total)));
-      const totalContributions = mints
-        .filter((mint) => mint.to === "me")
-        .map((mint) => BigNumber.from(mint.amountTransfered))
-        .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
+      // const totalContributions = mints
+      //   .filter((mint) => mint.to === "me")
+      //   .map((mint) => BigNumber.from(mint.amountTransfered))
+      //   .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
       setContributions(Number(ethers.utils.formatEther(totalContributions)));
+      setCrossmint(Number(ethers.utils.formatEther(fiatTx)));
     }
   };
   useEffect(() => {
     if (account) {
       fetchMintsAnalytics();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account]);
 
   const onMint = async () => {
@@ -620,7 +643,7 @@ const App = () => {
                               fontWeight: "bolder",
                             }}
                           >
-                            Chorus Only
+                            Breakdown Only
                           </Typography>
                           <Typography variant="h6">9.9 MATIC</Typography>
                         </Box>
@@ -767,18 +790,20 @@ const App = () => {
                 )}
                 <Pie
                   data={{
-                    labels: ["Your Contribution", "Total Raised"],
+                    labels: ["Your Contribution", "Crossmint", "Total Raised"],
                     datasets: [
                       {
                         // label: "# of Votes",
-                        data: [contributions, totalRaised],
+                        data: [contributions, crossmint, totalRaised],
                         backgroundColor: [
                           "rgba(153, 102, 255, 0.2)",
                           "rgba(54, 162, 235, 0.2)",
+                          "rgba(255, 159, 64, 0.2)",
                         ],
                         borderColor: [
                           "rgba(153, 102, 255, 0.2)",
                           "rgba(54, 162, 235, 0.2)",
+                          "rgba(255, 159, 64, 0.2)",
                         ],
                         borderWidth: 2,
                       },
