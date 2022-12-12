@@ -171,7 +171,7 @@ const App = () => {
     try {
       setIsLoading(true);
       const nftContract = new ethers.Contract(
-        price === 9.9
+        price === 18.04
           ? "0x91cb12fb7a1678B6CDC1B18Ef8D5eC0d7697c4A0"
           : "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
         [
@@ -614,10 +614,10 @@ const App = () => {
                               "linear-gradient(225deg, rgb(255, 60, 172) 0%, rgb(120, 75, 160) 50%, rgb(43, 134, 197) 100%)",
                           }}
                           onClick={() => {
-                            if (price === 9.9) {
+                            if (price === 18.04) {
                               setPrice(199);
                             } else {
-                              setPrice(9.9);
+                              setPrice(18.04);
                             }
                           }}
                         >
@@ -645,7 +645,7 @@ const App = () => {
                           >
                             Breakdown Only
                           </Typography>
-                          <Typography variant="h6">9.9 MATIC</Typography>
+                          <Typography variant="h6">18.04 MATIC</Typography>
                         </Box>
                       </Box>
                       {/* <Typography
@@ -672,7 +672,7 @@ const App = () => {
                     <CrossmintPayButton
                       showOverlay
                       clientId={
-                        price === 9.9
+                        price === 18.04
                           ? "3d040d1a-f2eb-4b48-8036-a20bcc6dd8fe"
                           : "959b0097-d4a5-4990-bc69-7039c054753e"
                       }
