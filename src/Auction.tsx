@@ -27,6 +27,7 @@ import {
   getEnsName,
   // getBidEvents,
   getHighestBid,
+  getHighestBidder,
   getOwnerOfNft,
   getWethAllowance,
   registerAuction,
@@ -108,11 +109,11 @@ const Auction = () => {
   const [selection, setSelection] = useState(selectionRange);
   const [highestBid, setHighestBid] = useState<BigNumber>(BigNumber.from("0"));
   const [isNftOwner, setIsNftOwner] = useState<boolean>(false);
+  const [highestBidder, setHighestBidder] = useState<string>("");
   const [earnedEth, setEarnedEth] = useState<string>("0.00");
   const [isAuctionEnded, setIsAuctionEnded] = useState(false);
 
   const handleSelect = (ranges: any) => {
-    console.log(ranges);
     setSelection(ranges.selection);
   };
   const setHighesBid = async (auctionId: string) => {
@@ -121,11 +122,17 @@ const Auction = () => {
   };
   const fetchAuctionDetails = async (ignore: boolean = false) => {
     setIsLoading(true);
+    setIsAuctionEnded(true);
     const auction = await getAucitonFromTokenId(tokenId);
     setAuctionObj(auction);
     // const endDateObj = moment(auctionObj?.endTime);
     // const isEnded = endDateObj.isBefore(Date.now());
-    setIsAuctionEnded(true);
+    if (auction) {
+      try {
+        const highestBidderAddr = await getHighestBidder(auction.auctionId);
+        setHighestBidder(highestBidderAddr);
+      } catch (e: any) {}
+    }
     setIsLoading(false);
     if (!!auction && !ignore) {
       setHighesBid(auction.auctionId);
@@ -487,7 +494,7 @@ const Auction = () => {
                     msUserSelect: "none",
                   }}
                   onClick={async () => {
-                    if (isNftOwner === false) {
+                    if (highestBidder !== account) {
                       return;
                     }
                     try {
@@ -507,7 +514,9 @@ const Auction = () => {
                     <CircularProgress size={36} color="secondary" />
                   ) : (
                     <Typography variant="h6" align="center">
-                      {isNftOwner ? "Claim" : "Auction has Ended"}
+                      {highestBidder === account
+                        ? "Claim"
+                        : "Auction has Ended"}
                     </Typography>
                   )}
                 </motion.div>

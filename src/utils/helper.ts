@@ -395,6 +395,41 @@ export const getHighestBid = async (auctionId: string): Promise<BigNumber> => {
   const highestBid = await auctionContract.getAuctionHighestBid(auctionId);
   return highestBid;
 };
+export const getHighestBidder = async (auctionId: string): Promise<string> => {
+  const provider = new ethers.providers.AlchemyProvider(
+    process.env.REACT_APP_CHAIN_NAME as string,
+    process.env.REACT_APP_ALCHEMY as string
+  );
+  const auctionContract = new ethers.Contract(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "_auctionID",
+            type: "uint256",
+          },
+        ],
+        name: "getAuctionHighestBidder",
+        outputs: [
+          {
+            internalType: "address",
+            name: "",
+            type: "address",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    provider
+  );
+  const highestBidder = await auctionContract.getAuctionHighestBidder(
+    auctionId
+  );
+  return highestBidder;
+};
 export const bid = async (
   signer: any,
   auctionId: string,
