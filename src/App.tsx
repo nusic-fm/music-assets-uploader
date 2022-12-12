@@ -844,10 +844,14 @@ const App = () => {
         >
           <Grid item xs={4} borderBottom="1px solid #c4c4c4"></Grid>
           <Grid item xs={4} borderBottom="1px solid #c4c4c4">
-            <Typography textAlign={"center"}>Song</Typography>
+            <Typography textAlign={"center"} noWrap>
+              Whole Song
+            </Typography>
           </Grid>
           <Grid item xs={4} borderBottom="1px solid #c4c4c4">
-            <Typography textAlign={"center"}>Chorus</Typography>
+            <Typography textAlign={"center"} noWrap>
+              Breakdown Only
+            </Typography>
           </Grid>
           <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
             <Typography>Geo-Location</Typography>
