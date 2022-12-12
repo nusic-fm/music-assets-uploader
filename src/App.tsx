@@ -94,7 +94,7 @@ const App = () => {
   const [totalRaised, setTotalRaised] = useState(1);
   const [contributions, setContributions] = useState(0);
   const [crossmint, setCrossmint] = useState(0);
-  const [price, setPrice] = useState(199);
+  const [price, setPrice] = useState(180.4);
 
   // useEffect(() => {
   //   const myInterval = setInterval(() => {
@@ -596,14 +596,14 @@ const App = () => {
                           >
                             Whole Song
                           </Typography>
-                          <Typography variant="h6">199 MATIC</Typography>
+                          <Typography variant="h6">180.4 MATIC</Typography>
                         </Box>
                         <Box
                           width="80px"
                           // height="80px"
                           display={"flex"}
                           justifyContent={
-                            price === 199 ? "flex-start" : "flex-end"
+                            price === 180.4 ? "flex-start" : "flex-end"
                           }
                           borderRadius={"25px"}
                           p={1}
@@ -615,7 +615,7 @@ const App = () => {
                           }}
                           onClick={() => {
                             if (price === 18.04) {
-                              setPrice(199);
+                              setPrice(180.4);
                             } else {
                               setPrice(18.04);
                             }
