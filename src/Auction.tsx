@@ -22,6 +22,7 @@ import {
   approveNftForAuction,
   approveWeth,
   bid,
+  claimAuction,
   getAuctionId,
   getEnsName,
   // getBidEvents,
@@ -108,6 +109,7 @@ const Auction = () => {
   const [highestBid, setHighestBid] = useState<BigNumber>(BigNumber.from("0"));
   const [isNftOwner, setIsNftOwner] = useState<boolean>(false);
   const [earnedEth, setEarnedEth] = useState<string>("0.00");
+  const [isAuctionEnded, setIsAuctionEnded] = useState(false);
 
   const handleSelect = (ranges: any) => {
     console.log(ranges);
@@ -121,6 +123,9 @@ const Auction = () => {
     setIsLoading(true);
     const auction = await getAucitonFromTokenId(tokenId);
     setAuctionObj(auction);
+    // const endDateObj = moment(auctionObj?.endTime);
+    // const isEnded = endDateObj.isBefore(Date.now());
+    setIsAuctionEnded(true);
     setIsLoading(false);
     if (!!auction && !ignore) {
       setHighesBid(auction.auctionId);
@@ -463,13 +468,58 @@ const Auction = () => {
         <Grid item xs={12}>
           <Box display={"flex"} justifyContent="center">
             {!!auctionObj ? (
-              <BidTextField
-                previousBid={highestBid}
-                auctionObj={auctionObj}
-                isLoading={isLoading}
-                onBidNow={onBidNow}
-                setShowAlertMessage={setShowAlertMessage}
-              />
+              isAuctionEnded ? (
+                <motion.div
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.8 }}
+                  style={{
+                    background: `linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)`,
+                    borderRadius: "6px",
+                    // width: "150px",
+                    padding: "8px 20px",
+                    // height: "80px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    userSelect: "none",
+                    MozUserSelect: "none",
+                    msUserSelect: "none",
+                  }}
+                  onClick={async () => {
+                    if (isNftOwner === false) {
+                      return;
+                    }
+                    try {
+                      setIsLoading(true);
+                      await claimAuction(
+                        auctionObj.auctionId,
+                        library.getSigner()
+                      );
+                    } catch (e: any) {
+                      alert(e.data?.message || e.message);
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                >
+                  {isLoading ? (
+                    <CircularProgress size={36} color="secondary" />
+                  ) : (
+                    <Typography variant="h6" align="center">
+                      {isNftOwner ? "Claim" : "Auction has Ended"}
+                    </Typography>
+                  )}
+                </motion.div>
+              ) : (
+                <BidTextField
+                  previousBid={highestBid}
+                  auctionObj={auctionObj}
+                  isLoading={isLoading}
+                  onBidNow={onBidNow}
+                  setShowAlertMessage={setShowAlertMessage}
+                />
+              )
             ) : (
               <motion.div
                 whileHover={{ scale: 1.2 }}

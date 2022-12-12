@@ -559,3 +559,26 @@ export const getEnsName = (address: string): Promise<string | null> => {
   );
   return provider.lookupAddress(address);
 };
+export const claimAuction = async (auctionId: string, signer: any) => {
+  const auction = new ethers.Contract(
+    process.env.REACT_APP_AUCTION_CONTROLLER as string,
+    [
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "_auctionID",
+            type: "uint256",
+          },
+        ],
+        name: "claim",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+    signer
+  );
+  const tx = await auction.claim(auctionId);
+  return tx.wait();
+};
