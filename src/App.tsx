@@ -94,6 +94,7 @@ const App = () => {
   const [totalRaised, setTotalRaised] = useState(1);
   const [contributions, setContributions] = useState(0);
   const [crossmint, setCrossmint] = useState(0);
+  const [crypto, setCrypto] = useState(0);
   const [price, setPrice] = useState(180.4);
 
   // useEffect(() => {
@@ -127,11 +128,12 @@ const App = () => {
       let total = BigNumber.from("0");
       let totalContributions = BigNumber.from("0");
       let fiatTx = BigNumber.from("0");
+      let cryptoTx = BigNumber.from("0");
       const hashes: string[] = [];
       // eslint-disable-next-line array-callback-return
       mints.map((mint) => {
         if (hashes.includes(mint.transactionHash)) {
-          return "";
+          return null;
         }
         total = total.add(BigNumber.from(mint.amountTransfered));
         hashes.push(mint.transactionHash);
@@ -139,9 +141,14 @@ const App = () => {
           totalContributions = totalContributions.add(
             BigNumber.from(mint.amountTransfered)
           );
+          return null;
         }
         if (mint._type === "CrossMint") {
           fiatTx = fiatTx.add(BigNumber.from(mint.amountTransfered));
+          return null;
+        } else {
+          cryptoTx = cryptoTx.add(BigNumber.from(mint.amountTransfered));
+          return null;
         }
       });
       // const total = mints
@@ -154,6 +161,7 @@ const App = () => {
       //   .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
       setContributions(Number(ethers.utils.formatEther(totalContributions)));
       setCrossmint(Number(ethers.utils.formatEther(fiatTx)));
+      setCrypto(Number(ethers.utils.formatEther(cryptoTx)));
     }
   };
   useEffect(() => {
@@ -790,11 +798,11 @@ const App = () => {
                 )}
                 <Pie
                   data={{
-                    labels: ["Your Contribution", "Crossmint", "Total Raised"],
+                    labels: ["Your Contribution", "Cards", "Crypto"],
                     datasets: [
                       {
                         // label: "# of Votes",
-                        data: [contributions, crossmint, totalRaised],
+                        data: [contributions, crossmint, crypto],
                         backgroundColor: [
                           "rgba(153, 102, 255, 0.2)",
                           "rgba(54, 162, 235, 0.2)",
@@ -818,6 +826,9 @@ const App = () => {
                           },
                           label: (item) => {
                             return `${item.formattedValue} MATIC`;
+                          },
+                          footer: (item) => {
+                            return `Total Raised: ${totalRaised} MATIC`;
                           },
                         },
                       },
