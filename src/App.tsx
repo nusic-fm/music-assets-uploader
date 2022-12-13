@@ -91,10 +91,10 @@ const App = () => {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [totalRaised, setTotalRaised] = useState(1);
-  const [contributions, setContributions] = useState(0);
-  const [crossmint, setCrossmint] = useState(0);
-  const [crypto, setCrypto] = useState(0);
+  const [totalRaised, setTotalRaised] = useState(0);
+  const [contributions, setContributions] = useState(1);
+  const [crossmint, setCrossmint] = useState(1);
+  const [crypto, setCrypto] = useState(1);
   const [price, setPrice] = useState(180.4);
 
   // useEffect(() => {
@@ -771,7 +771,7 @@ const App = () => {
               justifyContent={"space-between"}
               alignItems="center"
             >
-              <Box width={"50%"} py={2} position="relative">
+              <Box width={{ xs: "100%", md: "50%" }} py={2} position="relative">
                 {!account && (
                   <Box
                     position={"absolute"}
@@ -836,7 +836,7 @@ const App = () => {
                   }}
                 />
               </Box>
-              <Box width={"50%"} py={2}>
+              <Box width={{ xs: "90%", md: "50%" }} py={2}>
                 <img src="/map.png" alt="" width={"100%"} />
               </Box>
             </Box>
