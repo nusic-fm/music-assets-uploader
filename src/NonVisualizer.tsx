@@ -1467,7 +1467,7 @@ const NonVisualizer = (props: { trackIdx: number }) => {
                         >
                           <Typography>
                             {tokens[i] && tokens[i].previousOwnerIds
-                              ? "Owned by"
+                              ? "Purchased by"
                               : "Minted by"}
                           </Typography>
                           {tokens[i] && (
