@@ -526,7 +526,7 @@ const App = () => {
 
           <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
-              Hurry! 17 buildings are going on auction on December 15th
+              Hurry! Buildings are constantly going up for sale in Little Haiti
             </Typography>
             <Typography
               // variant="caption"
