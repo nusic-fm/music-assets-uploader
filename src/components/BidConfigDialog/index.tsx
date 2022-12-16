@@ -57,14 +57,16 @@ const BidConfigDialog = ({
                 </Grid>
                 <Grid item xs={1}></Grid>
                 <Grid item xs={6}>
-                  <Typography fontWeight={"bold"}>12 AM</Typography>
+                  <Typography fontWeight={"bold"}>Current Block</Typography>
                 </Grid>
                 <Grid item xs={5} textAlign={"right"}>
                   <Typography>Hammer Time:</Typography>
                 </Grid>
                 <Grid item xs={1}></Grid>
                 <Grid item xs={6}>
-                  <Typography fontWeight={"bold"}>12:05 AM</Typography>
+                  <Typography fontWeight={"bold"}>
+                    7 days + 2 minutes
+                  </Typography>
                 </Grid>
               </Grid>
             </Box>

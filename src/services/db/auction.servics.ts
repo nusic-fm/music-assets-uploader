@@ -19,16 +19,18 @@ import { AuctionTokenDoc, BidDoc } from "../../models/BidAuction";
 // import { Offer, OfferDbDoc } from "../../models/Offer";
 import { db } from "../firebase.service";
 
+const collection = "auctions/bsc/tokens";
+
 const createAuction = async (
   tokenId: string,
   offerDoc: AuctionTokenDoc
 ): Promise<void> => {
-  const offerCollection = doc(db, "auctions", tokenId);
+  const offerCollection = doc(db, collection, tokenId);
   await setDoc(offerCollection, offerDoc);
 };
 
 const updateAuction = async (tokenId: string, bid: BidDoc): Promise<void> => {
-  const userRef = doc(db, "auctions", tokenId);
+  const userRef = doc(db, collection, tokenId);
   await updateDoc(userRef, {
     bids: arrayUnion(bid),
   });
@@ -37,7 +39,7 @@ const updateAuction = async (tokenId: string, bid: BidDoc): Promise<void> => {
 const getAucitonFromTokenId = async (
   tokenId: string
 ): Promise<AuctionTokenDoc | null> => {
-  const q = doc(db, "auctions", tokenId);
+  const q = doc(db, collection, tokenId);
   const docSnapshot = await getDoc(q);
   if (docSnapshot.exists()) {
     const auctionDoc = docSnapshot.data() as AuctionTokenDoc;

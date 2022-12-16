@@ -122,7 +122,7 @@ const Auction = () => {
   };
   const fetchAuctionDetails = async (ignore: boolean = false) => {
     setIsLoading(true);
-    setIsAuctionEnded(true);
+    // setIsAuctionEnded(true);
     const auction = await getAucitonFromTokenId(tokenId);
     setAuctionObj(auction);
     // const endDateObj = moment(auctionObj?.endTime);
@@ -184,9 +184,14 @@ const Auction = () => {
         setShowAlertMessage(`NFT has been Approved`);
         console.log(approveHash);
       }
-      const provider = new ethers.providers.AlchemyProvider(
-        process.env.REACT_APP_CHAIN_NAME as string,
-        process.env.REACT_APP_ALCHEMY as string
+      //https://data-seed-prebsc-1-s3.binance.org:8545/
+
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://data-seed-prebsc-1-s1.binance.org:8545/",
+        {
+          name: "Testnet",
+          chainId: 97,
+        }
       );
       let blockNumberWithMethod = await provider.getBlockNumber();
       const block = await provider.getBlock(blockNumberWithMethod);

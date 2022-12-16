@@ -65,7 +65,7 @@ export const MenuItem = ({
       }}
       onClick={() => {
         toggleOpen();
-        navigate(`/8`);
+        navigate(`/${i}`);
       }}
     >
       {i === 8 && (

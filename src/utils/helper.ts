@@ -1,15 +1,25 @@
 import { BigNumber, ethers } from "ethers";
 import { AuctionConfig } from "../models/BidAuction";
 
+const getProvider = () => {
+  //   new ethers.providers.AlchemyProvider(
+  //   process.env.REACT_APP_CHAIN_NAME as string,
+  //   process.env.REACT_APP_ALCHEMY as string
+  // );
+  return new ethers.providers.JsonRpcProvider(
+    "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    {
+      name: "Testnet",
+      chainId: 97,
+    }
+  );
+};
 export const dataFeedsForUsd: { [key: string]: string } = {
   homestead: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
   maticmum: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
 };
 export const getEthPrice = async (): Promise<number> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const contract = new ethers.Contract(
     dataFeedsForUsd[process.env.REACT_APP_CHAIN_NAME as string],
     ["function latestAnswer() view returns (uint)"],
@@ -21,10 +31,7 @@ export const getEthPrice = async (): Promise<number> => {
 };
 
 export const checkNftBalance = async (address: string): Promise<number> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const nftContract = new ethers.Contract(
     process.env.REACT_APP_CONTRACT_ADDRESS as string,
     [
@@ -56,10 +63,7 @@ export const checkNftBalance = async (address: string): Promise<number> => {
 };
 
 export const getUserBalance = async (address: string): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const nftContract = new ethers.Contract(
     process.env.REACT_APP_MASTER_CONTRACT_ADDRESS as string,
     [
@@ -91,10 +95,7 @@ export const getUserBalance = async (address: string): Promise<string> => {
 };
 
 export const getOwnerOfNft = async (tokenId: string): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const nftContract = new ethers.Contract(
     process.env.REACT_APP_CONTRACT_ADDRESS as string,
     [
@@ -129,10 +130,7 @@ export const withdrawForUser = async (
   custodialWallet: string,
   toAddress: string
 ): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const wallet = new ethers.Wallet(
     process.env.REACT_APP_MASTER_PK as string,
     provider
@@ -167,10 +165,7 @@ export const withdrawForUser = async (
 };
 
 export const getWethBalance = async (address: string): Promise<BigNumber> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const wethContract = new ethers.Contract(
     process.env.REACT_APP_WETH as string,
     [
@@ -323,10 +318,7 @@ export const registerAuction = async (
   return tx.hash;
 };
 export const getAuctionId = async (tokenId: string): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const auctionContract = new ethers.Contract(
     process.env.REACT_APP_AUCTION_CONTROLLER as string,
     [
@@ -363,10 +355,7 @@ export const getAuctionId = async (tokenId: string): Promise<string> => {
   return auctionIdBn.toString();
 };
 export const getHighestBid = async (auctionId: string): Promise<BigNumber> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const auctionContract = new ethers.Contract(
     process.env.REACT_APP_AUCTION_CONTROLLER as string,
     [
@@ -396,10 +385,7 @@ export const getHighestBid = async (auctionId: string): Promise<BigNumber> => {
   return highestBid;
 };
 export const getHighestBidder = async (auctionId: string): Promise<string> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   const auctionContract = new ethers.Contract(
     process.env.REACT_APP_AUCTION_CONTROLLER as string,
     [
@@ -588,10 +574,7 @@ export const getWethAllowance = async (
 // };
 
 export const getEnsName = (address: string): Promise<string | null> => {
-  const provider = new ethers.providers.AlchemyProvider(
-    process.env.REACT_APP_CHAIN_NAME as string,
-    process.env.REACT_APP_ALCHEMY as string
-  );
+  const provider = getProvider();
   return provider.lookupAddress(address);
 };
 export const claimAuction = async (auctionId: string, signer: any) => {
