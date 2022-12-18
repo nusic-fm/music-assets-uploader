@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import axios from "axios";
+// import axios from "axios";
 import { useState } from "react";
 // import { NftItem } from "./components/NftItem";
 // import { getBinaryTree } from "./utils/binaryTreeGenerator";
@@ -550,57 +550,57 @@ export const MarketPlace = () => {
     });
   };
   const fetchFulltracks = async () => {
-    const graphqlQuery = {
-      query: `query {
-                fullTrackRecords (last: 2) {
-                  nodes {
-                    musicId
-                    cid
-                    artistName
-                    trackTitle
-                    albumName
-                    genre
-                    bpm
-                    key
-                    timeSignature
-                    bars
-                    beats
-                    duration
-                    startBeatOffsetMs
-                    sectionsCount
-                    stemsCount
-                  }
-              }
-                sectionRecords (last: 30) {
-                    nodes {
-                      musicId
-                      name
-                      startTimeMs
-                    }
-                }
-                stemRecords (last: 4) {
-                      nodes {
-                        musicId
-                        cid
-                        name
-                        type
-                      }
-                  }
-                }`,
-      variables: {},
-    };
+    // const graphqlQuery = {
+    //   query: `query {
+    //             fullTrackRecords (last: 2) {
+    //               nodes {
+    //                 musicId
+    //                 cid
+    //                 artistName
+    //                 trackTitle
+    //                 albumName
+    //                 genre
+    //                 bpm
+    //                 key
+    //                 timeSignature
+    //                 bars
+    //                 beats
+    //                 duration
+    //                 startBeatOffsetMs
+    //                 sectionsCount
+    //                 stemsCount
+    //               }
+    //           }
+    //             sectionRecords (last: 30) {
+    //                 nodes {
+    //                   musicId
+    //                   name
+    //                   startTimeMs
+    //                 }
+    //             }
+    //             stemRecords (last: 4) {
+    //                   nodes {
+    //                     musicId
+    //                     cid
+    //                     name
+    //                     type
+    //                   }
+    //               }
+    //             }`,
+    //   variables: {},
+    // };
     // sectionRecords (first: 5) {
     //   nodes {
     //     id
     //     musicId
     //   }
     // }
-    const fullTracks = await axios.post(
-      "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
-      graphqlQuery
-    );
-    const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
-    console.log({ raveCodeRecord });
+    // const fullTracks = await axios.post(
+    //   "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
+    //   graphqlQuery
+    // );
+    // const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
+    // console.log({ raveCodeRecord });
     setSongMetadata(raveCode);
   };
 
