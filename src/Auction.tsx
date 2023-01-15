@@ -197,7 +197,7 @@ const Auction = () => {
       const block = await provider.getBlock(blockNumberWithMethod);
 
       const startTime = moment.unix(block.timestamp);
-      const endTime = moment.unix(block.timestamp).add(7, "days");
+      const endTime = moment.unix(block.timestamp).add(60, "days");
 
       const startTimeStamp = startTime.unix();
       const endTimeStamp = endTime.unix();
