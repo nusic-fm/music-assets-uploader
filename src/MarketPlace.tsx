@@ -766,43 +766,32 @@ export const MarketPlace = () => {
         mt={4}
         p={2}
       >
-        <Typography variant="h5" align="center">
-          Track Explorer
+        <Typography variant="h4" align="center">
+          Tokenized Music Security Demo
         </Typography>
-        <Typography
+        {/* <Typography
           variant="body2"
           align="center"
           visibility={selectedTrackIndex === -1 ? "visible" : "hidden"}
         >
           Select a track
-        </Typography>
-        <Box m={2} display="flex" justifyContent="center">
+        </Typography> */}
+        <Box display="flex" justifyContent="center" my={6}>
           <Box
             style={{
-              backgroundColor: "rgba(196,196,196,13%",
+              // backgroundColor: "rgba(196,196,196,13%",
               borderRadius: "6px",
               minWidth: "80%",
             }}
           >
             {!isLoaded ? (
               <Box
-                p={2}
-                ml={4}
                 display="flex"
                 alignItems="center"
-                // justifyContent="space-around"
+                justifyContent="center"
                 gap={6}
               >
-                <Box>
-                  {/* <Typography variant="h6" fontWeight={"bold"} align="center">
-                    {songMetadata?.albumName}
-                  </Typography>
-                  <Typography variant="body2" align="center">
-                    By
-                  </Typography>
-                  <Typography variant="h6" fontWeight={"bold"} align="center">
-                    {songMetadata?.artistName}
-                  </Typography> */}
+                {/* <Box>
 
                   <Box
                     onClick={() => {
@@ -819,18 +808,7 @@ export const MarketPlace = () => {
                     ></img>
                     <Typography align="center">YATTA</Typography>
                   </Box>
-                  {/* <Box mt={2} display="flex" justifyContent="center">
-                    <Button
-                      onClick={() => {
-                        start(0);
-                      }}
-                      variant="contained"
-                      size="small"
-                    >
-                      Load Track
-                    </Button>
-                  </Box> */}
-                </Box>
+                </Box> */}
                 <Box>
                   {/* <Typography variant="h6" fontWeight={"bold"} align="center">
                     No Air
@@ -846,16 +824,30 @@ export const MarketPlace = () => {
                       start(1);
                     }}
                     style={{ cursor: "pointer" }}
+                    display={"flex"}
+                    justifyContent="center"
+                    alignItems={"center"}
+                    gap={6}
                   >
-                    <img
-                      src="/no-air.png"
-                      alt="no-air"
-                      width="185px"
-                      height="185px"
-                      style={{ borderRadius: "15px", objectFit: "cover" }}
-                    ></img>
-                    <Typography align="center">No Air</Typography>
+                    <Box>
+                      <img
+                        src="/no-air.png"
+                        alt="no-air"
+                        width="230px"
+                        height="230px"
+                        style={{ borderRadius: "15px", objectFit: "cover" }}
+                      ></img>
+                    </Box>
+                    <Box>
+                      <Typography align="center" variant="h5">
+                        No Air
+                      </Typography>
+                      <Button variant="contained" sx={{ mt: 6 }}>
+                        Select
+                      </Button>
+                    </Box>
                   </Box>
+
                   {/* <Box mt={2}>
                     <Button
                       onClick={() => {
@@ -868,7 +860,7 @@ export const MarketPlace = () => {
                     </Button>
                   </Box> */}
                 </Box>
-                <Box position="relative">
+                {/* <Box position="relative">
                   <img
                     src="/howie-B.webp"
                     alt="no-air"
@@ -897,7 +889,7 @@ export const MarketPlace = () => {
                       size="small"
                     ></Chip>
                   </Box>
-                </Box>
+                </Box> */}
               </Box>
             ) : (
               <Box p={4} display="flex" alignItems="flex-start">
