@@ -36,8 +36,8 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 // };
 
 const trackDetails = {
-  artist: "Captain Haiti",
-  title: "Bare Yo!",
+  artist: "",
+  title: "unDavos",
   coverUrl: "/cover.jpeg",
   profileUrl: "/captainhaiti.webp",
   socials: {
@@ -95,7 +95,7 @@ const App = () => {
   const [contributions, setContributions] = useState(1);
   const [crossmint, setCrossmint] = useState(1);
   const [crypto, setCrypto] = useState(1);
-  const [price, setPrice] = useState(180.4);
+  // const [price, setPrice] = useState(0.001.4);
 
   // useEffect(() => {
   //   const myInterval = setInterval(() => {
@@ -171,7 +171,7 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account]);
 
-  const onMint = async () => {
+  const onMint = async (price: number, methodName: string) => {
     if (!account) {
       alert("Please connect your wallet and continue.");
       return;
@@ -179,19 +179,22 @@ const App = () => {
     try {
       setIsLoading(true);
       const nftContract = new ethers.Contract(
-        price === 18.04
-          ? "0x91cb12fb7a1678B6CDC1B18Ef8D5eC0d7697c4A0"
-          : "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
+        "0xf2Fec565A7e94e9801aeC3ae6cDA7027cfd2f32B",
         [
           {
             inputs: [
+              {
+                internalType: "address",
+                name: "_to",
+                type: "address",
+              },
               {
                 internalType: "uint256",
                 name: "tokenQuantity",
                 type: "uint256",
               },
             ],
-            name: "mint",
+            name: methodName,
             outputs: [],
             stateMutability: "payable",
             type: "function",
@@ -203,10 +206,11 @@ const App = () => {
         value: getEthValue(price).mul(BigNumber.from(quantity)),
       };
       console.log(ethers.utils.formatEther(options.value.toString()));
-      const tx = await nftContract.mint(quantity, options);
+      const tx = await nftContract[methodName](account, quantity);
       await tx.wait();
       alert("You have successfully minted the NFT(s), thanks.");
     } catch (e: any) {
+      debugger;
       console.log(e.message);
       alert(e.data?.message || e.message);
     } finally {
@@ -223,16 +227,18 @@ const App = () => {
         alignItems="center"
       >
         <Box
-          sx={{
-            background: `url(/dao_logo.png)`,
-            width: "80px",
-            height: "20px",
-            backgroundSize: "contain",
-            backgroundPosition: "center",
-            transform: "scale(2)",
-            backgroundRepeat: "no-repeat",
-          }}
-        ></Box>
+        // sx={{
+        //   background: `url(/dao_logo.png)`,
+        //   width: "80px",
+        //   height: "20px",
+        //   backgroundSize: "contain",
+        //   backgroundPosition: "center",
+        //   transform: "scale(2)",
+        //   backgroundRepeat: "no-repeat",
+        // }}
+        >
+          <Typography>unDavos</Typography>
+        </Box>
         {account ? (
           <Chip
             label={`${account.slice(0, 6)}...${account.slice(
@@ -330,13 +336,6 @@ const App = () => {
                 >
                   <img src="/social/youtube.png" alt="youtube" />
                 </IconButton>
-                {/* <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.linkedin}`}
-                  target="_blank"
-                >
-                  <img src="/social/linkedin.svg" alt="fb" />
-                </IconButton> */}
                 <IconButton
                   sx={{ p: 0 }}
                   href={`//${trackDetails?.socials?.soundcloud}`}
@@ -345,11 +344,6 @@ const App = () => {
                   <img src="/social/soundcloud.png" alt="fb" />
                 </IconButton>
               </Box>
-              {/* <Box mt={3}>
-              <Typography>Genre: {trackDetails?.genre}</Typography>
-              <Typography> Bpm: {trackDetails?.bpm} </Typography>
-              <Typography>Key: {trackDetails?.key}</Typography>
-            </Box> */}
             </Box>
           </Box>
           <Box>
@@ -543,307 +537,157 @@ const App = () => {
             </Typography>
           </Box>
         </Box>
-        {/* <Box>
-          <Typography
-            // variant="caption"
-            // fontWeight="bold"
-            fontFamily="BenchNine"
-          >
-            Cherry is a twenty-two year old artist from Pittsburgh, Pennsylvania
-            currently based out of Los Angeles. Pushing forward the sounds of
-            indie pop, trap & electronic. After an introduction to making beats
-            4 years ago, Cherry started to focus on creating music, and has been
-            working. Being around music his whole life, becoming a creative was
-            the outlet Cherry needed to find his own path. Cherry is a producer,
-            engineer, mix&master, singer/songwriter and composes all of his own
-            projects. Recently dropping his latest EP in l.a. he is set to focus
-            on his connection to music, and release new music in 2022.
-          </Typography>
-        </Box> */}
       </Box>
 
-      <Box mt={6} pb={6}>
-        <Grid container>
-          <Grid item xs={12} md={6}>
-            <Box
-              width={"100%"}
-              display="flex"
-              justifyContent={"center"}
-              alignItems="center"
-              height="100%"
-            >
-              <Box width={{ sx: "100%", md: "80%" }} position={"relative"}>
-                <img
-                  src="/captain-mint.png"
-                  alt=""
-                  width={"100%"}
-                  style={{ objectFit: "cover" }}
-                />
-                <Box position={"absolute"} top={0} width={"100%"}>
-                  <Box display={"flex"} justifyContent="center" width={"100%"}>
-                    <Box
-                      sx={{ background: "rgba(0,0,0,60%)" }}
-                      width={"100%"}
-                      p={2}
-                    >
-                      <Box
-                        display={"flex"}
-                        justifyContent="center"
-                        alignItems={"center"}
-                        gap={2}
-                      >
-                        <Box>
-                          <Typography
-                            sx={{
-                              background:
-                                "linear-gradient(43deg, #90D5EC 10%, #F907FC 100%)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                              fontWeight: "bolder",
-                            }}
-                          >
-                            Whole Song
-                          </Typography>
-                          <Typography variant="h6">180.4 MATIC</Typography>
-                        </Box>
-                        <Box
-                          width="80px"
-                          // height="80px"
-                          display={"flex"}
-                          justifyContent={
-                            price === 180.4 ? "flex-start" : "flex-end"
-                          }
-                          borderRadius={"25px"}
-                          p={1}
-                          sx={{
-                            cursor: "pointer",
-                            // backgroundColor: "rgba(255,255,255,0.4)",
-                            background:
-                              "linear-gradient(225deg, rgb(255, 60, 172) 0%, rgb(120, 75, 160) 50%, rgb(43, 134, 197) 100%)",
-                          }}
-                          onClick={() => {
-                            if (price === 18.04) {
-                              setPrice(180.4);
-                            } else {
-                              setPrice(18.04);
-                            }
-                          }}
-                        >
-                          <motion.div
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              backgroundColor: "#fff",
-                              borderRadius: "40px",
-                            }}
-                            layout
-                            transition={spring}
-                          />
-                        </Box>
-
-                        <Box>
-                          <Typography
-                            sx={{
-                              background:
-                                "linear-gradient(43deg, #90D5EC 10%, #F907FC 100%)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                              fontWeight: "bolder",
-                            }}
-                          >
-                            Breakdown Only
-                          </Typography>
-                          <Typography variant="h6">18.04 MATIC</Typography>
-                        </Box>
-                      </Box>
-                      {/* <Typography
-                        align="center"
-                        variant="h4"
-                        fontFamily={"BenchNine"}
-                        fontWeight="bold"
-                      >
-                        {parseFloat(getEtherForQuantity(price, quantity))} MATIC
-                      </Typography> */}
-                    </Box>
-                  </Box>
-                </Box>
-                <Box position={"absolute"} bottom={0} width={"100%"}>
-                  <Box
-                    display={"flex"}
-                    justifyContent="space-around"
-                    alignItems={"center"}
-                    flexWrap={"wrap"}
-                    sx={{ background: "rgba(0,0,0,40%)" }}
-                    gap={1}
-                    p={2}
-                  >
-                    <CrossmintPayButton
-                      showOverlay
-                      clientId={
-                        price === 18.04
-                          ? "3d040d1a-f2eb-4b48-8036-a20bcc6dd8fe"
-                          : "959b0097-d4a5-4990-bc69-7039c054753e"
-                      }
-                      mintConfig={{
-                        type: "erc-721",
-                        totalPrice: getEtherForQuantity(price, quantity),
-                        tokenQuantity: quantity,
-                      }}
-                    />
-                    <Box>
-                      <Badge
-                        badgeContent={
-                          quantity > 1
-                            ? parseFloat(getEtherForQuantity(price, quantity))
-                            : null
-                        }
-                        color="success"
-                        max={999999999999999999999999}
-                      >
-                        <TextField
-                          value={quantity}
-                          onChange={(e) => {
-                            setQuantity(parseInt(e.target.value));
-                          }}
-                          inputProps={{ step: 1, min: 1 }}
-                          type="number"
-                          // variant="filled"
-                          sx={{
-                            width: "70px",
-                            background: "rgb(30, 30, 30)",
-                            borderRadius: "6px",
-                          }}
-                          disabled={isLoading}
-                        />
-                      </Badge>
-                      {/* <TextField
-                        value={parseFloat(getEtherForQuantity(price, quantity))}
-                        sx={{
-                          width: "70px",
-                          background: "rgb(30, 30, 30)",
-                          borderRadius: "6px",
-                        }}
-                      /> */}
-                      {/* <Box
-                        sx={{
-                          background: "rgb(30, 30, 30)",
-                        }}
-                        p={2}
-                      >
-                        <Typography>
-                          {getEtherForQuantity(price, quantity)}
-                        </Typography>
-                      </Box> */}
-                      {/* <Select
-                        onChange={(e) => {
-                          setPrice(Number(e.target.value));
-                        }}
-                        disabled={isLoading}
-                        value={price}
-                        sx={{
-                          background: "rgb(30, 30, 30)",
-                        }}
-                      >
-                        <MenuItem value={199}>199 MATIC</MenuItem>
-                        <MenuItem value={9.9}>9.9 MATIC</MenuItem>
-                      </Select> */}
-                    </Box>
-                    <LoadingButton
-                      loading={isLoading}
-                      variant="contained"
-                      sx={{
-                        // fontFamily: "monospace",
-                        textTransform: "unset",
-                      }}
-                      onClick={onMint}
-                    >
-                      Mint with MATIC
-                    </LoadingButton>
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
+      <Box mt={"20rem"} pb={6}>
+        <Grid container rowGap={20} justifyContent="center">
+          <Grid item md={5}></Grid>
+          <Grid item xs={12} md={2}>
             <Box
               display={"flex"}
               flexDirection="column"
-              justifyContent={"space-between"}
-              alignItems="center"
+              alignItems={"center"}
+              gap={4}
             >
-              <Box width={{ xs: "100%", md: "50%" }} py={2} position="relative">
-                {!account && (
-                  <Box
-                    position={"absolute"}
-                    width="100%"
-                    height="100%"
-                    display={"flex"}
-                    alignItems="center"
-                    justifyContent={"center"}
-                  >
-                    <Box
-                      p={{ xs: 1, md: 2 }}
-                      sx={{
-                        background: "rgba(0,0,0,40%)",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        login();
-                      }}
-                    >
-                      <Typography color={"#c4c4c4"}>Connect Wallet</Typography>
-                    </Box>
-                  </Box>
-                )}
-                <Pie
-                  data={{
-                    labels: ["Your Contribution", "Cards", "Crypto"],
-                    datasets: [
-                      {
-                        // label: "# of Votes",
-                        data: [contributions, crossmint, crypto],
-                        backgroundColor: [
-                          "rgba(153, 102, 255, 0.2)",
-                          "rgba(54, 162, 235, 0.2)",
-                          "rgba(255, 159, 64, 0.2)",
-                        ],
-                        borderColor: [
-                          "rgba(153, 102, 255, 0.2)",
-                          "rgba(54, 162, 235, 0.2)",
-                          "rgba(255, 159, 64, 0.2)",
-                        ],
-                        borderWidth: 2,
-                      },
-                    ],
+              <Chip color="secondary" label="Free" />
+              <Button
+                variant="outlined"
+                onClick={() => onMint(0, "freeTokenMint")}
+              >
+                Mint
+              </Button>
+            </Box>
+          </Grid>
+          <Grid item md={5}></Grid>
+          <Grid item md={2}></Grid>
+          <Grid item md={2}>
+            <Box
+              display={"flex"}
+              flexDirection="column"
+              alignItems={"center"}
+              gap={4}
+            >
+              <Chip color="warning" label="Gold" />
+              <Box
+                display={"flex"}
+                justifyContent="center"
+                gap={2}
+                alignItems="center"
+                flexWrap="wrap"
+              >
+                <CrossmintPayButton
+                  showOverlay
+                  clientId="a0726572-57a3-4448-b8bd-97d662065eb4"
+                  mintConfig={{
+                    type: "erc-721",
+                    totalPrice: getEtherForQuantity(0.0001, quantity),
+                    tokenQuantity: quantity,
                   }}
-                  options={{
-                    plugins: {
-                      tooltip: {
-                        callbacks: {
-                          title: (item) => {
-                            return item[0].label;
-                          },
-                          label: (item) => {
-                            return `${item.formattedValue} MATIC`;
-                          },
-                          footer: (item) => {
-                            return `Total Raised: ${totalRaised} MATIC`;
-                          },
-                        },
-                      },
-                    },
-                  }}
+                  environment="staging"
                 />
-              </Box>
-              <Box width={{ xs: "90%", md: "50%" }} py={2}>
-                <img src="/map.png" alt="" width={"100%"} />
+                <Box>
+                  <Badge
+                    badgeContent={
+                      quantity > 1
+                        ? parseFloat(getEtherForQuantity(0.0001, quantity))
+                        : null
+                    }
+                    color="success"
+                    max={999999999999999999999999}
+                  >
+                    <TextField
+                      value={quantity}
+                      onChange={(e) => {
+                        setQuantity(parseInt(e.target.value));
+                      }}
+                      inputProps={{ step: 1, min: 1 }}
+                      type="number"
+                      // variant="filled"
+                      sx={{
+                        width: "70px",
+                        background: "rgb(30, 30, 30)",
+                        borderRadius: "6px",
+                      }}
+                      disabled={isLoading}
+                    />
+                  </Badge>
+                </Box>
+                <Button
+                  variant="contained"
+                  onClick={() => onMint(0.0001, "goldTokenMint")}
+                >
+                  Crypto
+                </Button>
               </Box>
             </Box>
           </Grid>
+          <Grid item md={4}></Grid>
+
+          <Grid item xs={12} md={2}>
+            <Box
+              display={"flex"}
+              flexDirection="column"
+              alignItems={"center"}
+              gap={4}
+            >
+              <Chip color="success" label="Platinum" />
+              <Box
+                display={"flex"}
+                justifyContent="center"
+                gap={2}
+                alignItems="center"
+                flexWrap="wrap"
+              >
+                <CrossmintPayButton
+                  showOverlay
+                  clientId="a0726572-57a3-4448-b8bd-97d662065eb4"
+                  mintConfig={{
+                    type: "erc-721",
+                    totalPrice: getEtherForQuantity(0.0001, quantity),
+                    tokenQuantity: quantity,
+                  }}
+                  environment="staging"
+                />
+                <Box>
+                  <Badge
+                    badgeContent={
+                      quantity > 1
+                        ? parseFloat(getEtherForQuantity(0.001, quantity))
+                        : null
+                    }
+                    color="success"
+                    max={999999999999999999999999}
+                  >
+                    <TextField
+                      value={quantity}
+                      onChange={(e) => {
+                        setQuantity(parseInt(e.target.value));
+                      }}
+                      inputProps={{ step: 1, min: 1 }}
+                      type="number"
+                      // variant="filled"
+                      sx={{
+                        width: "70px",
+                        background: "rgb(30, 30, 30)",
+                        borderRadius: "6px",
+                      }}
+                      disabled={isLoading}
+                    />
+                  </Badge>
+                </Box>
+                <Button
+                  variant="contained"
+                  onClick={() => onMint(0.001, "platinumTokenMint")}
+                >
+                  Crypto
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item md={2}></Grid>
         </Grid>
       </Box>
-      <Box mt={4} pb={8} display="flex" justifyContent="center">
+      {/* <Box mt={4} pb={8} display="flex" justifyContent="center">
         <Grid
           container
           rowSpacing={2}
@@ -1005,8 +849,8 @@ const App = () => {
             <Typography textAlign={"center"}>1</Typography>
           </Grid>
         </Grid>
-      </Box>
-      <Box mt={4} pb={8}>
+      </Box> */}
+      <Box mt={"20rem"} pb={8}>
         <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
         </Typography>
@@ -1063,3 +907,162 @@ const App = () => {
 };
 
 export default App;
+
+// <Box
+//   width={"100%"}
+//   display="flex"
+//   justifyContent={"center"}
+//   alignItems="center"
+//   height="100%"
+// ></Box>;
+// <Box width={{ sx: "100%", md: "80%" }} position={"relative"}>
+//   <img
+//     src="/captain-mint.png"
+//     alt=""
+//     width={"100%"}
+//     style={{ objectFit: "cover" }}
+//   />
+//   <Box position={"absolute"} top={0} width={"100%"}>
+//     <Box display={"flex"} justifyContent="center" width={"100%"}>
+//       <Box
+//         sx={{ background: "rgba(0,0,0,60%)" }}
+//         width={"100%"}
+//         p={2}
+//       >
+//         <Box
+//           display={"flex"}
+//           justifyContent="center"
+//           alignItems={"center"}
+//           gap={2}
+//         >
+//           <Box>
+//             <Typography
+//               sx={{
+//                 background:
+//                   "linear-gradient(43deg, #90D5EC 10%, #F907FC 100%)",
+//                 WebkitBackgroundClip: "text",
+//                 WebkitTextFillColor: "transparent",
+//                 fontWeight: "bolder",
+//               }}
+//             >
+//               Whole Song
+//             </Typography>
+//             <Typography variant="h6">180.4 MATIC</Typography>
+//           </Box>
+//           <Box
+//             width="80px"
+//             // height="80px"
+//             display={"flex"}
+//             justifyContent={
+//               price === 180.4 ? "flex-start" : "flex-end"
+//             }
+//             borderRadius={"25px"}
+//             p={1}
+//             sx={{
+//               cursor: "pointer",
+//               // backgroundColor: "rgba(255,255,255,0.4)",
+//               background:
+//                 "linear-gradient(225deg, rgb(255, 60, 172) 0%, rgb(120, 75, 160) 50%, rgb(43, 134, 197) 100%)",
+//             }}
+//             onClick={() => {
+//               if (price === 18.04) {
+//                 setPrice(180.4);
+//               } else {
+//                 setPrice(18.04);
+//               }
+//             }}
+//           >
+//             <motion.div
+//               style={{
+//                 width: "40px",
+//                 height: "40px",
+//                 backgroundColor: "#fff",
+//                 borderRadius: "40px",
+//               }}
+//               layout
+//               transition={spring}
+//             />
+//           </Box>
+
+//           <Box>
+//             <Typography
+//               sx={{
+//                 background:
+//                   "linear-gradient(43deg, #90D5EC 10%, #F907FC 100%)",
+//                 WebkitBackgroundClip: "text",
+//                 WebkitTextFillColor: "transparent",
+//                 fontWeight: "bolder",
+//               }}
+//             >
+//               Breakdown Only
+//             </Typography>
+//             <Typography variant="h6">18.04 MATIC</Typography>
+//           </Box>
+//         </Box>
+//       </Box>
+//     </Box>
+//   </Box>
+//   <Box position={"absolute"} bottom={0} width={"100%"}>
+//     <Box
+//       display={"flex"}
+//       justifyContent="space-around"
+//       alignItems={"center"}
+//       flexWrap={"wrap"}
+//       sx={{ background: "rgba(0,0,0,40%)" }}
+//       gap={1}
+//       p={2}
+//     >
+//       <CrossmintPayButton
+//         showOverlay
+//         clientId={
+//           price === 18.04
+//             ? "3d040d1a-f2eb-4b48-8036-a20bcc6dd8fe"
+//             : "959b0097-d4a5-4990-bc69-7039c054753e"
+//         }
+//         mintConfig={{
+//           type: "erc-721",
+//           totalPrice: getEtherForQuantity(price, quantity),
+//           tokenQuantity: quantity,
+//         }}
+//       />
+//       <Box>
+//         <Badge
+//           badgeContent={
+//             quantity > 1
+//               ? parseFloat(getEtherForQuantity(price, quantity))
+//               : null
+//           }
+//           color="success"
+//           max={999999999999999999999999}
+//         >
+//           <TextField
+//             value={quantity}
+//             onChange={(e) => {
+//               setQuantity(parseInt(e.target.value));
+//             }}
+//             inputProps={{ step: 1, min: 1 }}
+//             type="number"
+//             // variant="filled"
+//             sx={{
+//               width: "70px",
+//               background: "rgb(30, 30, 30)",
+//               borderRadius: "6px",
+//             }}
+//             disabled={isLoading}
+//           />
+//         </Badge>
+//       </Box>
+//       <LoadingButton
+//         loading={isLoading}
+//         variant="contained"
+//         sx={{
+//           // fontFamily: "monospace",
+//           textTransform: "unset",
+//         }}
+//         onClick={onMint}
+//       >
+//         Mint with MATIC
+//       </LoadingButton>
+//     </Box>
+//   </Box>
+// </Box>;
