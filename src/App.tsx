@@ -119,7 +119,8 @@ const App = () => {
           />
         ) : (
           <Button
-            variant="contained"
+            color="info"
+            variant="outlined"
             onClick={() => {
               login();
             }}
@@ -139,7 +140,7 @@ const App = () => {
         >
           <Tooltip title="Platinum Pass Info" placement="bottom">
             <Box
-              width={"25%"}
+              width={"33%"}
               style={{
                 clipPath: "polygon(50% 0%,100% 100%, 0% 100%)",
                 backgroundColor:
@@ -163,7 +164,7 @@ const App = () => {
           </Tooltip>
           <Tooltip title="Gold Pass Info" placement="bottom">
             <Box
-              width={"50%"}
+              width={"66%"}
               style={{
                 clipPath: "polygon(25% 0%,75% 0, 100% 100%,0% 100%)",
                 backgroundColor:
@@ -172,12 +173,12 @@ const App = () => {
                     : "rgba(255,255,255,0.2)",
                 cursor: "pointer",
               }}
-              height="100px"
               mx="auto"
               display={"flex"}
               alignItems="end"
               justifyContent={"center"}
               py={1}
+              height="100px"
               onClick={() => setMode(1)}
             >
               <Typography textAlign={"center"} variant="caption">
@@ -187,7 +188,7 @@ const App = () => {
           </Tooltip>
           <Tooltip title="Vip Pass Info" placement="bottom">
             <Box
-              width={"75%"}
+              width={"99%"}
               style={{
                 clipPath: "polygon(16.5% 0, 83% 0, 100% 100%,0% 100%)",
                 backgroundColor:
@@ -196,12 +197,12 @@ const App = () => {
                     : "rgba(255,255,255,0.2)",
                 cursor: "pointer",
               }}
-              height="100px"
               mx="auto"
               display={"flex"}
               alignItems="end"
               justifyContent={"center"}
               py={1}
+              height="100px"
               onClick={() => setMode(2)}
             >
               <Typography textAlign={"center"} variant="caption">
@@ -250,7 +251,7 @@ const App = () => {
           </Button>
         </Box>
       </Box>
-      <Box mt={"20rem"} pb={8}>
+      <Box mt={"10rem"} pb={8}>
         <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
         </Typography>
