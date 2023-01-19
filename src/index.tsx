@@ -63,9 +63,6 @@ const themeSettings = createTheme({
     button: {
       fontFamily: '"Space Mono" , sans-serif',
     },
-    h5: {
-      fontFamily: '"BenchNine"',
-    },
     allVariants: {
       color: "#ffffff",
     },

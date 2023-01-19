@@ -1,70 +1,21 @@
-import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import {
-  Badge,
   Button,
   Chip,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
-  IconButton,
-  TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
 // import { ethers } from "ethers";
-import { useEffect, useState } from "react";
-import { logFirebaseEvent } from "./services/firebase.service";
+import { useState } from "react";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "react-chartjs-2";
 import { BigNumber, ethers } from "ethers";
-import { LoadingButton } from "@mui/lab";
-import { getMints } from "./services/graphql";
-import { motion } from "framer-motion";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-// export const data = {
-//   labels: ["Your Contribution", "Total Raised"],
-//   datasets: [
-//     {
-//       // label: "# of Votes",
-//       data: [0, 1],
-//       backgroundColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
-//       borderColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
-//       borderWidth: 2,
-//     },
-//   ],
-// };
-
-const trackDetails = {
-  artist: "",
-  title: "unDavos",
-  coverUrl: "/cover.jpeg",
-  profileUrl: "/captainhaiti.webp",
-  socials: {
-    tiktok: "tiktok.com/@captainhaiti",
-    twitter: "twitter.com/haiticaptain",
-    instagram: "instagram.com/captainhaiti",
-    youtube: "youtube.com/channel/UCFn86vJtQff1Lk8co5obm1g",
-    facebook: "facebook.com/gaming/RealCaptainHaiti",
-    linkedin: "linkedin.com/in/captain-haiti-816b59208",
-    soundcloud: "soundcloud.com/nandev-parolier",
-  },
-};
-const getTimerObj = () => {
-  const revealDate = "Fri, 9 Dec 2022 06:00:00 GMT";
-  const countDownDate = new Date(revealDate).getTime();
-  const timeleft = countDownDate - Date.now();
-  if (timeleft <= 0) {
-    return { isRevealed: true };
-  }
-  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-  return { days, hours, minutes, seconds, isRevealed: false };
-};
+import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -76,110 +27,39 @@ const getEtherForQuantity = (price: number, quantity: number): string => {
   );
 };
 
-const spring = {
-  type: "spring",
-  stiffness: 700,
-  damping: 30,
-};
-
 const App = () => {
-  const [spotifyArtistId, setSpotifyArtistId] = useState<string>();
   const { login } = useAuth();
   const { account, library } = useWeb3React();
-
-  const [timerObj] = useState(getTimerObj);
-  const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<number>();
+  const [showPaymentMode, setShowPaymentMode] = useState(false);
 
-  const [totalRaised, setTotalRaised] = useState(0);
-  const [contributions, setContributions] = useState(1);
-  const [crossmint, setCrossmint] = useState(1);
-  const [crypto, setCrypto] = useState(1);
-  // const [price, setPrice] = useState(0.001.4);
-
-  // useEffect(() => {
-  //   const myInterval = setInterval(() => {
-  //     const _newTimerObj = getTimerObj();
-  //     setTimerObj(_newTimerObj);
-  //   }, 1000);
-  //   return () => {
-  //     clearInterval(myInterval);
-  //   };
-  // }, [timerObj]);
-  const onSpotifyId = (e: any) => {
-    if (!spotifyArtistId?.length) {
-      alert("Please enter valid Spotify Artist ID");
-      return;
-    }
-    logFirebaseEvent("select_content", {
-      content_type: "spotifyArtistId",
-      content_id: spotifyArtistId,
-    });
-    alert("successfully submitted");
-  };
-  const fetchMintsAnalytics = async () => {
-    const mints = await getMints();
-    // const mints = [
-    //   { amountTransfered: "10000000000000000000", to: "me" },
-    //   { amountTransfered: "20000000000000000000", to: "a" },
-    //   { amountTransfered: "30000000000000000000", to: "asdf" },
-    // ];
-    if (mints?.length) {
-      let total = BigNumber.from("0");
-      let totalContributions = BigNumber.from("0");
-      let fiatTx = BigNumber.from("0");
-      let cryptoTx = BigNumber.from("0");
-      const hashes: string[] = [];
-      // eslint-disable-next-line array-callback-return
-      mints.map((mint) => {
-        if (hashes.includes(mint.transactionHash)) {
-          return null;
-        }
-        total = total.add(BigNumber.from(mint.amountTransfered));
-        hashes.push(mint.transactionHash);
-        if (mint.to === account) {
-          totalContributions = totalContributions.add(
-            BigNumber.from(mint.amountTransfered)
-          );
-          return null;
-        }
-        if (mint._type === "CrossMint") {
-          fiatTx = fiatTx.add(BigNumber.from(mint.amountTransfered));
-          return null;
-        } else {
-          cryptoTx = cryptoTx.add(BigNumber.from(mint.amountTransfered));
-          return null;
-        }
-      });
-      // const total = mints
-      //   .map((mint) => BigNumber.from(mint.amountTransfered))
-      //   .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
-      setTotalRaised(Number(ethers.utils.formatEther(total)));
-      // const totalContributions = mints
-      //   .filter((mint) => mint.to === "me")
-      //   .map((mint) => BigNumber.from(mint.amountTransfered))
-      //   .reduce((x, y) => BigNumber.from(x).add(BigNumber.from(y)));
-      setContributions(Number(ethers.utils.formatEther(totalContributions)));
-      setCrossmint(Number(ethers.utils.formatEther(fiatTx)));
-      setCrypto(Number(ethers.utils.formatEther(cryptoTx)));
-    }
-  };
-  useEffect(() => {
-    if (account) {
-      fetchMintsAnalytics();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
-
-  const onMint = async (price: number, methodName: string) => {
+  const onMint = async () => {
     if (!account) {
       alert("Please connect your wallet and continue.");
       return;
     }
     try {
+      let methodName, price;
+      switch (mode) {
+        case 0:
+          methodName = "platinumTokenNativeMint";
+          price = 0.0001;
+          break;
+        case 1:
+          methodName = "goldTokenNativeMint";
+          price = 0.00001;
+          break;
+        case 2:
+          methodName = "basicTokenNativeMint";
+          price = 0;
+          break;
+        default:
+          return;
+      }
       setIsLoading(true);
       const nftContract = new ethers.Contract(
-        "0xf2Fec565A7e94e9801aeC3ae6cDA7027cfd2f32B",
+        "0x012a288853BfD03aC74EBbF139975D0A1E51A3Ff",
         [
           {
             inputs: [
@@ -203,14 +83,14 @@ const App = () => {
         library.getSigner()
       );
       const options = {
-        value: getEthValue(price).mul(BigNumber.from(quantity)),
+        value: getEthValue(price).mul(BigNumber.from(1)),
       };
       console.log(ethers.utils.formatEther(options.value.toString()));
-      const tx = await nftContract[methodName](account, quantity);
+      const tx = await nftContract[methodName](account, 1, options);
       await tx.wait();
-      alert("You have successfully minted the NFT(s), thanks.");
+      alert("You have successfully minted the NFT");
+      setShowPaymentMode(false);
     } catch (e: any) {
-      debugger;
       console.log(e.message);
       alert(e.data?.message || e.message);
     } finally {
@@ -225,19 +105,11 @@ const App = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
+        flexWrap={"wrap"}
+        gap={2}
       >
-        <Box
-        // sx={{
-        //   background: `url(/dao_logo.png)`,
-        //   width: "80px",
-        //   height: "20px",
-        //   backgroundSize: "contain",
-        //   backgroundPosition: "center",
-        //   transform: "scale(2)",
-        //   backgroundRepeat: "no-repeat",
-        // }}
-        >
-          <Typography>unDavos</Typography>
+        <Box>
+          <Typography variant="h4">Access Pass</Typography>
         </Box>
         {account ? (
           <Chip
@@ -256,607 +128,132 @@ const App = () => {
           </Button>
         )}
       </Box>
-      <Box
-        display="flex"
-        gap={6}
-        justifyContent="space-around"
-        flexWrap="wrap"
-        p={{ xs: 2, sm: 5 }}
-        style={{
-          backgroundImage: `url('${trackDetails?.coverUrl}')`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "top right",
-          boxShadow: "inset 0 0 0 1000px rgba(0,0,0,75%)",
-        }}
-      >
+      <Box mt={"2rem"} pb={6} display="flex" justifyContent={"center"}>
         <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="space-between"
-          gap={2}
-          maxWidth={{ md: "35%" }}
+          width={500}
+          style={
+            {
+              // background: 'linear-gradient(to right, #c6ffdd, #fbd786, #f7797d)'
+            }
+          }
         >
-          <Box
-            display="flex"
-            gap={6}
-            alignItems="center"
-            justifyContent="center"
-            flexWrap="wrap"
+          <Tooltip title="Platinum Pass Info" placement="bottom">
+            <Box
+              width={"25%"}
+              style={{
+                clipPath: "polygon(50% 0%,100% 100%, 0% 100%)",
+                backgroundColor:
+                  mode === 0
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(255,255,255,0.2)",
+                cursor: "pointer",
+              }}
+              py={1}
+              height="100px"
+              mx="auto"
+              display={"flex"}
+              alignItems="end"
+              justifyContent={"center"}
+              onClick={() => setMode(0)}
+            >
+              <Typography textAlign={"center"} variant="caption">
+                Platinum
+              </Typography>
+            </Box>
+          </Tooltip>
+          <Tooltip title="Gold Pass Info" placement="bottom">
+            <Box
+              width={"50%"}
+              style={{
+                clipPath: "polygon(25% 0%,75% 0, 100% 100%,0% 100%)",
+                backgroundColor:
+                  mode === 1
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(255,255,255,0.2)",
+                cursor: "pointer",
+              }}
+              height="100px"
+              mx="auto"
+              display={"flex"}
+              alignItems="end"
+              justifyContent={"center"}
+              py={1}
+              onClick={() => setMode(1)}
+            >
+              <Typography textAlign={"center"} variant="caption">
+                Gold
+              </Typography>
+            </Box>
+          </Tooltip>
+          <Tooltip title="Vip Pass Info" placement="bottom">
+            <Box
+              width={"75%"}
+              style={{
+                clipPath: "polygon(16.5% 0, 83% 0, 100% 100%,0% 100%)",
+                backgroundColor:
+                  mode === 2
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(255,255,255,0.2)",
+                cursor: "pointer",
+              }}
+              height="100px"
+              mx="auto"
+              display={"flex"}
+              alignItems="end"
+              justifyContent={"center"}
+              py={1}
+              onClick={() => setMode(2)}
+            >
+              <Typography textAlign={"center"} variant="caption">
+                VIP
+              </Typography>
+            </Box>
+          </Tooltip>
+        </Box>
+      </Box>
+      <Box p={2} display="flex" justifyContent={"center"}>
+        {mode !== undefined && (
+          <Box width={500}>
+            <Grid container alignItems="center" rowSpacing={2}>
+              <Grid item xs={5}>
+                <Typography textAlign={"center"}>Pass</Typography>
+              </Grid>
+              <Grid item xs={2}></Grid>
+              <Grid item xs={5}>
+                <Typography textAlign={"left"} variant="h5">
+                  {mode === 0 ? "Platinum" : mode === 1 ? "Gold" : "Vip"}
+                </Typography>
+              </Grid>
+              <Grid item xs={5}>
+                <Typography textAlign={"center"}>Price</Typography>
+              </Grid>
+              <Grid item xs={2}></Grid>
+              <Grid item xs={5}>
+                <Typography textAlign={"left"} variant="h6">
+                  {mode === 0 ? 0.0001 : mode === 1 ? 0.001 : 0.000001} ETH
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+      </Box>
+      <Box p={2} display="flex" justifyContent={"center"}>
+        <Box width={{ md: "300px" }}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              setShowPaymentMode(true);
+            }}
           >
-            <Box>
-              <img
-                src={trackDetails?.profileUrl}
-                alt=""
-                width="150px"
-                height="150px"
-                style={{ borderRadius: "6px" }}
-              ></img>
-            </Box>
-            <Box>
-              <Box>
-                <Typography variant="h5" fontWeight="bold">
-                  {trackDetails?.title}
-                </Typography>
-                <Typography variant="body1">{trackDetails?.artist}</Typography>
-              </Box>
-              <Box mt={3} display="flex" flexWrap="wrap">
-                <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.tiktok}`}
-                  target="_blank"
-                >
-                  <img src="/social/tiktok.png" alt="tiktok" />
-                </IconButton>
-                <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.twitter}`}
-                  target="_blank"
-                >
-                  <img src="/social/twitter.png" alt="twitter" />
-                </IconButton>
-                <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.facebook}`}
-                  target="_blank"
-                >
-                  <img src="/social/facebook.svg" alt="fb" />
-                </IconButton>
-                <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.instagram}`}
-                  target="_blank"
-                >
-                  <img src="/social/instagram.png" alt="instagram" />
-                </IconButton>
-                <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.youtube}`}
-                  target="_blank"
-                >
-                  <img src="/social/youtube.png" alt="youtube" />
-                </IconButton>
-                <IconButton
-                  sx={{ p: 0 }}
-                  href={`//${trackDetails?.socials?.soundcloud}`}
-                  target="_blank"
-                >
-                  <img src="/social/soundcloud.png" alt="fb" />
-                </IconButton>
-              </Box>
-            </Box>
-          </Box>
-          <Box>
-            <Typography fontFamily="BenchNine">
-              Residents and businesses of Little Haiti-Miami are being displaced
-              by Real Estate development
-            </Typography>
-            <Typography
-              // variant="caption"
-              // fontWeight="bold"
-              fontFamily="BenchNine"
-              variant="h4"
-            >
-              Why? The value of each sq.ft. of their community has increased
-              56,1% within a year
-            </Typography>
-            <Typography fontFamily="BenchNine" variant="body1">
-              The Captain Haiti Foundation is creating a digital twin of the
-              neighborhood in the metaverse to raise money and save Little
-              Haiti-Miami from gentrification
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="space-between"
-          gap={2}
-          maxWidth={{ md: "30%" }}
-        >
-          <Box>
-            <Box>
-              {timerObj.isRevealed === false && (
-                <Typography fontWeight="bold" variant="h5">
-                  Mint "Bare Yo!" In...
-                </Typography>
-              )}
-            </Box>
-            {timerObj.isRevealed === false ? (
-              <Box
-                display="flex"
-                flexWrap="wrap"
-                justifyContent="center"
-                gap={4}
-              >
-                <Box
-                  // mr={2}
-                  mt={2}
-                  p={2}
-                  sx={{ border: "2px solid white", borderRadius: "6px" }}
-                  width="35px"
-                  fontWeight="bold"
-                >
-                  <Typography fontWeight="bold" variant="h4" align="center">
-                    {timerObj.days}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    align="center"
-                    fontFamily="BenchNine"
-                  >
-                    days
-                  </Typography>
-                </Box>
-                <Box
-                  // mr={2}
-                  mt={2}
-                  p={2}
-                  sx={{ border: "2px solid white", borderRadius: "6px" }}
-                  width="35px"
-                >
-                  <Typography fontWeight="bold" variant="h4" align="center">
-                    {timerObj.hours}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    align="center"
-                    fontFamily="BenchNine"
-                  >
-                    hrs
-                  </Typography>
-                </Box>
-                <Box
-                  // mr={2}
-                  mt={2}
-                  p={2}
-                  sx={{ border: "2px solid white", borderRadius: "6px" }}
-                  width="35px"
-                >
-                  <Typography fontWeight="bold" variant="h4" align="center">
-                    {timerObj.minutes}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    align="center"
-                    fontFamily="BenchNine"
-                  >
-                    min
-                  </Typography>
-                </Box>
-                <Box
-                  mt={2}
-                  p={2}
-                  sx={{ border: "2px solid white", borderRadius: "6px" }}
-                  width="35px"
-                >
-                  <Typography fontWeight="bold" variant="h4" align="center">
-                    {timerObj.seconds}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    align="center"
-                    fontFamily="BenchNine"
-                  >
-                    sec
-                  </Typography>
-                </Box>
-              </Box>
-            ) : (
-              <Box
-                my={2}
-                // mx={4}
-                p={2}
-                sx={{ border: "2px solid white", borderRadius: "6px" }}
-              >
-                <Typography variant="h4" align="center" fontWeight="bold">
-                  "Bare Yo!" Live
-                </Typography>
-                <Typography variant="body2" align="center">
-                  Mint went live on Dec 9th 01:00 hrs ET
-                </Typography>
-              </Box>
-            )}
-          </Box>
-          <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
-            <Typography fontFamily="BenchNine">
-              Each Music-NFT of “Bare Yo!” is geolocated to 1 square foot of
-              Little Haiti
-            </Typography>
-            <Typography
-              // variant="caption"
-              // fontWeight="bold"
-              fontFamily="BenchNine"
-              variant="h4"
-            >
-              Each Music-NFT will fund Captain Haiti’s bid to buy back his
-              neighborhood
-            </Typography>
-            <Typography fontFamily="BenchNine" variant="body1">
-              The NFT-funded smart village will serve as a “living lab” for
-              year-round living, working, and playing, with the goal of becoming
-              a destination for WEB3 innovation
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="space-between"
-          gap={2}
-          maxWidth={{ md: "20%" }}
-        >
-          <iframe
-            width="100%"
-            height="100%"
-            src="https://www.youtube.com/embed/gENgcFL6LnM"
-            title="Take the #BareYoChallenge - Make the song go Platinum and fund a smart village in Miami."
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-
-          <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
-            <Typography fontFamily="BenchNine">
-              Hurry! Buildings are constantly going up for sale in Little Haiti
-            </Typography>
-            <Typography
-              // variant="caption"
-              // fontWeight="bold"
-              fontFamily="BenchNine"
-              variant="h4"
-            >
-              Most tenants only have Month to Month leases. If their buildings
-              are sold to someone else, they will be removed sooner or later!
-            </Typography>
-            <Typography fontFamily="BenchNine" variant="body1">
-              By purchasing the Music-NFT “Bare Yo!” , you are joining in saving
-              these buildings and bringing innovation and opportunity for all!
-            </Typography>
-          </Box>
+            {isLoading ? <CircularProgress /> : "Access"}
+          </Button>
         </Box>
       </Box>
-
-      <Box mt={"20rem"} pb={6}>
-        <Grid container rowGap={20} justifyContent="center">
-          <Grid item md={5}></Grid>
-          <Grid item xs={12} md={2}>
-            <Box
-              display={"flex"}
-              flexDirection="column"
-              alignItems={"center"}
-              gap={4}
-            >
-              <Chip color="secondary" label="Free" />
-              <Button
-                variant="outlined"
-                onClick={() => onMint(0, "freeTokenMint")}
-              >
-                Mint
-              </Button>
-            </Box>
-          </Grid>
-          <Grid item md={5}></Grid>
-          <Grid item md={2}></Grid>
-          <Grid item md={2}>
-            <Box
-              display={"flex"}
-              flexDirection="column"
-              alignItems={"center"}
-              gap={4}
-            >
-              <Chip color="warning" label="Gold" />
-              <Box
-                display={"flex"}
-                justifyContent="center"
-                gap={2}
-                alignItems="center"
-                flexWrap="wrap"
-              >
-                <CrossmintPayButton
-                  showOverlay
-                  clientId="a0726572-57a3-4448-b8bd-97d662065eb4"
-                  mintConfig={{
-                    type: "erc-721",
-                    totalPrice: getEtherForQuantity(0.0001, quantity),
-                    tokenQuantity: quantity,
-                  }}
-                  environment="staging"
-                />
-                <Box>
-                  <Badge
-                    badgeContent={
-                      quantity > 1
-                        ? parseFloat(getEtherForQuantity(0.0001, quantity))
-                        : null
-                    }
-                    color="success"
-                    max={999999999999999999999999}
-                  >
-                    <TextField
-                      value={quantity}
-                      onChange={(e) => {
-                        setQuantity(parseInt(e.target.value));
-                      }}
-                      inputProps={{ step: 1, min: 1 }}
-                      type="number"
-                      // variant="filled"
-                      sx={{
-                        width: "70px",
-                        background: "rgb(30, 30, 30)",
-                        borderRadius: "6px",
-                      }}
-                      disabled={isLoading}
-                    />
-                  </Badge>
-                </Box>
-                <Button
-                  variant="contained"
-                  onClick={() => onMint(0.0001, "goldTokenMint")}
-                >
-                  Crypto
-                </Button>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item md={4}></Grid>
-
-          <Grid item xs={12} md={2}>
-            <Box
-              display={"flex"}
-              flexDirection="column"
-              alignItems={"center"}
-              gap={4}
-            >
-              <Chip color="success" label="Platinum" />
-              <Box
-                display={"flex"}
-                justifyContent="center"
-                gap={2}
-                alignItems="center"
-                flexWrap="wrap"
-              >
-                <CrossmintPayButton
-                  showOverlay
-                  clientId="a0726572-57a3-4448-b8bd-97d662065eb4"
-                  mintConfig={{
-                    type: "erc-721",
-                    totalPrice: getEtherForQuantity(0.0001, quantity),
-                    tokenQuantity: quantity,
-                  }}
-                  environment="staging"
-                />
-                <Box>
-                  <Badge
-                    badgeContent={
-                      quantity > 1
-                        ? parseFloat(getEtherForQuantity(0.001, quantity))
-                        : null
-                    }
-                    color="success"
-                    max={999999999999999999999999}
-                  >
-                    <TextField
-                      value={quantity}
-                      onChange={(e) => {
-                        setQuantity(parseInt(e.target.value));
-                      }}
-                      inputProps={{ step: 1, min: 1 }}
-                      type="number"
-                      // variant="filled"
-                      sx={{
-                        width: "70px",
-                        background: "rgb(30, 30, 30)",
-                        borderRadius: "6px",
-                      }}
-                      disabled={isLoading}
-                    />
-                  </Badge>
-                </Box>
-                <Button
-                  variant="contained"
-                  onClick={() => onMint(0.001, "platinumTokenMint")}
-                >
-                  Crypto
-                </Button>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item md={2}></Grid>
-        </Grid>
-      </Box>
-      {/* <Box mt={4} pb={8} display="flex" justifyContent="center">
-        <Grid
-          container
-          rowSpacing={2}
-          xs={11}
-          md={6}
-          sx={{
-            ".MuiGrid-item": { borderBottom: "1px solid #c4c4c4", p: 1.5 },
-          }}
-        >
-          <Grid item xs={4} borderBottom="1px solid #c4c4c4"></Grid>
-          <Grid item xs={4} borderBottom="1px solid #c4c4c4">
-            <Typography textAlign={"center"} noWrap>
-              Whole Song
-            </Typography>
-          </Grid>
-          <Grid item xs={4} borderBottom="1px solid #c4c4c4">
-            <Typography textAlign={"center"} noWrap>
-              Breakdown Only
-            </Typography>
-          </Grid>
-          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
-            <Typography>Geo-Location</Typography>
-          </Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid item xs={4}>
-            <Typography>Location</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>17 Physical Addresses</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>Little Haiti</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography noWrap>Circulation</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>112,171 Sq. Ft.</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>9,634,750 Sq. Ft.</Typography>
-          </Grid>
-          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
-            <Typography>Social Club</Typography>
-          </Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid item xs={4}>
-            <Typography>Discounts</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography>Free Samples and Goods</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}></Grid>
-          <Grid item xs={4}>
-            <Typography>Free Events</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}></Grid>
-          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
-            <Typography>Metaverse</Typography>
-          </Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid item xs={4}>
-            <Typography>Metaverse Concert</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography>Metaverse Listing</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}></Grid>
-          <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
-            <Typography>Airdrops</Typography>
-          </Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid
-            item
-            xs={4}
-            sx={{ background: "rgba(204, 204, 204, 15%)" }}
-          ></Grid>
-          <Grid item xs={4}>
-            <Typography>“Bare Yo!” Party Mix</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography>$CAPH tokens</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography noWrap textAlign={"center"}>
-              10,000,000
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"} noWrap>
-              1,000,000
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography noWrap>$LittleHaitiCoin</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>10</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography textAlign={"center"}>1</Typography>
-          </Grid>
-        </Grid>
-      </Box> */}
       <Box mt={"20rem"} pb={8}>
         <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
         </Typography>
-        {/* <Typography variant="h3" align="center">
-          NUSIC
-        </Typography> */}
         <Box display="flex" justifyContent="center" p={2}>
           <Button href="//nusic.fm" target="_blank">
             <img src="/nusic-white.png" alt="nusic" width="250px"></img>
@@ -881,7 +278,7 @@ const App = () => {
               generation of the internet.
             </Typography>
           </Box>
-          <Box my={2}>
+          {/* <Box my={2}>
             <TextField
               placeholder="Spotify Artist ID"
               onChange={(e) => setSpotifyArtistId(e.target.value)}
@@ -899,9 +296,47 @@ const App = () => {
             }}
           >
             Plug in your music now
-          </Button>
+          </Button> */}
         </Box>
       </Box>
+      <Dialog open={showPaymentMode} onClose={() => setShowPaymentMode(false)}>
+        <DialogTitle>Payment Mode</DialogTitle>
+        <DialogContent>
+          <Box
+            display={"flex"}
+            alignItems="center"
+            gap={2}
+            flexWrap="wrap"
+            justifyContent={"center"}
+            py={2}
+          >
+            <Button variant="contained" color="info" onClick={() => onMint()}>
+              Crypto
+            </Button>
+            <CrossmintPayButton
+              showOverlay
+              clientId={
+                mode === 0
+                  ? "17d8c866-4638-4688-860b-4d80e9fd781d"
+                  : mode === 1
+                  ? "a0726572-57a3-4448-b8bd-97d662065eb4"
+                  : "842f0784-64ab-4b84-91b3-fbadf0a90e5d"
+              }
+              mintConfig={{
+                type: "erc-721",
+                totalPrice:
+                  mode === 0
+                    ? getEtherForQuantity(0.0001, 1)
+                    : mode === 1
+                    ? getEtherForQuantity(0.00001, 1)
+                    : getEtherForQuantity(0, 1),
+                tokenQuantity: "1",
+              }}
+              environment="staging"
+            />
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
@@ -1015,15 +450,12 @@ export default App;
 //       <CrossmintPayButton
 //         showOverlay
 //         clientId={
-//           price === 18.04
-//             ? "3d040d1a-f2eb-4b48-8036-a20bcc6dd8fe"
-//             : "959b0097-d4a5-4990-bc69-7039c054753e"
+//           mode === 1
+//             ? "a0726572-57a3-4448-b8bd-97d662065eb4"
+//             : ""
 //         }
-//         mintConfig={{
-//           type: "erc-721",
-//           totalPrice: getEtherForQuantity(price, quantity),
-//           tokenQuantity: quantity,
-//         }}
+//         mintConfig={{"type":"erc-721","totalPrice":"<SELECTED_PRICE_IN_MATIC>","tokenQuantity":"<NUMBER_OF_NFTS>"}}
+//         environment="staging"
 //       />
 //       <Box>
 //         <Badge
