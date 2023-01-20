@@ -1,0 +1,11 @@
+{
+  "name": "NUSIC Access NFT - VIP",
+  "description": "Join the international community of creators building a fortress around music IP",
+  "image": "ipfs://QmVHW9Ghkg6QhbCopSQbCV7shuX98YRuKRTASsCNjsSo9d",
+  "attributes": [
+    {
+      "trait_type": "Pass",
+      "value": "Vip"
+    }
+  ]
+}

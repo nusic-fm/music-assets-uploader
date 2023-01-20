@@ -143,21 +143,47 @@ const App = () => {
               width={"33%"}
               style={{
                 clipPath: "polygon(50% 0%,100% 100%, 0% 100%)",
-                backgroundColor:
-                  mode === 0
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(255,255,255,0.2)",
                 cursor: "pointer",
+                backgroundColor:
+                  mode === 0 ? "#573FC8" : "rgba(255,255,255,0.2)",
+                // backgroundImage: "url('/platinum.png')",
+                // backgroundPosition: "top",
+                // backgroundRepeat: "no-repeat",
               }}
+              // sx={{ backgroundSize: { xs: "cover", md: "contain" } }}
               py={1}
               height="100px"
               mx="auto"
               display={"flex"}
-              alignItems="end"
-              justifyContent={"center"}
+              flexDirection="column"
+              alignItems="center"
+              justifyContent={"end"}
               onClick={() => setMode(0)}
             >
-              <Typography textAlign={"center"} variant="caption">
+              <Box position={"relative"}>
+                <img src="/platinum.png" alt="" width={"35px"} />
+                {mode === 0 && (
+                  <Box
+                    position={"absolute"}
+                    top={0}
+                    width="100%"
+                    height="100%"
+                    sx={{ background: "rgba(0,0,0,0.8)" }}
+                    display="flex"
+                    alignItems={"center"}
+                    justifyContent="center"
+                  >
+                    <Typography fontWeight={"bold"} align="center">
+                      $50k
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+              <Typography
+                textAlign={"center"}
+                variant="caption"
+                justifySelf={"end"}
+              >
                 Platinum
               </Typography>
             </Box>
@@ -168,19 +194,41 @@ const App = () => {
               style={{
                 clipPath: "polygon(25% 0%,75% 0, 100% 100%,0% 100%)",
                 backgroundColor:
-                  mode === 1
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(255,255,255,0.2)",
+                  mode === 1 ? "#573FC8" : "rgba(255,255,255,0.2)",
                 cursor: "pointer",
+                // backgroundImage: "url('/gold.png')",
+                // backgroundPosition: "top",
+                // backgroundSize: "contain",
+                // backgroundRepeat: "no-repeat",
               }}
               mx="auto"
               display={"flex"}
-              alignItems="end"
-              justifyContent={"center"}
+              alignItems="center"
+              flexDirection={"column"}
+              justifyContent={"end"}
               py={1}
               height="100px"
               onClick={() => setMode(1)}
             >
+              <Box position={"relative"}>
+                <img src="/gold.png" alt="" width={"55px"} />
+                {mode === 1 && (
+                  <Box
+                    position={"absolute"}
+                    top={0}
+                    width="100%"
+                    height="100%"
+                    sx={{ background: "rgba(0,0,0,0.8)" }}
+                    display="flex"
+                    alignItems={"center"}
+                    justifyContent="center"
+                  >
+                    <Typography fontWeight={"bold"} align="center">
+                      $10k
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
               <Typography textAlign={"center"} variant="caption">
                 Gold
               </Typography>
@@ -192,19 +240,41 @@ const App = () => {
               style={{
                 clipPath: "polygon(16.5% 0, 83% 0, 100% 100%,0% 100%)",
                 backgroundColor:
-                  mode === 2
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(255,255,255,0.2)",
+                  mode === 2 ? "#573FC8" : "rgba(255,255,255,0.2)",
                 cursor: "pointer",
+                // backgroundImage: "url('/vip.png')",
+                // backgroundPosition: "top",
+                // backgroundSize: "contain",
+                // backgroundRepeat: "no-repeat",
               }}
               mx="auto"
               display={"flex"}
-              alignItems="end"
-              justifyContent={"center"}
+              alignItems="center"
+              flexDirection={"column"}
+              justifyContent={"end"}
               py={1}
               height="100px"
               onClick={() => setMode(2)}
             >
+              <Box position={"relative"}>
+                <img src="/vip.png" alt="" width={"75px"} />
+                {mode === 2 && (
+                  <Box
+                    position={"absolute"}
+                    top={0}
+                    width="100%"
+                    height="100%"
+                    sx={{ background: "rgba(0,0,0,0.8)" }}
+                    display="flex"
+                    alignItems={"center"}
+                    justifyContent="center"
+                  >
+                    <Typography fontWeight={"bold"} align="center">
+                      $100
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
               <Typography textAlign={"center"} variant="caption">
                 VIP
               </Typography>
@@ -225,15 +295,47 @@ const App = () => {
                   {mode === 0 ? "Platinum" : mode === 1 ? "Gold" : "Vip"}
                 </Typography>
               </Grid>
-              <Grid item xs={5}>
-                <Typography textAlign={"center"}>Price</Typography>
+              {/* <Grid item xs={5}>
+                <Typography textAlign={"center"}>Min Price</Typography>
               </Grid>
               <Grid item xs={2}></Grid>
               <Grid item xs={5}>
                 <Typography textAlign={"left"} variant="h6">
                   {mode === 0 ? 0.0001 : mode === 1 ? 0.001 : 0.000001} ETH
                 </Typography>
-              </Grid>
+              </Grid> */}
+              {mode === 0 && (
+                <>
+                  <Grid item xs={5}>
+                    <Typography textAlign={"center"}>Perks</Typography>
+                  </Grid>
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={5}>
+                    <img
+                      src="mystery-box.jpg"
+                      alt=""
+                      width={50}
+                      height={50}
+                      style={{ borderRadius: "50%", objectFit: "cover" }}
+                    />
+                  </Grid>
+                </>
+              )}
+              {mode > 0 && (
+                <>
+                  <Grid item xs={5}>
+                    <Typography textAlign={"center"}>Perks</Typography>
+                  </Grid>
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={5}>
+                    <Typography textAlign={"left"} variant="h6">
+                      {mode === 1
+                        ? "Named Sponsor"
+                        : "Name of Guest list & Unlimited Plus 1's"}
+                    </Typography>
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Box>
         )}

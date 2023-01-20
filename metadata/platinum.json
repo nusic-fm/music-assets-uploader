@@ -1,0 +1,11 @@
+{
+  "name": "NUSIC Access NFT - PLATINUM",
+  "description": "Join the international community of creators building a fortress around music IP",
+  "image": "ipfs://QmTXr5C4TgHqKPTVTgpPVn5jBS32vSKWgzffJ3SRC8cBSL",
+  "attributes": [
+    {
+      "trait_type": "Pass",
+      "value": "Platinum"
+    }
+  ]
+}

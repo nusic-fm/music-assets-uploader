@@ -1,0 +1,11 @@
+{
+  "name": "NUSIC Access NFT - GOLD",
+  "description": "Join the international community of creators building a fortress around music IP",
+  "image": "ipfs://QmR83fD8B4JrwuhjNqxjw96TAfdzA5MxdaGjLNGSE4Gn7E",
+  "attributes": [
+    {
+      "trait_type": "Pass",
+      "value": "Gold"
+    }
+  ]
+}
