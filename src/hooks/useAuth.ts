@@ -22,7 +22,7 @@ const useAuth = () => {
   const login = useCallback(() => {
     activate(injectedConnector, async (error: Error) => {
       console.error(error);
-      alert(`Unsupported chain, Please connect Polygon Network to continue.`);
+      alert(`Unsupported chain, Please connect Ethereum Network to continue.`);
       if (error.name === "UnsupportedChainIdError") {
         console.log("error", error.message);
       } else {

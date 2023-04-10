@@ -4,67 +4,15 @@ import {
   Button,
   Chip,
   Grid,
-  IconButton,
   TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-// import { ethers } from "ethers";
-import { useEffect, useState } from "react";
-import { logFirebaseEvent } from "./services/firebase.service";
 import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "react-chartjs-2";
 import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
-import { getMints } from "./services/graphql";
-import { motion } from "framer-motion";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-// export const data = {
-//   labels: ["Your Contribution", "Total Raised"],
-//   datasets: [
-//     {
-//       // label: "# of Votes",
-//       data: [0, 1],
-//       backgroundColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
-//       borderColor: ["rgba(153, 102, 255, 0.2)", "rgba(54, 162, 235, 0.2)"],
-//       borderWidth: 2,
-//     },
-//   ],
-// };
-
-const trackDetails = {
-  artist: "Captain Haiti",
-  title: "Bare Yo!",
-  coverUrl: "/cover.jpeg",
-  profileUrl: "/captainhaiti.webp",
-  socials: {
-    tiktok: "tiktok.com/@captainhaiti",
-    twitter: "twitter.com/haiticaptain",
-    instagram: "instagram.com/captainhaiti",
-    youtube: "youtube.com/channel/UCFn86vJtQff1Lk8co5obm1g",
-    facebook: "facebook.com/gaming/RealCaptainHaiti",
-    linkedin: "linkedin.com/in/captain-haiti-816b59208",
-    soundcloud: "soundcloud.com/nandev-parolier",
-  },
-};
-const getTimerObj = () => {
-  const revealDate = "Fri, 9 Dec 2022 06:00:00 GMT";
-  const countDownDate = new Date(revealDate).getTime();
-  const timeleft = countDownDate - Date.now();
-  if (timeleft <= 0) {
-    return { isRevealed: true };
-  }
-  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-  return { days, hours, minutes, seconds, isRevealed: false };
-};
+import { useState } from "react";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -74,12 +22,6 @@ const getEtherForQuantity = (price: number, quantity: number): string => {
   return ethers.utils.formatEther(
     getEthValue(price).mul(BigNumber.from(quantity))
   );
-};
-
-const spring = {
-  type: "spring",
-  stiffness: 700,
-  damping: 30,
 };
 
 const App = () => {
@@ -100,34 +42,34 @@ const App = () => {
     }
     try {
       setIsLoading(true);
-      const nftContract = new ethers.Contract(
-        price === 18.04
-          ? "0x91cb12fb7a1678B6CDC1B18Ef8D5eC0d7697c4A0"
-          : "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
-        [
-          {
-            inputs: [
-              {
-                internalType: "uint256",
-                name: "tokenQuantity",
-                type: "uint256",
-              },
-            ],
-            name: "mint",
-            outputs: [],
-            stateMutability: "payable",
-            type: "function",
-          },
-        ],
-        library.getSigner()
-      );
-      const options = {
-        value: getEthValue(price).mul(BigNumber.from(quantity)),
-      };
-      console.log(ethers.utils.formatEther(options.value.toString()));
-      const tx = await nftContract.mint(quantity, options);
-      await tx.wait();
-      alert("You have successfully minted the NFT(s), thanks.");
+      // const nftContract = new ethers.Contract(
+      //   price === 18.04
+      //     ? "0x91cb12fb7a1678B6CDC1B18Ef8D5eC0d7697c4A0"
+      //     : "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
+      //   [
+      //     {
+      //       inputs: [
+      //         {
+      //           internalType: "uint256",
+      //           name: "tokenQuantity",
+      //           type: "uint256",
+      //         },
+      //       ],
+      //       name: "mint",
+      //       outputs: [],
+      //       stateMutability: "payable",
+      //       type: "function",
+      //     },
+      //   ],
+      //   library.getSigner()
+      // );
+      // const options = {
+      //   value: getEthValue(price).mul(BigNumber.from(quantity)),
+      // };
+      // console.log(ethers.utils.formatEther(options.value.toString()));
+      // const tx = await nftContract.mint(quantity, options);
+      // await tx.wait();
+      // alert("You have successfully minted the NFT(s), thanks.");
     } catch (e: any) {
       console.log(e.message);
       alert(e.data?.message || e.message);
