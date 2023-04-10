@@ -26,14 +26,14 @@ const getEtherForQuantity = (price: number, quantity: number): string => {
 
 const App = () => {
   const { login } = useAuth();
-  const { account, library } = useWeb3React();
+  const { account } = useWeb3React();
 
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [crossmint, setCrossmint] = useState(1);
-  const [crypto, setCrypto] = useState(1);
-  const [price, setPrice] = useState(180.4);
+  // const [crossmint, setCrossmint] = useState(1);
+  // const [crypto, setCrypto] = useState(1);
+  const [price] = useState(0.25);
 
   const onMint = async () => {
     if (!account) {
