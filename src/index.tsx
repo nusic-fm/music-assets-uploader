@@ -17,7 +17,7 @@ import App from "./App";
 
 WebFont.load({
   google: {
-    families: ["Roboto", "Space Grotesk"],
+    families: ["BenchNine", "Space Mono", "Tenor Sans", "Space Grotesk"],
   },
 });
 
@@ -61,15 +61,15 @@ const themeSettings = createTheme({
   },
   typography: {
     button: {
-      fontFamily: '"Roboto", sans-serif',
+      fontFamily: '"Space Mono" , sans-serif',
     },
-    h5: {
-      fontFamily: '"Roboto"',
-    },
+    // h5: {
+    //   fontFamily: '"BenchNine"',
+    // },
     allVariants: {
       color: "#ffffff",
     },
-    fontFamily: `"Roboto" , sans-serif`,
+    fontFamily: `"Space Mono" , sans-serif`,
   },
 });
 const theme = responsiveFontSizes(themeSettings);

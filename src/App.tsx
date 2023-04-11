@@ -30,7 +30,21 @@ const getEtherForQuantity = (price: number, quantity: number): string => {
   );
 };
 
-// ;
+const getTimerObj = () => {
+  const revealDate = "Wed, 21 Jun 2023 00:00:00 GMT";
+  const countDownDate = new Date(revealDate).getTime();
+  const timeleft = countDownDate - Date.now();
+  if (timeleft <= 0) {
+    return { isRevealed: true };
+  }
+  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+  return { days, hours, minutes, seconds, isRevealed: false };
+};
 
 const App = () => {
   const { login } = useAuth();
@@ -43,6 +57,7 @@ const App = () => {
   // const [crypto, setCrypto] = useState(1);
   const [tokenPrice, setTokenPrice] = useState(0.25);
   const [currentEthPrice, setCurrentEthPrice] = useState(0);
+  const [timerObj, setTimerObj] = useState(getTimerObj);
 
   const fetchEthPrice = async () => {
     const pricingContract = new ethers.Contract(
@@ -65,6 +80,16 @@ const App = () => {
   useEffect(() => {
     fetchEthPrice();
   }, []);
+
+  useEffect(() => {
+    const myInterval = setInterval(() => {
+      const _newTimerObj = getTimerObj();
+      setTimerObj(_newTimerObj);
+    }, 1000);
+    return () => {
+      clearInterval(myInterval);
+    };
+  }, [timerObj]);
 
   const onMint = async () => {
     if (!account) {
@@ -291,7 +316,7 @@ const App = () => {
                 mb={2}
               >
                 <Typography>Number of Cards</Typography>
-                <ButtonGroup sx={{ width: "120px" }} size="small">
+                <ButtonGroup sx={{ width: "130px" }} size="small">
                   <Button
                     onClick={() => {
                       if (quantity === 1) return;
@@ -303,7 +328,7 @@ const App = () => {
                   <TextField value={quantity}></TextField>
                   <Button
                     onClick={() => {
-                      if (quantity === 5) return;
+                      if (quantity === 30) return;
                       setQuantity(quantity + 1);
                     }}
                   >
@@ -439,6 +464,71 @@ const App = () => {
           </Typography>
         </Box>
       </Stack>
+      <Box mt={10}>
+        <Typography variant="h4" align="center" fontWeight={700}>
+          Early Access For 3 Years
+        </Typography>
+        <Box mt={4}>
+          <Typography align="center">Early Access Countdown</Typography>
+          <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
+            <Box
+              // mr={2}
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid gray", borderRadius: "6px" }}
+              // width="35px"
+            >
+              <Typography variant="h4" align="center">
+                {timerObj.days}
+              </Typography>
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
+                days
+              </Typography>
+            </Box>
+            <Box
+              // mr={2}
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid gray", borderRadius: "6px" }}
+              // width="35px"
+            >
+              <Typography variant="h4" align="center">
+                {timerObj.hours}
+              </Typography>
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
+                hrs
+              </Typography>
+            </Box>
+            <Box
+              // mr={2}
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid gray", borderRadius: "6px" }}
+              // width="35px"
+            >
+              <Typography variant="h4" align="center">
+                {timerObj.minutes}
+              </Typography>
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
+                min
+              </Typography>
+            </Box>
+            {/* <Box
+              mt={2}
+              p={2}
+              sx={{ border: "2px solid white", borderRadius: "6px" }}
+              // width="35px"
+            >
+              <Typography fontWeight="bold" variant="h4" align="center">
+                {timerObj.seconds}
+              </Typography>
+              <Typography variant="body2" align="center" fontFamily="BenchNine">
+                sec
+              </Typography>
+            </Box> */}
+          </Box>
+        </Box>
+      </Box>
 
       <Box mt={20} pb={8}>
         {/* <Typography variant="h5" align="center" fontFamily="monospace">
