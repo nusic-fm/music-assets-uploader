@@ -48,7 +48,7 @@ const getTimerObj = () => {
 
 const App = () => {
   const { login } = useAuth();
-  const { account } = useWeb3React();
+  const { account, library } = useWeb3React();
 
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -98,34 +98,32 @@ const App = () => {
     }
     try {
       setIsLoading(true);
-      // const nftContract = new ethers.Contract(
-      //   price === 18.04
-      //     ? "0x91cb12fb7a1678B6CDC1B18Ef8D5eC0d7697c4A0"
-      //     : "0xa81B81384fD201ABD482662312207fB1cADe7F1d",
-      //   [
-      //     {
-      //       inputs: [
-      //         {
-      //           internalType: "uint256",
-      //           name: "tokenQuantity",
-      //           type: "uint256",
-      //         },
-      //       ],
-      //       name: "mint",
-      //       outputs: [],
-      //       stateMutability: "payable",
-      //       type: "function",
-      //     },
-      //   ],
-      //   library.getSigner()
-      // );
-      // const options = {
-      //   value: getEthValue(price).mul(BigNumber.from(quantity)),
-      // };
-      // console.log(ethers.utils.formatEther(options.value.toString()));
-      // const tx = await nftContract.mint(quantity, options);
-      // await tx.wait();
-      // alert("You have successfully minted the NFT(s), thanks.");
+      const nftContract = new ethers.Contract(
+        "0x5b5d1F1479BcA067a253e1d6cBF655E0D377227F",
+        [
+          {
+            inputs: [
+              {
+                internalType: "uint256",
+                name: "tokenQuantity",
+                type: "uint256",
+              },
+            ],
+            name: "mint",
+            outputs: [],
+            stateMutability: "payable",
+            type: "function",
+          },
+        ],
+        library.getSigner()
+      );
+      const options = {
+        value: getEthValue(tokenPrice).mul(BigNumber.from(quantity)),
+      };
+      console.log(ethers.utils.formatEther(options.value.toString()));
+      const tx = await nftContract.mint(quantity, options);
+      await tx.wait();
+      alert("You have successfully minted the NFT(s), thanks.");
     } catch (e: any) {
       console.log(e.message);
       alert(e.data?.message || e.message);
@@ -343,7 +341,11 @@ const App = () => {
                 </Typography>
               </Stack>
               <Stack alignItems={"center"} gap={2} mt={2}>
-                <Button variant="contained" style={{ width: "50%" }}>
+                <Button
+                  variant="contained"
+                  style={{ width: "50%" }}
+                  onClick={onMint}
+                >
                   Mint with ETH
                 </Button>
                 <Button
@@ -462,6 +464,9 @@ const App = () => {
           <Typography align="center" color={"gray"}>
             A decentralized content delivery network dedicated to music
           </Typography>
+        </Box>
+        <Box mt={4}>
+          <img src="/pfp_pass.png" alt="" width={"100%"} />
         </Box>
       </Stack>
       <Box mt={10}>
