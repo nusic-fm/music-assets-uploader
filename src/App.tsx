@@ -14,9 +14,10 @@ import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import { provider } from "./utils/provider";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -28,6 +29,8 @@ const getEtherForQuantity = (price: number, quantity: number): string => {
   );
 };
 
+// ;
+
 const App = () => {
   const { login } = useAuth();
   const { account } = useWeb3React();
@@ -37,7 +40,30 @@ const App = () => {
 
   // const [crossmint, setCrossmint] = useState(1);
   // const [crypto, setCrypto] = useState(1);
-  const [price] = useState(0.25);
+  const [tokenPrice, setTokenPrice] = useState(0.25);
+  const [currentEthPrice, setCurrentEthPrice] = useState(0);
+
+  const fetchEthPrice = async () => {
+    const pricingContract = new ethers.Contract(
+      "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
+      [
+        {
+          inputs: [],
+          name: "latestAnswer",
+          outputs: [{ internalType: "int256", name: "", type: "int256" }],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      provider
+    );
+    const bn = await pricingContract.latestAnswer();
+    setCurrentEthPrice(Number(bn.toString()) / 100000000);
+  };
+
+  useEffect(() => {
+    fetchEthPrice();
+  }, []);
 
   const onMint = async () => {
     if (!account) {
@@ -157,7 +183,7 @@ const App = () => {
               </Box>
             </Box>
             <Box
-              py={20}
+              py={15}
               px={{ xs: 2, md: "20%" }}
               sx={{
                 background:
@@ -166,7 +192,7 @@ const App = () => {
             >
               <Box mb={2}>
                 <Typography align="center" color={"gray"} fontStyle="italic">
-                  Price per card: 0.25 ETH
+                  Price per card: {tokenPrice} ETH
                 </Typography>
               </Box>
               <Box
@@ -176,19 +202,31 @@ const App = () => {
                 mb={2}
               >
                 <Typography>Number of Cards</Typography>
-                <ButtonGroup sx={{ width: "150px" }}>
-                  <Button>
+                <ButtonGroup sx={{ width: "120px" }} size="small">
+                  <Button
+                    onClick={() => {
+                      if (quantity === 1) return;
+                      setQuantity(quantity - 1);
+                    }}
+                  >
                     <RemoveIcon />
                   </Button>
-                  <TextField></TextField>
-                  <Button>
+                  <TextField value={quantity}></TextField>
+                  <Button
+                    onClick={() => {
+                      if (quantity === 5) return;
+                      setQuantity(quantity + 1);
+                    }}
+                  >
                     <AddIcon />
                   </Button>
                 </ButtonGroup>
               </Box>
               <Stack alignItems={"end"}>
-                <Typography>0.25 ETH</Typography>
-                <Typography color={"gray"}>$500</Typography>
+                <Typography>{quantity * tokenPrice} ETH</Typography>
+                <Typography color={"gray"}>
+                  ${(currentEthPrice * tokenPrice * quantity).toFixed(2)}
+                </Typography>
               </Stack>
               <Stack alignItems={"center"} gap={2} mt={2}>
                 <Button variant="contained" style={{ width: "50%" }}>
