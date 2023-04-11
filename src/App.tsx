@@ -5,6 +5,7 @@ import {
   ButtonGroup,
   Chip,
   Grid,
+  Link,
   Stack,
   TextField,
   Typography,
@@ -115,6 +116,8 @@ const App = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
+        flexWrap={"wrap"}
+        gap={4}
       >
         <Box
           ml={4}
@@ -225,7 +228,7 @@ const App = () => {
           </svg>
         </Box>
 
-        <Typography variant="h4" align="center" fontWeight={900}>
+        <Typography variant="h4" align="center" fontWeight={700}>
           It's Alive !!!
         </Typography>
       </Box>
@@ -241,11 +244,12 @@ const App = () => {
               top={-100}
               height="200px"
             >
-              <Box
+              <Stack
                 sx={{ bgcolor: "#5525b4" }}
                 borderRadius="6px"
                 p={2}
                 minWidth={{ xs: "95%", md: "50%" }}
+                justifyContent="space-between"
               >
                 <Box
                   display={"flex"}
@@ -256,14 +260,16 @@ const App = () => {
                     <img src="/nusic-white.png" alt="" width={60} />
                     <Typography>alive</Typography>
                   </Box>
-                  <Typography variant="h5">nGenesis Edition</Typography>
+                  <Typography variant="h6" align="right">
+                    nGenesis Edition
+                  </Typography>
                 </Box>
-                <Box mt={15} display="flex" justifyContent={"center"}>
+                <Box display="flex" justifyContent={"center"}>
                   <Typography variant="caption">
                     Every Time a Song is Created a Soul is Born
                   </Typography>
                 </Box>
-              </Box>
+              </Stack>
             </Box>
             <Box
               py={15}
@@ -328,12 +334,12 @@ const App = () => {
         </Grid>
       </Box>
       <Stack mt={5} gap={1} alignItems="center">
-        <Typography variant="h4" align="center">
+        <Typography variant="h4" align="center" fontWeight={700}>
           <img
             src="/nusic-white.png"
             alt=""
             width={100}
-            style={{ marginRight: "30px" }}
+            style={{ marginRight: "20px" }}
           />
           Alive Collective - nGenesis Edition
         </Typography>
@@ -345,7 +351,7 @@ const App = () => {
         </Button>
       </Stack>
       <Stack mt={10} gap={1} alignItems="center">
-        <Typography variant="h4" align="center">
+        <Typography variant="h4" align="center" fontWeight={700}>
           First Access to
           <img
             src="/nusic-white.png"
@@ -382,7 +388,7 @@ const App = () => {
           width={{ md: "20%" }}
           sx={{
             background:
-              "radial-gradient(circle, rgba(58,180,164,1) 0%, rgba(154,69,179,1) 48%, rgba(94,16,117,1) 100%)",
+              "radial-gradient(71.89% 71.89% at 68.2% 28.11%, #3D8494 0%, #66198A 55.04%, #4E4192 100%)",
             backgroundAttachment: "fixed",
           }}
           p={4}
@@ -413,8 +419,11 @@ const App = () => {
         </Stack>
       </Stack>
       <Stack mt={10} px={{ md: "20%" }} gap={2}>
-        <Box p={2} border="1px solid gray" borderRadius={"6px"}>
-          <Typography variant="h4" align="center">
+        <Typography align="center" variant="h4" fontWeight={700}>
+          Customize Your Membership NFT
+        </Typography>
+        <Box p={2} mt={5} border="1px solid gray" borderRadius={"6px"}>
+          <Typography variant="h5" align="center">
             Inject your PFP into the NUSIC alive pass
           </Typography>
           <Typography align="center" color={"gray"}>
@@ -422,7 +431,7 @@ const App = () => {
           </Typography>
         </Box>
         <Box p={2} border="1px solid gray" borderRadius={"6px"}>
-          <Typography variant="h4" align="center">
+          <Typography variant="h5" align="center">
             Powering the Evolution of Music
           </Typography>
           <Typography align="center" color={"gray"}>
@@ -438,10 +447,54 @@ const App = () => {
         {/* <Typography variant="h3" align="center">
           NUSIC
         </Typography> */}
-        <Box display="flex" justifyContent="center" p={2}>
+        <Box
+          display="flex"
+          justifyContent={"space-between"}
+          alignItems="start"
+          py={2}
+          sx={{
+            background:
+              "radial-gradient(245.9% 245.82% at 50% -184.76%, #563FC8 0%, rgba(86, 63, 200, 0) 100%)",
+          }}
+        >
           <Button href="//nusic.fm" target="_blank">
-            <img src="/nusic-white.png" alt="nusic" width="250px"></img>
+            <img src="/nusic-white.png" alt="nusic" width="120px"></img>
           </Button>
+          <Box mr={{ md: 10 }}>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              fontFamily="Space Grotesk"
+            >
+              Join Us
+            </Typography>
+            <Stack gap={3} mt={3}>
+              <Link
+                href="https://twitter.com/nusicOfficial"
+                target={"_blank"}
+                fontFamily="Space Grotesk"
+                sx={{ color: "white", textDecoration: "none" }}
+              >
+                Twitter
+              </Link>
+              <Link
+                href="https://discord.gg/eHyRQADgQ4"
+                target={"_blank"}
+                fontFamily="Space Grotesk"
+                sx={{ color: "white", textDecoration: "none" }}
+              >
+                Discord
+              </Link>
+              <Link
+                href="https://github.com/nusic-fm"
+                target={"_blank"}
+                fontFamily="Space Grotesk"
+                sx={{ color: "white", textDecoration: "none" }}
+              >
+                Github
+              </Link>
+            </Stack>
+          </Box>
         </Box>
         <Box
           display="flex"
@@ -449,7 +502,7 @@ const App = () => {
           alignItems="center"
           justifyContent="center"
         >
-          <Typography variant="h5" fontFamily="monospace" align="center">
+          {/* <Typography variant="h5" fontFamily="monospace" align="center">
             The Decentralized Financial Rails for Music
           </Typography>
           <Box maxWidth={{ md: "33%" }} mt={2} px={2}>
@@ -461,7 +514,7 @@ const App = () => {
               decentralized financial rails that power music on the next
               generation of the internet.
             </Typography>
-          </Box>
+          </Box> */}
           <Box my={2}>
             {/* <TextField
               placeholder="Spotify Artist ID"
