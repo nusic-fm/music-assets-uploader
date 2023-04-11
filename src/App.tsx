@@ -208,6 +208,12 @@ const App = () => {
       </Box>
       <Stack mt={5} gap={1} alignItems="center">
         <Typography variant="h4" align="center">
+          <img
+            src="/nusic-white.png"
+            alt=""
+            width={100}
+            style={{ marginRight: "30px" }}
+          />
           Alive Collective - nGenesis Edition
         </Typography>
         <Typography variant="body1" align="center" color={"gray"}>
@@ -219,7 +225,14 @@ const App = () => {
       </Stack>
       <Stack mt={10} gap={1} alignItems="center">
         <Typography variant="h4" align="center">
-          First Access to the Protocol
+          First Access to
+          <img
+            src="/nusic-white.png"
+            alt=""
+            width={100}
+            style={{ marginLeft: "20px", marginRight: "20px" }}
+          />
+          Protocol
         </Typography>
       </Stack>
       <Stack
