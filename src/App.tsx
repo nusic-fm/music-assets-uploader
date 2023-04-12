@@ -200,84 +200,7 @@ const App = () => {
         )}
       </Box>
 
-      <Box mt={5}>
-        {/* <Box display={"flex"} justifyContent="center" mb={5}>
-          <svg
-            width="114"
-            height="66"
-            viewBox="0 0 114 66"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M109.302 28.6316H113.602V37.3684H109.302V28.6316ZM100.83 39.9265H105.13V26.0735H100.83V39.9265ZM92.5005 47.0919H96.7998V18.9081H92.5005V47.0919ZM84.5819 52.621H88.8812V13.6369H84.5819V52.6116V52.621ZM76.1045 43.1008H80.4038V22.8992H76.1045V43.1008ZM67.4927 58.3868H71.792V6.74869H67.4792V58.3868H67.4927ZM59.018 65.7906H63.3172V0.209381H59.018V65.7906ZM50.6882 55.666H54.9874V10.3338H50.6882V55.6662V55.666ZM42.071 42.7926H46.3702V23.6848H42.071V42.7926ZM33.7414 38.2375H38.0407V27.7456H33.7414V38.2548V38.2375ZM25.4117 43.8507H29.7109V22.1419H25.4117V43.8577V43.8507ZM17.2162 54.3594H21.5155V10.3983H17.2165V54.3671L17.2162 54.3594ZM8.8867 47.6434H13.186V17.9791H8.8867V47.6508V47.6434ZM0.398438 39.9265H4.6977V26.0735H0.398438V39.9265Z"
-              fill="url(#paint0_linear_58_93)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_58_93"
-                x1="57"
-                y1="0.209381"
-                x2="57"
-                y2="65.7906"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stop-color="#2C1E73" />
-                <stop offset="1" stop-color="#0F0A26" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <svg
-            width="114"
-            height="66"
-            viewBox="0 0 114 66"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M109.302 28.6316H113.602V37.3684H109.302V28.6316ZM100.83 39.9265H105.13V26.0735H100.83V39.9265ZM92.5005 47.0919H96.7998V18.9081H92.5005V47.0919ZM84.5819 52.621H88.8812V13.6369H84.5819V52.6116V52.621ZM76.1045 43.1008H80.4038V22.8992H76.1045V43.1008ZM67.4927 58.3868H71.792V6.74869H67.4792V58.3868H67.4927ZM59.018 65.7906H63.3172V0.209381H59.018V65.7906ZM50.6882 55.666H54.9874V10.3338H50.6882V55.6662V55.666ZM42.071 42.7926H46.3702V23.6848H42.071V42.7926ZM33.7414 38.2375H38.0407V27.7456H33.7414V38.2548V38.2375ZM25.4117 43.8507H29.7109V22.1419H25.4117V43.8577V43.8507ZM17.2162 54.3594H21.5155V10.3983H17.2165V54.3671L17.2162 54.3594ZM8.8867 47.6434H13.186V17.9791H8.8867V47.6508V47.6434ZM0.398438 39.9265H4.6977V26.0735H0.398438V39.9265Z"
-              fill="url(#paint0_linear_58_93)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_58_93"
-                x1="57"
-                y1="0.209381"
-                x2="57"
-                y2="65.7906"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stop-color="#2C1E73" />
-                <stop offset="1" stop-color="#0F0A26" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <svg
-            width="114"
-            height="66"
-            viewBox="0 0 114 66"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M109.302 28.6316H113.602V37.3684H109.302V28.6316ZM100.83 39.9265H105.13V26.0735H100.83V39.9265ZM92.5005 47.0919H96.7998V18.9081H92.5005V47.0919ZM84.5819 52.621H88.8812V13.6369H84.5819V52.6116V52.621ZM76.1045 43.1008H80.4038V22.8992H76.1045V43.1008ZM67.4927 58.3868H71.792V6.74869H67.4792V58.3868H67.4927ZM59.018 65.7906H63.3172V0.209381H59.018V65.7906ZM50.6882 55.666H54.9874V10.3338H50.6882V55.6662V55.666ZM42.071 42.7926H46.3702V23.6848H42.071V42.7926ZM33.7414 38.2375H38.0407V27.7456H33.7414V38.2548V38.2375ZM25.4117 43.8507H29.7109V22.1419H25.4117V43.8577V43.8507ZM17.2162 54.3594H21.5155V10.3983H17.2165V54.3671L17.2162 54.3594ZM8.8867 47.6434H13.186V17.9791H8.8867V47.6508V47.6434ZM0.398438 39.9265H4.6977V26.0735H0.398438V39.9265Z"
-              fill="url(#paint0_linear_58_93)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_58_93"
-                x1="57"
-                y1="0.209381"
-                x2="57"
-                y2="65.7906"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stop-color="#2C1E73" />
-                <stop offset="1" stop-color="#0F0A26" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </Box> */}
+      <Box mt={1}>
         <Box position={"relative"}>
           <Box display={"flex"} justifyContent="center">
             <img
@@ -301,7 +224,7 @@ const App = () => {
           </Stack>
         </Box>
       </Box>
-      <Box mt={"200px"} pb={6}>
+      <Box mt={"120px"} pb={6}>
         <Grid container>
           <Grid item md={3}></Grid>
           <Grid item xs={12} md={6} position="relative">
@@ -330,6 +253,7 @@ const App = () => {
                 background:
                   "linear-gradient(0deg, rgba(6,0,14,1) 0%, rgba(37,11,89,1) 100%)",
               }}
+              borderRadius="6px"
             >
               <Box mb={2}>
                 <Typography align="center" color={"gray"} fontStyle="italic">
