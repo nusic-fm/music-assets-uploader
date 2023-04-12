@@ -61,7 +61,8 @@ const App = () => {
 
   const fetchEthPrice = async () => {
     const pricingContract = new ethers.Contract(
-      "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
+      // "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
+      "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada",
       [
         {
           inputs: [],
@@ -74,6 +75,7 @@ const App = () => {
       provider
     );
     const bn = await pricingContract.latestAnswer();
+    debugger;
     setCurrentEthPrice(Number(bn.toString()) / 100000000);
   };
 
@@ -342,17 +344,30 @@ const App = () => {
                 </Typography>
               </Stack>
               <Stack alignItems={"center"} gap={2} mt={2}>
-                <Button
+                <LoadingButton
+                  loading={isLoading}
                   variant="contained"
                   sx={{ width: { xs: "100%", md: "50%" } }}
                   onClick={onMint}
                 >
                   Mint with ETH
-                </Button>
+                </LoadingButton>
                 <Button
+                  component="label"
                   variant="outlined"
                   sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
                 >
+                  <CrossmintPayButton
+                    style={{ display: "none" }}
+                    clientId="bee2289c-b606-4abd-9140-6e55806646b7"
+                    mintConfig={{
+                      type: "erc-721",
+                      totalPrice: (tokenPrice * quantity).toFixed(4),
+                      tokenQuantity: quantity,
+                    }}
+                    environment="staging"
+                    // mintTo="<YOUR_USER_WALLET_ADDRESS>"
+                  />
                   Mint with CARD
                 </Button>
               </Stack>
