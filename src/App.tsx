@@ -173,7 +173,7 @@ const App = () => {
       </Box>
 
       <Box mt={5}>
-        <Box display={"flex"} justifyContent="center" mb={5}>
+        {/* <Box display={"flex"} justifyContent="center" mb={5}>
           <svg
             width="114"
             height="66"
@@ -249,11 +249,29 @@ const App = () => {
               </linearGradient>
             </defs>
           </svg>
+        </Box> */}
+        <Box position={"relative"}>
+          <Box display={"flex"} justifyContent="center">
+            <img
+              src="/vis.gif"
+              alt=""
+              width={280}
+              height={280}
+              style={{ borderRadius: "50%", objectFit: "cover" }}
+            />
+          </Box>
+          <Stack
+            position="absolute"
+            width="100%"
+            height={"100%"}
+            justifyContent="center"
+            top={0}
+          >
+            <Typography variant="h4" align="center" fontWeight={900}>
+              It's Alive !!!
+            </Typography>
+          </Stack>
         </Box>
-
-        <Typography variant="h4" align="center" fontWeight={700}>
-          It's Alive !!!
-        </Typography>
       </Box>
       <Box mt={"200px"} pb={6}>
         <Grid container>
@@ -267,32 +285,15 @@ const App = () => {
               top={-100}
               height="200px"
             >
-              <Stack
-                sx={{ bgcolor: "#5525b4" }}
-                borderRadius="6px"
-                p={2}
-                minWidth={{ xs: "95%", md: "50%" }}
-                justifyContent="space-between"
-              >
-                <Box
-                  display={"flex"}
-                  justifyContent="space-between"
-                  alignItems={"center"}
-                >
-                  <Box display={"flex"} gap={1} alignItems="baseline">
-                    <img src="/nusic-white.png" alt="" width={60} />
-                    <Typography>alive</Typography>
-                  </Box>
-                  <Typography variant="h6" align="right">
-                    nGenesis Edition
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent={"center"}>
-                  <Typography variant="caption">
-                    Every Time a Song is Created a Soul is Born
-                  </Typography>
-                </Box>
-              </Stack>
+              <img
+                src="/card.png"
+                alt=""
+                style={{
+                  borderRadius: "35px",
+                  width: 280,
+                  objectFit: "contain",
+                }}
+              />
             </Box>
             <Box
               py={15}
@@ -343,14 +344,14 @@ const App = () => {
               <Stack alignItems={"center"} gap={2} mt={2}>
                 <Button
                   variant="contained"
-                  style={{ width: "50%" }}
+                  sx={{ width: { xs: "100%", md: "50%" } }}
                   onClick={onMint}
                 >
                   Mint with ETH
                 </Button>
                 <Button
                   variant="outlined"
-                  style={{ width: "50%", color: "white" }}
+                  sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
                 >
                   Mint with CARD
                 </Button>
