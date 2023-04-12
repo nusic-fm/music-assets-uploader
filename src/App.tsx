@@ -155,9 +155,9 @@ const App = () => {
       }
     });
   };
-  console.log(account);
+
   return (
-    <Box sx={{ bgcolor: "black", minHeight: "100vh" }} p={2}>
+    <Box sx={{ bgcolor: "#1b1333", minHeight: "100vh" }} p={2}>
       <Box
         p={2}
         display="flex"
@@ -407,10 +407,10 @@ const App = () => {
             width={100}
             style={{ marginRight: "20px" }}
           />
-          Alive Collective - nGenesis Edition
+          Alive Collective
         </Typography>
         <Typography variant="body1" align="center" color={"gray"}>
-          Join the Movement that is powerin the Evolution of Music
+          nGenesis Edition
         </Typography>
         <Button size="small" sx={{ mt: 1 }}>
           Learn More
@@ -448,7 +448,9 @@ const App = () => {
           gap={2}
         >
           <Typography variant="h4">Scale Your Music NFTs</Typography>
-          <Typography>Move beyond cryptographic references to files</Typography>
+          <Typography>
+            Move beyond cryptographic references to files to true ownership
+          </Typography>
         </Stack>
         <Stack
           width={{ md: "20%" }}
@@ -478,10 +480,12 @@ const App = () => {
           gap={2}
         >
           <Typography variant="h4">
-            Earn $NUSIC <br />
+            Earn $NUSIC Incentives <br />
             <br />
           </Typography>
-          <Typography>Move beyond cryptographic references to files</Typography>
+          <Typography>
+            Stream-to-earn enables node operators & listeners to receive tokens
+          </Typography>
         </Stack>
       </Stack>
       <Stack mt={10} px={{ md: "20%" }} gap={2}>
@@ -510,10 +514,10 @@ const App = () => {
       </Stack>
       <Box mt={10}>
         <Typography variant="h4" align="center" fontWeight={700}>
-          Early Access For 3 Years
+          Access For 3 Years
         </Typography>
         <Box mt={4}>
-          <Typography align="center">Early Access Countdown</Typography>
+          <Typography align="center">Countdown</Typography>
           <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
             <Box
               // mr={2}
@@ -574,7 +578,7 @@ const App = () => {
         </Box>
       </Box>
 
-      <Box mt={20} pb={8}>
+      <Box mt={20}>
         {/* <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
         </Typography> */}
@@ -595,14 +599,14 @@ const App = () => {
             <img src="/nusic-white.png" alt="nusic" width="120px"></img>
           </Button>
           <Box mr={{ md: 10 }}>
-            <Typography
+            {/* <Typography
               variant="h5"
               fontWeight={700}
               fontFamily="Space Grotesk"
             >
               Join Us
-            </Typography>
-            <Stack gap={3} mt={3}>
+            </Typography> */}
+            <Stack gap={3} mt={3} direction="row">
               <Link
                 href="https://twitter.com/nusicOfficial"
                 target={"_blank"}
