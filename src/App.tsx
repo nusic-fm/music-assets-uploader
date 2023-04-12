@@ -152,7 +152,10 @@ const App = () => {
       //e.name UnsupportedChainIdError
       if (e.name === "UnsupportedChainIdError") {
         setSnackbarMessage("Only Mumbai Testnet is Supported");
+      } else {
+        setSnackbarMessage(e.message);
       }
+      console.log(e.name, e.message);
     });
   };
 
@@ -677,6 +680,7 @@ const App = () => {
       <WalletConnectors
         open={!account && showWalletConnector}
         onSignInUsingWallet={onSignInUsingWallet}
+        onClose={() => setShowWalletConnector(false)}
       />
       <Snackbar
         open={!!snackbarMessage}

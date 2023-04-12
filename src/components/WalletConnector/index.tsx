@@ -15,13 +15,14 @@ type Props = {
   onSignInUsingWallet: (
     connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
   ) => Promise<void>;
+  onClose: () => void;
 };
 
-const WalletConnectors = ({ open, onSignInUsingWallet }: Props) => {
+const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
   const { error } = useWeb3React();
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onClose={onClose}>
       <DialogContent>
         <Stack gap={2}>
           {error?.message && (
