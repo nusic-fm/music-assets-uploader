@@ -14,7 +14,7 @@ import { Box } from "@mui/system";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { provider } from "./utils/provider";
@@ -60,6 +60,7 @@ const getTimerObj = () => {
 const App = () => {
   const { account, library, activate } = useWeb3React();
 
+  const stackRef = useRef(null);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -208,7 +209,11 @@ const App = () => {
               alt=""
               width={280}
               height={280}
-              style={{ borderRadius: "50%", objectFit: "cover" }}
+              style={{
+                borderRadius: "50%",
+                objectFit: "cover",
+                boxShadow: "0 0 8px 8px white inset",
+              }}
             />
           </Box>
           <Stack
@@ -339,11 +344,21 @@ const App = () => {
         <Typography variant="body1" align="center" color={"gray"}>
           nGenesis Edition
         </Typography>
-        <Button size="small" sx={{ mt: 1 }}>
+        <Button
+          size="small"
+          sx={{ mt: 1 }}
+          onClick={() => {
+            (stackRef.current as any).scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+              inline: "nearest",
+            });
+          }}
+        >
           Learn More
         </Button>
       </Stack>
-      <Stack mt={10} gap={1} alignItems="center">
+      <Stack mt={20} pt={4} gap={1} alignItems="center" ref={stackRef}>
         <Typography variant="h4" align="center" fontWeight={700}>
           First Access to
           <img
