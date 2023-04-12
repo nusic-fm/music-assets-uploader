@@ -40,12 +40,20 @@ const getTimerObj = () => {
   if (timeleft <= 0) {
     return { isRevealed: true };
   }
-  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+  const days = Math.floor(timeleft / (1000 * 60 * 60 * 24))
+    .toString()
+    .padStart(2, "0");
   const hours = Math.floor(
     (timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+  )
+    .toString()
+    .padStart(2, "0");
+  const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60))
+    .toString()
+    .padStart(2, "0");
+  var seconds = Math.floor((timeleft % (1000 * 60)) / 1000)
+    .toString()
+    .padStart(2, "0");
   return { days, hours, minutes, seconds, isRevealed: false };
 };
 
@@ -549,19 +557,19 @@ const App = () => {
                 min
               </Typography>
             </Box>
-            {/* <Box
+            <Box
               mt={2}
               p={2}
-              sx={{ border: "2px solid white", borderRadius: "6px" }}
+              sx={{ border: "2px solid gray", borderRadius: "6px" }}
               // width="35px"
             >
-              <Typography fontWeight="bold" variant="h4" align="center">
+              <Typography variant="h4" align="center">
                 {timerObj.seconds}
               </Typography>
               <Typography variant="body2" align="center" fontFamily="BenchNine">
                 sec
               </Typography>
-            </Box> */}
+            </Box>
           </Box>
         </Box>
       </Box>
