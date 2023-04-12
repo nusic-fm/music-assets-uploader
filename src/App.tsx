@@ -212,7 +212,6 @@ const App = () => {
               style={{
                 borderRadius: "50%",
                 objectFit: "cover",
-                boxShadow: "0 0 8px 8px white inset",
               }}
             />
           </Box>
