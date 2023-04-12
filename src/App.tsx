@@ -447,6 +447,7 @@ const App = () => {
           borderRadius="6px"
           gap={2}
         >
+          <img src="/1.png" alt="" width={50} />
           <Typography variant="h4">Scale Your Music NFTs</Typography>
           <Typography>
             Move beyond cryptographic references to files to true ownership
@@ -463,6 +464,7 @@ const App = () => {
           borderRadius="6px"
           gap={2}
         >
+          <img src="/2.png" alt="" width={50} />
           <Typography variant="h4">Decentralized Streaming</Typography>
           <Typography>
             A decentralized content delivery network dedicated to music
@@ -479,10 +481,8 @@ const App = () => {
           borderRadius="6px"
           gap={2}
         >
-          <Typography variant="h4">
-            Earn $NUSIC Incentives <br />
-            <br />
-          </Typography>
+          <img src="/3.png" alt="" width={50} />
+          <Typography variant="h4">Earn $NUSIC Incentives</Typography>
           <Typography>
             Stream-to-earn enables node operators & listeners to receive tokens
           </Typography>
