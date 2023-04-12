@@ -1,17 +1,16 @@
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import {
-  Badge,
   Button,
   ButtonGroup,
   Chip,
   Grid,
   Link,
+  Snackbar,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import useAuth from "./hooks/useAuth";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
 import { LoadingButton } from "@mui/lab";
@@ -19,6 +18,10 @@ import { useEffect, useState } from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { provider } from "./utils/provider";
+import WalletConnectors from "./components/WalletConnector";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import { InjectedConnector } from "@web3-react/injected-connector";
+import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -47,16 +50,17 @@ const getTimerObj = () => {
 };
 
 const App = () => {
-  const { login } = useAuth();
-  const { account, library } = useWeb3React();
+  const { account, library, activate } = useWeb3React();
 
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   // const [crossmint, setCrossmint] = useState(1);
   // const [crypto, setCrypto] = useState(1);
-  const [tokenPrice, setTokenPrice] = useState(0.25);
+  const [tokenPrice, setTokenPrice] = useState(0.0008);
   const [currentEthPrice, setCurrentEthPrice] = useState(0);
+  const [showWalletConnector, setShowWalletConnector] = useState(false);
   const [timerObj, setTimerObj] = useState(getTimerObj);
 
   const fetchEthPrice = async () => {
@@ -75,7 +79,6 @@ const App = () => {
       provider
     );
     const bn = await pricingContract.latestAnswer();
-    debugger;
     setCurrentEthPrice(Number(bn.toString()) / 100000000);
   };
 
@@ -95,7 +98,7 @@ const App = () => {
 
   const onMint = async () => {
     if (!account) {
-      alert("Please connect your wallet and continue.");
+      setSnackbarMessage("Please connect your wallet and continue");
       return;
     }
     try {
@@ -125,15 +128,26 @@ const App = () => {
       console.log(ethers.utils.formatEther(options.value.toString()));
       const tx = await nftContract.mint(quantity, options);
       await tx.wait();
-      alert("You have successfully minted the NFT(s), thanks.");
+      setSnackbarMessage("Successfully Minted");
     } catch (e: any) {
       console.log(e.message);
-      alert(e.data?.message || e.message);
+      setSnackbarMessage(e.data?.message || e.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const onSignInUsingWallet = async (
+    connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
+  ) => {
+    await activate(connector, (e) => {
+      //e.name UnsupportedChainIdError
+      if (e.name === "UnsupportedChainIdError") {
+        setSnackbarMessage("Only Mumbai Testnet is Supported");
+      }
+    });
+  };
+  console.log(account);
   return (
     <Box sx={{ bgcolor: "black", minHeight: "100vh" }} p={2}>
       <Box
@@ -166,7 +180,8 @@ const App = () => {
           <Button
             variant="contained"
             onClick={() => {
-              login();
+              setShowWalletConnector(true);
+              // login();
             }}
           >
             Connect wallet
@@ -647,6 +662,17 @@ const App = () => {
           </Button> */}
         </Box>
       </Box>
+      <WalletConnectors
+        open={!account && showWalletConnector}
+        onSignInUsingWallet={onSignInUsingWallet}
+      />
+      <Snackbar
+        open={!!snackbarMessage}
+        autoHideDuration={4000}
+        message={snackbarMessage}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        onClose={() => setSnackbarMessage("")}
+      />
     </Box>
   );
 };
