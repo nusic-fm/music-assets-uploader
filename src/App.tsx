@@ -29,6 +29,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
 import CloseIcon from "@mui/icons-material/Close";
+// import { Injected } from "./hooks/useWalletConnectors";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -115,7 +116,8 @@ const App = () => {
 
   const onMint = async () => {
     if (!account) {
-      setSnackbarMessage("Please connect your wallet and continue");
+      setSnackbarMessage("Please connect your wallet and try again");
+      setShowWalletConnector(true);
       return;
     }
     try {
@@ -158,16 +160,46 @@ const App = () => {
   const onSignInUsingWallet = async (
     connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
   ) => {
-    await activate(connector, (e) => {
+    await activate(connector, async (e) => {
       //e.name UnsupportedChainIdError
       if (e.name === "UnsupportedChainIdError") {
         setSnackbarMessage("Only Mumbai Testnet is Supported");
       } else {
         setSnackbarMessage(e.message);
       }
-      console.log(e.name, e.message);
+
+      console.log(e.name);
     });
   };
+
+  // const checkConnection = async () => {
+  //   const provider = new ethers.providers.Web3Provider(
+  //     (window as any).ethereum
+  //   );
+  //   const accounts = await provider.listAccounts();
+  //   if (accounts.length) {
+  //     // onSignInUsingWallet(Injected);
+  //     if (
+  //       (window as any).ethereum?.networkVersion !==
+  //       process.env.REACT_APP_CHAIN_ID
+  //     ) {
+  //       try {
+  //         await (window as any).ethereum.request({
+  //           method: "wallet_switchEthereumChain",
+  //           params: [
+  //             {
+  //               chainId: ethers.utils.hexValue(80001),
+  //             },
+  //           ],
+  //         });
+  //       } catch (err) {}
+  //     }
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   checkConnection();
+  // }, [library]);
 
   useEffect(() => {
     if (txInfo) {
