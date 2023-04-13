@@ -203,6 +203,7 @@ const App = () => {
               setShowWalletConnector(true);
               // login();
             }}
+            sx={{ zIndex: 99 }}
           >
             Connect wallet
           </Button>
