@@ -26,6 +26,7 @@ import WalletConnectors from "./components/WalletConnector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
+import CardWithAnimation from "./components/CardWithAnimation";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -258,15 +259,7 @@ const App = () => {
                 top={-100}
                 height="200px"
               >
-                <img
-                  src="/card.png"
-                  alt=""
-                  style={{
-                    borderRadius: "35px",
-                    width: 280,
-                    objectFit: "contain",
-                  }}
-                />
+                <CardWithAnimation />
               </Box>
               <Box
                 py={15}
