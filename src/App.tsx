@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
+  IconButton,
   Link,
   Snackbar,
   Stack,
@@ -27,6 +28,7 @@ import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
+import { TwitterShareButton } from "react-twitter-embed";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -212,7 +214,7 @@ const App = () => {
       <Box p={2}>
         <Box>
           <Box position={"relative"}>
-            <Box display={"flex"} justifyContent="center" mt={{ md: -14 }}>
+            <Box display={"flex"} justifyContent="center">
               <Box
                 width={280}
                 height={280}
@@ -248,7 +250,7 @@ const App = () => {
             </Stack>
           </Box>
         </Box>
-        <Box mt={"120px"} pb={6}>
+        <Box mt={"180px"} pb={6}>
           <Grid container>
             <Grid item md={3}></Grid>
             <Grid item xs={12} md={6} position="relative">
@@ -263,18 +265,20 @@ const App = () => {
                 <CardWithAnimation />
               </Box>
               <Box
-                py={15}
+                pb={6}
+                pt={15}
                 px={{ xs: 2, md: "20%" }}
                 sx={{
                   background:
-                    "linear-gradient(0deg, rgba(6,0,14,1) 0%, rgba(37,11,89,1) 100%)",
+                    "linear-gradient(0deg, rgba(32,9,77,1) 0%, rgba(27,19,51,1) 100%)",
+                  // "linear-gradient(0deg, rgba(34,10,82,1) 0%, rgba(27,19,51,1) 100%)",
                 }}
                 borderRadius="6px"
               >
-                <Box mb={2}>
-                  <Typography align="center" color={"gray"} fontStyle="italic">
+                <Box mb={3}>
+                  {/* <Typography align="center" color={"gray"} fontStyle="italic">
                     Price per card: {tokenPrice} ETH
-                  </Typography>
+                  </Typography> */}
                 </Box>
                 <Box
                   display={"flex"}
@@ -295,7 +299,7 @@ const App = () => {
                     <TextField value={quantity}></TextField>
                     <Button
                       onClick={() => {
-                        if (quantity === 30) return;
+                        if (quantity === 99) return;
                         setQuantity(quantity + 1);
                       }}
                     >
@@ -336,14 +340,19 @@ const App = () => {
                     />
                     Mint with CARD
                   </Button>
-
-                  <a
-                    className="twitter-share-button"
-                    data-size="small"
-                    href="https://twitter.com/intent/tweet?text=NUSIC%20%23Alive%20is%20now%20Available%F0%9F%8E%A7%0A%0A"
-                  >
-                    Tweet
-                  </a>
+                  <Box mt={4}>
+                    <TwitterShareButton
+                      onLoad={function noRefCheck() {}}
+                      options={{
+                        buttonHashtag: undefined,
+                        screenName: undefined,
+                        size: "small",
+                        text: "NUSIC #Alive is now available at ",
+                        via: "nusicOfficial",
+                      }}
+                      url="alive.nusic.fm"
+                    />
+                  </Box>
                 </Stack>
               </Box>
             </Grid>
@@ -377,7 +386,7 @@ const App = () => {
             Learn More
           </Button>
         </Stack>
-        <Stack mt={40} pt={4} gap={1} alignItems="center" ref={stackRef}>
+        <Stack mt={5} pt={4} gap={1} alignItems="center" ref={stackRef}>
           <Typography variant="h4" align="center" fontWeight={700}>
             First Access to
             <img
@@ -632,18 +641,23 @@ const App = () => {
           <Link
             href={`https://mumbai.polygonscan.com/tx/${txInfo?.hash}`}
             color="secondary"
+            target={"_blank"}
           >
             Explore on Etherscan
           </Link>
         </DialogContent>
         <DialogActions>
-          <a
-            className="twitter-share-button"
-            data-size="large"
-            href="https://twitter.com/intent/tweet?text=Just%20Minted%20to%20Alive%20%234%20from%20NUSIC"
-          >
-            Tweet
-          </a>
+          <TwitterShareButton
+            onLoad={function noRefCheck() {}}
+            options={{
+              buttonHashtag: undefined,
+              screenName: undefined,
+              size: "small",
+              text: "Just Minted NUSIC #Alive at ",
+              via: "nusicOfficial",
+            }}
+            url="https://alive.nusic.fm"
+          />
         </DialogActions>
       </Dialog>
     </Box>
