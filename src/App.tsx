@@ -28,7 +28,7 @@ import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
-import { TwitterShareButton } from "react-twitter-embed";
+import CloseIcon from "@mui/icons-material/Close";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -169,6 +169,12 @@ const App = () => {
     });
   };
 
+  useEffect(() => {
+    if (txInfo) {
+      (window as any).twttr.widgets.load();
+    }
+  }, [txInfo]);
+
   return (
     <Box sx={{ bgcolor: "#1b1333", minHeight: "100vh" }}>
       <Box
@@ -213,7 +219,7 @@ const App = () => {
       </Box>
       <Box p={2}>
         <Box>
-          <Box position={"relative"}>
+          <Box position={"relative"} mt={-5}>
             <Box display={"flex"} justifyContent="center">
               <Box
                 width={280}
@@ -226,16 +232,6 @@ const App = () => {
                   boxShadow: "0 0 30px 30px #1b1333 inset",
                 }}
               ></Box>
-              {/* <img
-                src="/vis.gif"
-                alt=""
-                width={280}
-                height={280}
-                style={{
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
-              /> */}
             </Box>
             <Stack
               position="absolute"
@@ -341,17 +337,48 @@ const App = () => {
                     Mint with CARD
                   </Button>
                   <Box mt={4}>
-                    <TwitterShareButton
-                      onLoad={function noRefCheck() {}}
-                      options={{
-                        buttonHashtag: undefined,
-                        screenName: undefined,
-                        size: "small",
-                        text: "NUSIC #Alive is now available at ",
-                        via: "nusicOfficial",
+                    {/* <a
+                      style={{
+                        height: "20px",
+                        padding: "1px 12px",
+                        backgroundColor: "#1d9bf0",
+                        color: "#fff",
+                        borderRadius: "9999px",
+                        fontWeight: 500,
+                        cursor: "pointer",
                       }}
-                      url="alive.nusic.fm"
-                    />
+                      href="#we"
+                    >
+                      <i
+                        style={{
+                          backgroundImage: "url('/bird.svg')",
+                          top: 2,
+                          display: "inline-block",
+                          width: 14,
+                          height: 14,
+                          background: "transparent 0 0 no-repeat",
+                        }}
+                      ></i>
+                      <span
+                        style={{
+                          marginLeft: "3px",
+                          whiteSpace: "nowrap",
+                          display: "inline-block",
+                          verticalAlign: "top",
+                          zoom: 1,
+                          font: `normal normal normal 12px/18px 'Helvetica Neue',Arial,sans-serif`,
+                          fontWeight: 900,
+                        }}
+                      >
+                        Tweet
+                      </span>
+                    </a> */}
+                    <a
+                      className="twitter-share-button"
+                      href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
+                    >
+                      Tweet
+                    </a>
                   </Box>
                 </Stack>
               </Box>
@@ -633,8 +660,22 @@ const App = () => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         onClose={() => setSnackbarMessage("")}
       />
-      <Dialog open={!!txInfo} onClose={() => setTxInfo(undefined)}>
-        <DialogTitle color={"success"}>Successfully Minted !!!</DialogTitle>
+      <Dialog open={!!txInfo} fullWidth>
+        <DialogTitle color={"success"}>
+          Successfully Minted !!!
+          <IconButton
+            aria-label="close"
+            onClick={() => setTxInfo(undefined)}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           {/* <Typography>Token: #4</Typography> */}
 
@@ -647,7 +688,13 @@ const App = () => {
           </Link>
         </DialogContent>
         <DialogActions>
-          <TwitterShareButton
+          <a
+            className="twitter-share-button"
+            href="https://twitter.com/intent/tweet?text=I%20just%20minted%20a%20NUSIC%20Alive%20Collective%20pass%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
+          >
+            Tweet
+          </a>
+          {/* <TwitterShareButton
             onLoad={function noRefCheck() {}}
             options={{
               buttonHashtag: undefined,
@@ -657,7 +704,7 @@ const App = () => {
               via: "nusicOfficial",
             }}
             url="https://alive.nusic.fm"
-          />
+          /> */}
         </DialogActions>
       </Dialog>
     </Box>
