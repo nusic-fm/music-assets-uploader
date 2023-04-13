@@ -335,6 +335,14 @@ const App = () => {
                     />
                     Mint with CARD
                   </Button>
+
+                  <a
+                    className="twitter-share-button"
+                    data-size="small"
+                    href="https://twitter.com/intent/tweet?text=NUSIC%20%23Alive%20is%20now%20Available%F0%9F%8E%A7%0A%0A"
+                  >
+                    Tweet
+                  </a>
                 </Stack>
               </Box>
             </Grid>
