@@ -33,8 +33,8 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>
-        <Typography variant="h5">Connect Wallet</Typography>
-        <DialogContentText sx={{ mt: 1 }}>
+        Connect Wallet
+        <DialogContentText sx={{ mt: 1 }} variant="caption">
           If you don't have a wallet, you can mint using your credit card
         </DialogContentText>
       </DialogTitle>

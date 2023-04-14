@@ -4,7 +4,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 
 export const CoinbaseWallet = new WalletLinkConnector({
   url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
-  appName: "NUSIC Player",
+  appName: "NUSIC Access Pass",
   supportedChainIds: [Number(process.env.REACT_APP_CHAIN_ID)],
 });
 

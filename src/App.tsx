@@ -32,7 +32,7 @@ import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
 import CloseIcon from "@mui/icons-material/Close";
 // import { Injected } from "./hooks/useWalletConnectors";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+// import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -164,14 +164,9 @@ const App = () => {
     connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
   ) => {
     await activate(connector, async (e) => {
-      //e.name UnsupportedChainIdError
-      if (e.name === "UnsupportedChainIdError") {
-        setSnackbarMessage("Only Mumbai Testnet is Supported");
-      } else {
-        setSnackbarMessage(e.message);
-      }
+      setSnackbarMessage(e.message);
 
-      console.log(e.name);
+      console.log(e.name, e.message);
     });
   };
 
@@ -346,10 +341,10 @@ const App = () => {
                 </Box>
                 <Stack alignItems={"end"}>
                   <Typography>
-                    {(quantity * tokenPrice).toFixed(4)} ETH
+                    {(quantity * tokenPrice).toFixed(2)} ETH
                   </Typography>
                   <Typography color={"gray"}>
-                    ${(currentEthPrice * tokenPrice * quantity).toFixed(4)}
+                    ${(currentEthPrice * tokenPrice * quantity).toFixed(2)}
                   </Typography>
                 </Stack>
                 <Stack alignItems={"center"} gap={2} mt={2}>
@@ -548,7 +543,7 @@ const App = () => {
                 Powering the Evolution of Music
               </Typography>
               <Typography align="center" color={"gray"}>
-                Web 3 metadata infrastructure for music rights holders
+                Web3 metadata infrastructure for music rights holders
               </Typography>
             </Box>
           </Stack>
@@ -566,7 +561,7 @@ const App = () => {
           <Typography align="center" variant="h4" fontWeight={700}>
             Customize Your Membership NFT
           </Typography>
-          <Box p={2} mt={1} borderRadius={"6px"}>
+          <Box mt={1} borderRadius={"6px"}>
             {/* <Typography variant="h5" align="center">
               Inject your PFP into the NUSIC alive pass
             </Typography>
@@ -774,17 +769,6 @@ const App = () => {
           >
             Tweet
           </a>
-          {/* <TwitterShareButton
-            onLoad={function noRefCheck() {}}
-            options={{
-              buttonHashtag: undefined,
-              screenName: undefined,
-              size: "small",
-              text: "Just Minted NUSIC #Alive at ",
-              via: "nusicOfficial",
-            }}
-            url="https://alive.nusic.fm"
-          /> */}
         </DialogActions>
       </Dialog>
     </Box>
