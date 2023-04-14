@@ -164,7 +164,11 @@ const App = () => {
     connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
   ) => {
     await activate(connector, async (e) => {
-      setSnackbarMessage(e.message);
+      if (e.name === "t") {
+        setSnackbarMessage("Please switch to Ethereum Mainnet");
+      } else {
+        setSnackbarMessage(e.message);
+      }
 
       console.log(e.name, e.message);
     });
