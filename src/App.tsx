@@ -163,7 +163,7 @@ const App = () => {
   const onSignInUsingWallet = async (
     connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
   ) => {
-    await activate(connector, async (e) => {
+    activate(connector, async (e) => {
       if (e.name === "t") {
         setSnackbarMessage("Please switch to Ethereum Mainnet");
       } else {
@@ -190,7 +190,7 @@ const App = () => {
   //           method: "wallet_switchEthereumChain",
   //           params: [
   //             {
-  //               chainId: ethers.utils.hexValue(80001),
+  //               chainId: ethers.utils.hexValue(1),
   //             },
   //           ],
   //         });
@@ -201,7 +201,7 @@ const App = () => {
 
   // useEffect(() => {
   //   checkConnection();
-  // }, [library]);
+  // }, []);
 
   useEffect(() => {
     if (txInfo) {
@@ -240,6 +240,10 @@ const App = () => {
         ></Box>
         {account ? (
           <Chip
+            // clickable
+            // onClick={() => {
+            //   deactivate();
+            // }}
             label={`${account.slice(0, 6)}...${account.slice(
               account.length - 4
             )}`}
@@ -429,7 +433,8 @@ const App = () => {
                     </a> */}
                     <a
                       className="twitter-share-button"
-                      href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
+                      // href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
+                      href="NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20via%20%40nusicOfficial"
                     >
                       Tweet
                     </a>
