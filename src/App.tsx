@@ -589,7 +589,7 @@ const App = () => {
         </Stack>
         <Box mt={10}>
           <Typography variant="h4" align="center" fontWeight={700}>
-            Access For 3 Years
+            Priority Access For 3 Years
           </Typography>
           <Box mt={4}>
             <Typography align="center">Countdown</Typography>
