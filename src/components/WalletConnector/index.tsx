@@ -71,7 +71,18 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
           </Button>
           <Button
             color="secondary"
-            onClick={() => onSignInUsingWallet(Injected)}
+            onClick={() => {
+              let provider;
+              if ((window as any).ethereum.providers?.length) {
+                (window as any).ethereum.providers.forEach(async (p: any) => {
+                  if (p.isMetaMask) provider = p;
+                });
+              }
+              if (provider) {
+                (window as any).ethereum.setSelectedProvider(provider);
+                onSignInUsingWallet(Injected);
+              }
+            }}
             startIcon={
               <img src="/signin/mm.png" alt="" width={24} height={24} />
             }

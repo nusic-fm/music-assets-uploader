@@ -163,8 +163,9 @@ const App = () => {
   const onSignInUsingWallet = async (
     connector: WalletConnectConnector | WalletLinkConnector | InjectedConnector
   ) => {
+    await checkConnection();
     activate(connector, async (e) => {
-      if (e.name === "t") {
+      if (e.name === "t" || e.name === "UnsupportedChainIdError") {
         setSnackbarMessage("Please switch to Ethereum Mainnet");
       } else {
         setSnackbarMessage(e.message);
@@ -174,30 +175,31 @@ const App = () => {
     });
   };
 
-  // const checkConnection = async () => {
-  //   const provider = new ethers.providers.Web3Provider(
-  //     (window as any).ethereum
-  //   );
-  //   const accounts = await provider.listAccounts();
-  //   if (accounts.length) {
-  //     // onSignInUsingWallet(Injected);
-  //     if (
-  //       (window as any).ethereum?.networkVersion !==
-  //       process.env.REACT_APP_CHAIN_ID
-  //     ) {
-  //       try {
-  //         await (window as any).ethereum.request({
-  //           method: "wallet_switchEthereumChain",
-  //           params: [
-  //             {
-  //               chainId: ethers.utils.hexValue(1),
-  //             },
-  //           ],
-  //         });
-  //       } catch (err) {}
-  //     }
-  //   }
-  // };
+  const checkConnection = async () => {
+    const provider = new ethers.providers.Web3Provider(
+      (window as any).ethereum
+    );
+    const accounts = await provider.listAccounts();
+    if (accounts.length) {
+      if (
+        (window as any).ethereum?.networkVersion !==
+        process.env.REACT_APP_CHAIN_ID
+      ) {
+        try {
+          await (window as any).ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [
+              {
+                chainId: ethers.utils.hexValue(
+                  Number(process.env.REACT_APP_CHAIN_ID)
+                ),
+              },
+            ],
+          });
+        } catch (err) {}
+      }
+    }
+  };
 
   // useEffect(() => {
   //   checkConnection();
