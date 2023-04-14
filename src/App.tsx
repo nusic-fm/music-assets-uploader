@@ -541,16 +541,18 @@ const App = () => {
             </Typography>
           </Stack>
         </Stack>
-        <Stack mt={5} px={{ md: "20%" }}>
-          <Box p={2} border="1px solid gray" borderRadius={"6px"}>
-            <Typography variant="h5" align="center">
-              Powering the Evolution of Music
-            </Typography>
-            <Typography align="center" color={"gray"}>
-              Web 3 metadata infrastructure for music rights holders
-            </Typography>
-          </Box>
-        </Stack>
+        <Box display={"flex"} justifyContent="center">
+          <Stack mt={5} width={{ xs: "100%", md: "calc(60% + 32px)" }}>
+            <Box p={2} border="1px solid gray" borderRadius={"6px"}>
+              <Typography variant="h5" align="center">
+                Powering the Evolution of Music
+              </Typography>
+              <Typography align="center" color={"gray"}>
+                Web 3 metadata infrastructure for music rights holders
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
         <Stack
           mt={10}
           mx={{ md: "20%" }}
