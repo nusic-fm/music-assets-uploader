@@ -10,9 +10,11 @@ import {
   Grid,
   IconButton,
   Link,
+  // Popover,
   Snackbar,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -30,6 +32,7 @@ import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
 import CloseIcon from "@mui/icons-material/Close";
 // import { Injected } from "./hooks/useWalletConnectors";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const getEthValue = (price: number): BigNumber => {
   return ethers.utils.parseEther(price.toString());
@@ -75,13 +78,12 @@ const App = () => {
 
   // const [crossmint, setCrossmint] = useState(1);
   // const [crypto, setCrypto] = useState(1);
-  const [tokenPrice, setTokenPrice] = useState(
-    Number(process.env.REACT_APP_TOKEN_PRICE)
-  );
+  const [tokenPrice] = useState(Number(process.env.REACT_APP_TOKEN_PRICE));
   const [currentEthPrice, setCurrentEthPrice] = useState(0);
   const [showWalletConnector, setShowWalletConnector] = useState(false);
   const [timerObj, setTimerObj] = useState(getTimerObj);
   const [txInfo, setTxInfo] = useState<{ hash: string }>();
+  // const cardRef = useRef(null);
 
   const fetchEthPrice = async () => {
     const pricingContract = new ethers.Contract(
@@ -359,24 +361,36 @@ const App = () => {
                   >
                     Mint with ETH
                   </LoadingButton>
-                  <Button
-                    component="label"
-                    variant="outlined"
-                    sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
+                  <Tooltip title="Connect your Wallet to receive the NFT directly into your address">
+                    <Button
+                      component="label"
+                      variant="outlined"
+                      sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
+                      // endIcon={<InfoOutlinedIcon />}
+                      // ref={cardRef}
+                    >
+                      <CrossmintPayButton
+                        style={{ display: "none" }}
+                        clientId="bee2289c-b606-4abd-9140-6e55806646b7"
+                        mintConfig={{
+                          type: "erc-721",
+                          totalPrice: (tokenPrice * quantity).toFixed(4),
+                          tokenQuantity: quantity,
+                        }}
+                        environment="staging"
+                        mintTo={account ?? undefined}
+                      />
+                      Mint with CARD
+                    </Button>
+                  </Tooltip>
+                  {/* <Typography
+                    variant="caption"
+                    sx={{ width: { xs: "100%", md: "50%", color: "gray" } }}
+                    align="center"
                   >
-                    <CrossmintPayButton
-                      style={{ display: "none" }}
-                      clientId="bee2289c-b606-4abd-9140-6e55806646b7"
-                      mintConfig={{
-                        type: "erc-721",
-                        totalPrice: (tokenPrice * quantity).toFixed(4),
-                        tokenQuantity: quantity,
-                      }}
-                      environment="staging"
-                      // mintTo="<YOUR_USER_WALLET_ADDRESS>"
-                    />
-                    Mint with CARD
-                  </Button>
+                    Connect your Wallet to receive the NFT directly into your
+                    address
+                  </Typography> */}
                   <Box mt={4}>
                     {/* <a
                       style={{
@@ -571,7 +585,7 @@ const App = () => {
             </Box>
           </Box>
           <Box mt={4}>
-            <img src="/pfp_info.png" alt="" width={"100%"} />
+            <img src="/pfp.gif" alt="" width={"100%"} />
           </Box>
         </Stack>
         <Box mt={10}>
