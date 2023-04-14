@@ -435,6 +435,11 @@ const App = () => {
                       className="twitter-share-button"
                       // href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
                       href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20via%20%40nusicOfficial"
+                      // href="https://twitter.com/share"
+                      // data-text={`NUSIC Alive Collective passes are now available\n\nJoin the Movement Powering the Evolution of Music\n`}
+                      // data-url="alive.nusic.fm"
+                      // data-via="nusicOfficial"
+                      // data-hashtags="NUSIC"
                     >
                       Tweet
                     </a>
@@ -493,7 +498,7 @@ const App = () => {
           flexWrap="wrap"
         >
           <Stack
-            width={{ xs: "100%", md: "20%" }}
+            width={{ xs: "100%", md: "30%", lg: "25%", xl: "20%" }}
             sx={{
               background:
                 "radial-gradient(circle, rgba(0,149,130,1) 0%, rgba(154,69,179,1) 48%, rgba(94,16,117,1) 100%)",
@@ -511,7 +516,7 @@ const App = () => {
             </Typography>
           </Stack>
           <Stack
-            width={{ xs: "100%", md: "20%" }}
+            width={{ xs: "100%", md: "34%", lg: "25%", xl: "20%" }}
             sx={{
               background:
                 "radial-gradient(71.89% 71.89% at 68.2% 28.11%, #3D8494 0%, #66198A 55.04%, #4E4192 100%)",
@@ -529,7 +534,7 @@ const App = () => {
             </Typography>
           </Stack>
           <Stack
-            width={{ xs: "100%", md: "20%" }}
+            width={{ xs: "100%", md: "30%", lg: "25%", xl: "20%" }}
             sx={{
               background:
                 "radial-gradient(circle, rgba(58,180,164,1) 0%, rgba(70,40,144,1) 48%, rgba(154,69,179,1) 100%)",
@@ -548,7 +553,15 @@ const App = () => {
           </Stack>
         </Stack>
         <Box display={"flex"} justifyContent="center">
-          <Stack mt={5} width={{ xs: "100%", md: "calc(60% + 32px)" }}>
+          <Stack
+            mt={5}
+            width={{
+              xs: "100%",
+              md: "calc(94% + 32px)",
+              lg: "calc(75% + 32px)",
+              xl: "calc(60% + 32px)",
+            }}
+          >
             <Box p={2} border="1px solid gray" borderRadius={"6px"}>
               <Typography variant="h5" align="center">
                 Powering the Evolution of Music
