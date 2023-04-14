@@ -80,8 +80,8 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
               }
               if (provider) {
                 (window as any).ethereum.setSelectedProvider(provider);
-                onSignInUsingWallet(Injected);
               }
+              onSignInUsingWallet(Injected);
             }}
             startIcon={
               <img src="/signin/mm.png" alt="" width={24} height={24} />

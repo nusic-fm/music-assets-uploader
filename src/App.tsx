@@ -206,9 +206,7 @@ const App = () => {
   // }, []);
 
   useEffect(() => {
-    if (txInfo) {
-      (window as any).twttr.widgets.load();
-    }
+    (window as any).twttr.widgets.load();
   }, [txInfo]);
 
   return (
