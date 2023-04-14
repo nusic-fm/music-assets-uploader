@@ -497,7 +497,8 @@ const App = () => {
             <img src="/1.png" alt="" width={50} />
             <Typography variant="h4">Scale Your Music NFTs</Typography>
             <Typography>
-              Move beyond cryptographic references to files to true ownership
+              Move beyond cryptographic references to files to true immutable
+              ownership
             </Typography>
           </Stack>
           <Stack
@@ -515,6 +516,7 @@ const App = () => {
             <Typography variant="h4">Decentralized Streaming</Typography>
             <Typography>
               A decentralized content delivery network dedicated to music
+              streaming & IP protection
             </Typography>
           </Stack>
           <Stack
@@ -531,8 +533,8 @@ const App = () => {
             <img src="/3.png" alt="" width={50} />
             <Typography variant="h4">Earn $NUSIC Incentives</Typography>
             <Typography>
-              Stream-to-earn enables node operators & listeners to receive
-              tokens
+              Music NFT creators & holders, listeners & node operators all
+              receive $NUSIC tokens
             </Typography>
           </Stack>
         </Stack>
