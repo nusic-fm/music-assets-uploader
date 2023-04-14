@@ -519,7 +519,7 @@ const App = () => {
           </Stack>
         </Stack>
         <Stack mt={10} px={{ md: "20%" }} gap={2}>
-          <Typography align="center" variant="h4" fontWeight={700}>
+          {/* <Typography align="center" variant="h4" fontWeight={700}>
             Customize Your Membership NFT
           </Typography>
           <Box p={2} mt={5} border="1px solid gray" borderRadius={"6px"}>
@@ -537,9 +537,9 @@ const App = () => {
             <Typography align="center" color={"gray"}>
               A decentralized content delivery network dedicated to music
             </Typography>
-          </Box>
+          </Box> */}
           <Box mt={4}>
-            <img src="/pfp_pass.png" alt="" width={"100%"} />
+            <img src="/card_info1.png" alt="" width={"100%"} />
           </Box>
         </Stack>
         <Box mt={10}>

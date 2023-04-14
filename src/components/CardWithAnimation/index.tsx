@@ -70,8 +70,8 @@ const CardWithAnimation = (props: Props) => {
       >
         <Box
           sx={{
-            backgroundImage: "url(/card.png)",
-            borderRadius: "25px",
+            backgroundImage: "url(/new_card.png)",
+            borderRadius: "10px",
             boxShadow: "2px 2px 30px rgba(255, 255, 255, 0.2)",
             width: 280,
             height: 180,
