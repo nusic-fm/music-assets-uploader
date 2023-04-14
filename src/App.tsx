@@ -434,7 +434,7 @@ const App = () => {
                     <a
                       className="twitter-share-button"
                       // href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
-                      href="NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20via%20%40nusicOfficial"
+                      href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20via%20%40nusicOfficial"
                     >
                       Tweet
                     </a>
