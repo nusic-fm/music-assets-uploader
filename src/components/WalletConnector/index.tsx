@@ -88,14 +88,14 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
           >
             <CrossmintPayButton
               style={{ display: "none" }}
-              clientId="bee2289c-b606-4abd-9140-6e55806646b7"
+              clientId="0c4a330a-7286-4e0d-9d79-43ab7a03db65"
               mintConfig={{
                 type: "erc-721",
-                totalPrice: "0.0008",
+                totalPrice: "0.25",
                 tokenQuantity: 1,
               }}
-              environment="staging"
-              // mintTo="<YOUR_USER_WALLET_ADDRESS>"
+              // environment="staging"
+              // mintTo={account ?? undefined}
             />
             Mint with CARD
           </Button>

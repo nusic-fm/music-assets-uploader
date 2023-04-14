@@ -366,13 +366,13 @@ const App = () => {
                     >
                       <CrossmintPayButton
                         style={{ display: "none" }}
-                        clientId="bee2289c-b606-4abd-9140-6e55806646b7"
+                        clientId="0c4a330a-7286-4e0d-9d79-43ab7a03db65"
                         mintConfig={{
                           type: "erc-721",
-                          totalPrice: (tokenPrice * quantity).toFixed(4),
+                          totalPrice: (tokenPrice * quantity).toFixed(2),
                           tokenQuantity: quantity,
                         }}
-                        environment="staging"
+                        // environment="staging"
                         mintTo={account ?? undefined}
                       />
                       Mint with CARD
