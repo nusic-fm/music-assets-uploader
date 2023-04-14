@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, Button, Typography } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  Button,
+  Typography,
+  DialogTitle,
+  DialogContentText,
+} from "@mui/material";
 import { Stack } from "@mui/system";
 import { useWeb3React } from "@web3-react/core";
 import {
@@ -9,6 +16,8 @@ import {
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 
 type Props = {
   open: boolean;
@@ -22,9 +31,15 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
   const { error } = useWeb3React();
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} fullWidth>
+      <DialogTitle>
+        <Typography variant="h5">Connect Wallet</Typography>
+        <DialogContentText sx={{ mt: 1 }}>
+          If you don't have a wallet, you can mint using your credit card
+        </DialogContentText>
+      </DialogTitle>
       <DialogContent>
-        <Stack gap={2}>
+        <Stack mt={2} gap={2}>
           {error?.message && (
             <Typography color={"error"}>
               An Error Occurred: {error.message}
@@ -62,6 +77,27 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
             }
           >
             Metamask
+          </Button>
+          <Typography align="center" fontWeight={700}>
+            Or
+          </Typography>
+          <Button
+            startIcon={<CreditCardIcon />}
+            component="label"
+            sx={{ color: "white" }}
+          >
+            <CrossmintPayButton
+              style={{ display: "none" }}
+              clientId="bee2289c-b606-4abd-9140-6e55806646b7"
+              mintConfig={{
+                type: "erc-721",
+                totalPrice: "0.0008",
+                tokenQuantity: 1,
+              }}
+              environment="staging"
+              // mintTo="<YOUR_USER_WALLET_ADDRESS>"
+            />
+            Mint with CARD
           </Button>
         </Stack>
       </DialogContent>

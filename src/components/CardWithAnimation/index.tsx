@@ -54,7 +54,7 @@ const CardWithAnimation = (props: Props) => {
   return (
     <Box
       ref={containerRef}
-      sx={{ perspective: "10px" }}
+      sx={{ perspective: "10px", transform: { md: "scale(1.1)" } }}
       onMouseMove={handleMouseMove}
       onMouseLeave={onMouseLeaveHandler}
       onMouseEnter={onMouseEnterHandler}
@@ -74,7 +74,7 @@ const CardWithAnimation = (props: Props) => {
             borderRadius: "10px",
             boxShadow: "2px 2px 30px rgba(255, 255, 255, 0.2)",
             width: 280,
-            height: 180,
+            height: 178,
             backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
           }}

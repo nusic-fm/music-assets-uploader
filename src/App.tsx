@@ -209,7 +209,13 @@ const App = () => {
   }, [txInfo]);
 
   return (
-    <Box sx={{ bgcolor: "#1b1333", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        background:
+          "linear-gradient(0deg, rgb(0,0,0) 0%, rgba(27,19,51,1) 70%)",
+        minHeight: "100vh",
+      }}
+    >
       <Box
         px={4}
         py={4}
@@ -337,9 +343,11 @@ const App = () => {
                   </ButtonGroup>
                 </Box>
                 <Stack alignItems={"end"}>
-                  <Typography>{quantity * tokenPrice} ETH</Typography>
+                  <Typography>
+                    {(quantity * tokenPrice).toFixed(4)} ETH
+                  </Typography>
                   <Typography color={"gray"}>
-                    ${(currentEthPrice * tokenPrice * quantity).toFixed(2)}
+                    ${(currentEthPrice * tokenPrice * quantity).toFixed(4)}
                   </Typography>
                 </Stack>
                 <Stack alignItems={"center"} gap={2} mt={2}>
@@ -467,7 +475,7 @@ const App = () => {
           flexWrap="wrap"
         >
           <Stack
-            width={{ md: "20%" }}
+            width={{ xs: "100%", md: "20%" }}
             sx={{
               background:
                 "radial-gradient(circle, rgba(0,149,130,1) 0%, rgba(154,69,179,1) 48%, rgba(94,16,117,1) 100%)",
@@ -484,7 +492,7 @@ const App = () => {
             </Typography>
           </Stack>
           <Stack
-            width={{ md: "20%" }}
+            width={{ xs: "100%", md: "20%" }}
             sx={{
               background:
                 "radial-gradient(71.89% 71.89% at 68.2% 28.11%, #3D8494 0%, #66198A 55.04%, #4E4192 100%)",
@@ -501,7 +509,7 @@ const App = () => {
             </Typography>
           </Stack>
           <Stack
-            width={{ md: "20%" }}
+            width={{ xs: "100%", md: "20%" }}
             sx={{
               background:
                 "radial-gradient(circle, rgba(58,180,164,1) 0%, rgba(70,40,144,1) 48%, rgba(154,69,179,1) 100%)",
@@ -519,28 +527,51 @@ const App = () => {
             </Typography>
           </Stack>
         </Stack>
-        <Stack mt={10} px={{ md: "20%" }} gap={2}>
-          {/* <Typography align="center" variant="h4" fontWeight={700}>
-            Customize Your Membership NFT
-          </Typography>
-          <Box p={2} mt={5} border="1px solid gray" borderRadius={"6px"}>
-            <Typography variant="h5" align="center">
-              Inject your PFP into the NUSIC alive pass
-            </Typography>
-            <Typography align="center" color={"gray"}>
-              Connect your favorite NFT directly to your NUSIC Alive Pass
-            </Typography>
-          </Box>
+        <Stack mt={5} px={{ md: "20%" }}>
           <Box p={2} border="1px solid gray" borderRadius={"6px"}>
             <Typography variant="h5" align="center">
               Powering the Evolution of Music
             </Typography>
             <Typography align="center" color={"gray"}>
-              A decentralized content delivery network dedicated to music
+              Web 3 metadata infrastructure for music rights holders
             </Typography>
-          </Box> */}
+          </Box>
+        </Stack>
+        <Stack
+          mt={10}
+          mx={{ md: "20%" }}
+          p={2}
+          gap={2}
+          // sx={{
+          //   boxShadow:
+          //     "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
+          // }}
+        >
+          <Typography align="center" variant="h4" fontWeight={700}>
+            Customize Your Membership NFT
+          </Typography>
+          <Box p={2} mt={1} borderRadius={"6px"}>
+            {/* <Typography variant="h5" align="center">
+              Inject your PFP into the NUSIC alive pass
+            </Typography>
+            <Typography align="center" color={"gray"}>
+              Connect your favorite NFT directly to your NUSIC Alive Pass
+            </Typography> */}
+            <Typography variant="h3">How?</Typography>
+            <Box mt={2}>
+              <Typography variant="h6" fontWeight={700}>
+                Inject your PFP into the NUSIC alive pass
+              </Typography>
+              <Typography variant="body1" color={"gray"}>
+                Connect your favorite NFT directly to your NUSIC Alive Pass
+              </Typography>
+              <Typography variant="body1" color={"gray"}>
+                Show the world what community you are part of
+              </Typography>
+            </Box>
+          </Box>
           <Box mt={4}>
-            <img src="/card_info1.png" alt="" width={"100%"} />
+            <img src="/pfp_info.png" alt="" width={"100%"} />
           </Box>
         </Stack>
         <Box mt={10}>
