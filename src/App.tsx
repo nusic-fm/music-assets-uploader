@@ -35,10 +35,12 @@ import CloseIcon from "@mui/icons-material/Close";
 // import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const getEthValue = (price: number): BigNumber => {
+  // 0000000000000000000000
   return ethers.utils.parseEther(price.toString());
 };
 
 const getEtherForQuantity = (price: number, quantity: number): string => {
+  // 0.0 ETH
   return ethers.utils.formatEther(
     getEthValue(price).mul(BigNumber.from(quantity))
   );
@@ -206,7 +208,7 @@ const App = () => {
   // }, []);
 
   useEffect(() => {
-    (window as any).twttr.widgets.load();
+    if ((window as any)?.twttr?.widgets) (window as any).twttr.widgets.load();
   }, [txInfo]);
 
   return (
@@ -349,7 +351,7 @@ const App = () => {
                 </Box>
                 <Stack alignItems={"end"}>
                   <Typography>
-                    {(quantity * tokenPrice).toFixed(2)} ETH
+                    {getEtherForQuantity(tokenPrice, quantity)} ETH
                   </Typography>
                   <Typography color={"gray"}>
                     ${(currentEthPrice * tokenPrice * quantity).toFixed(2)}
@@ -386,51 +388,7 @@ const App = () => {
                       Mint with CARD
                     </Button>
                   </Tooltip>
-                  {/* <Typography
-                    variant="caption"
-                    sx={{ width: { xs: "100%", md: "50%", color: "gray" } }}
-                    align="center"
-                  >
-                    Connect your Wallet to receive the NFT directly into your
-                    address
-                  </Typography> */}
                   <Box mt={4}>
-                    {/* <a
-                      style={{
-                        height: "20px",
-                        padding: "1px 12px",
-                        backgroundColor: "#1d9bf0",
-                        color: "#fff",
-                        borderRadius: "9999px",
-                        fontWeight: 500,
-                        cursor: "pointer",
-                      }}
-                      href="#we"
-                    >
-                      <i
-                        style={{
-                          backgroundImage: "url('/bird.svg')",
-                          top: 2,
-                          display: "inline-block",
-                          width: 14,
-                          height: 14,
-                          background: "transparent 0 0 no-repeat",
-                        }}
-                      ></i>
-                      <span
-                        style={{
-                          marginLeft: "3px",
-                          whiteSpace: "nowrap",
-                          display: "inline-block",
-                          verticalAlign: "top",
-                          zoom: 1,
-                          font: `normal normal normal 12px/18px 'Helvetica Neue',Arial,sans-serif`,
-                          fontWeight: 900,
-                        }}
-                      >
-                        Tweet
-                      </span>
-                    </a> */}
                     <a
                       className="twitter-share-button"
                       // href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
