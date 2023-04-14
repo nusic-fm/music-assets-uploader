@@ -75,7 +75,9 @@ const App = () => {
 
   // const [crossmint, setCrossmint] = useState(1);
   // const [crypto, setCrypto] = useState(1);
-  const [tokenPrice, setTokenPrice] = useState(0.0008);
+  const [tokenPrice, setTokenPrice] = useState(
+    Number(process.env.REACT_APP_TOKEN_PRICE)
+  );
   const [currentEthPrice, setCurrentEthPrice] = useState(0);
   const [showWalletConnector, setShowWalletConnector] = useState(false);
   const [timerObj, setTimerObj] = useState(getTimerObj);
@@ -83,8 +85,7 @@ const App = () => {
 
   const fetchEthPrice = async () => {
     const pricingContract = new ethers.Contract(
-      // "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
-      "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada",
+      process.env.REACT_APP_Price_Feed as string,
       [
         {
           inputs: [],
@@ -123,7 +124,7 @@ const App = () => {
     try {
       setIsLoading(true);
       const nftContract = new ethers.Contract(
-        "0x5b5d1F1479BcA067a253e1d6cBF655E0D377227F",
+        process.env.REACT_APP_ETH_CONTRACT_ADDRESS as string,
         [
           {
             inputs: [
