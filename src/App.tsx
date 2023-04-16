@@ -31,6 +31,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
 import CloseIcon from "@mui/icons-material/Close";
+// import { CoinbaseWallet, Injected } from "./hooks/useWalletConnectors";
 // import { Injected } from "./hooks/useWalletConnectors";
 // import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
@@ -202,9 +203,23 @@ const App = () => {
       }
     }
   };
+  // const checkAutoLogin = async () => {
+  //   const provider = new ethers.providers.Web3Provider(
+  //     (window as any).ethereum
+  //   );
+  //   const accounts = await provider.listAccounts();
+  //   if (accounts.length) {
+  //     const eth = (window as any).ethereum;
+  //     if (eth.isMetaMask) {
+  //       onSignInUsingWallet(Injected);
+  //     } else if (eth.isCoinbaseBrowser) {
+  //       onSignInUsingWallet(CoinbaseWallet);
+  //     }
+  //   }
+  // };
 
   // useEffect(() => {
-  //   checkConnection();
+  //   checkAutoLogin();
   // }, []);
 
   useEffect(() => {
@@ -737,7 +752,7 @@ const App = () => {
           {/* <Typography>Token: #4</Typography> */}
 
           <Link
-            href={`https://mumbai.polygonscan.com/tx/${txInfo?.hash}`}
+            href={`https://etherscan.io/tx/${txInfo?.hash}`}
             color="secondary"
             target={"_blank"}
           >
@@ -748,6 +763,7 @@ const App = () => {
           <a
             className="twitter-share-button"
             href="https://twitter.com/intent/tweet?text=I%20just%20minted%20a%20NUSIC%20Alive%20Collective%20pass%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
+            data-url=" "
           >
             Tweet
           </a>
