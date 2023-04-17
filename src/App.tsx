@@ -379,9 +379,9 @@ const App = () => {
                     sx={{ width: { xs: "100%", md: "50%" } }}
                     onClick={onMint}
                   >
-                    Mint with ETH
+                    Mint
                   </LoadingButton>
-                  <Tooltip title="Connect your Wallet to receive the NFT directly into your address">
+                  {/* <Tooltip title="Connect your Wallet to receive the NFT directly into your address">
                     <Button
                       component="label"
                       variant="outlined"
@@ -402,15 +402,16 @@ const App = () => {
                       />
                       Mint with CARD
                     </Button>
-                  </Tooltip>
+                  </Tooltip> */}
                   <Box mt={4}>
                     <a
                       className="twitter-share-button"
                       // href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20at%20alive.nusic.fm%20via%20%40nusicOfficial%20%0A%0AJoin%20the%20Movement%20Powering%20the%20Evolution%20of%20Music%0A%0A%23NUSIC"
-                      href="https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20via%20%40nusicOfficial"
+                      href={`https://twitter.com/intent/tweet?text=NUSIC%20Alive%20Collective%20passes%20are%20now%20available%20via%20%40nusicOfficial%0A`}
+                      // data-url="opensea.io/collection/nusic-alive-collective"
                       // href="https://twitter.com/share"
                       // data-text={`NUSIC Alive Collective passes are now available\n\nJoin the Movement Powering the Evolution of Music\n`}
-                      // data-url="alive.nusic.fm"
+                      data-url="alive.nusic.fm"
                       // data-via="nusicOfficial"
                       // data-hashtags="NUSIC"
                     >

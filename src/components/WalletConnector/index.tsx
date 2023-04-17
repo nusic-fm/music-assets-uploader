@@ -89,10 +89,10 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
           >
             Metamask
           </Button>
-          <Typography align="center" fontWeight={700}>
+          {/* <Typography align="center" fontWeight={700}>
             Or
-          </Typography>
-          <Button
+          </Typography> */}
+          {/* <Button
             startIcon={<CreditCardIcon />}
             component="label"
             sx={{ color: "white" }}
@@ -109,7 +109,7 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
               // mintTo={account ?? undefined}
             />
             Mint with CARD
-          </Button>
+          </Button> */}
         </Stack>
       </DialogContent>
     </Dialog>
