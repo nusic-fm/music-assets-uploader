@@ -5,6 +5,7 @@ import {
   Typography,
   DialogTitle,
   DialogContentText,
+  Link,
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useWeb3React } from "@web3-react/core";
@@ -16,8 +17,8 @@ import {
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
+// import CreditCardIcon from "@mui/icons-material/CreditCard";
+// import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 
 type Props = {
   open: boolean;
@@ -35,7 +36,15 @@ const WalletConnectors = ({ open, onSignInUsingWallet, onClose }: Props) => {
       <DialogTitle>
         Connect Wallet
         <DialogContentText sx={{ mt: 1 }} variant="caption">
-          If you don't have a wallet, you can mint using your credit card
+          If you are connecting from mobile devices, you can open the respective
+          wallet then sign in from its browser as shown{" "}
+          <Link
+            sx={{ color: "white", fontWeight: "bold" }}
+            target="_blank"
+            href="https://support.metamask.io/hc/en-us/articles/6356387482523-How-to-use-the-MetaMask-Mobile-Browser"
+          >
+            here
+          </Link>
         </DialogContentText>
       </DialogTitle>
       <DialogContent>
