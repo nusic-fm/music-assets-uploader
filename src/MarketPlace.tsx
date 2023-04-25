@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import axios from "axios";
+// import axios from "axios";
 import { useState } from "react";
 // import { NftItem } from "./components/NftItem";
 // import { getBinaryTree } from "./utils/binaryTreeGenerator";
@@ -260,10 +260,10 @@ export const MarketPlace = () => {
     };
   };
 
-  useEffect(() => {
-    login();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   login();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   const [sectionLocation, setSectionLocation] = useState<{
     left: number;
     width: number;
@@ -550,57 +550,57 @@ export const MarketPlace = () => {
     });
   };
   const fetchFulltracks = async () => {
-    const graphqlQuery = {
-      query: `query {
-                fullTrackRecords (last: 2) {
-                  nodes {
-                    musicId
-                    cid
-                    artistName
-                    trackTitle
-                    albumName
-                    genre
-                    bpm
-                    key
-                    timeSignature
-                    bars
-                    beats
-                    duration
-                    startBeatOffsetMs
-                    sectionsCount
-                    stemsCount
-                  }
-              }
-                sectionRecords (last: 30) {
-                    nodes {
-                      musicId
-                      name
-                      startTimeMs
-                    }
-                }
-                stemRecords (last: 4) {
-                      nodes {
-                        musicId
-                        cid
-                        name
-                        type
-                      }
-                  }
-                }`,
-      variables: {},
-    };
+    // const graphqlQuery = {
+    //   query: `query {
+    //             fullTrackRecords (last: 2) {
+    //               nodes {
+    //                 musicId
+    //                 cid
+    //                 artistName
+    //                 trackTitle
+    //                 albumName
+    //                 genre
+    //                 bpm
+    //                 key
+    //                 timeSignature
+    //                 bars
+    //                 beats
+    //                 duration
+    //                 startBeatOffsetMs
+    //                 sectionsCount
+    //                 stemsCount
+    //               }
+    //           }
+    //             sectionRecords (last: 30) {
+    //                 nodes {
+    //                   musicId
+    //                   name
+    //                   startTimeMs
+    //                 }
+    //             }
+    //             stemRecords (last: 4) {
+    //                   nodes {
+    //                     musicId
+    //                     cid
+    //                     name
+    //                     type
+    //                   }
+    //               }
+    //             }`,
+    //   variables: {},
+    // };
     // sectionRecords (first: 5) {
     //   nodes {
     //     id
     //     musicId
     //   }
     // }
-    const fullTracks = await axios.post(
-      "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
-      graphqlQuery
-    );
-    const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
-    console.log({ raveCodeRecord });
+    // const fullTracks = await axios.post(
+    //   "https://api.subquery.network/sq/logesh2496/nusic-metadata-layer",
+    //   graphqlQuery
+    // );
+    // const raveCodeRecord = fullTracks.data.data.fullTrackRecords.nodes[0];
+    // console.log({ raveCodeRecord });
     setSongMetadata(raveCode);
   };
 
@@ -790,7 +790,7 @@ export const MarketPlace = () => {
                 ml={4}
                 display="flex"
                 alignItems="center"
-                // justifyContent="space-around"
+                justifyContent="center"
                 gap={6}
               >
                 <Box>
@@ -841,7 +841,7 @@ export const MarketPlace = () => {
                   <Typography variant="h6" fontWeight={"bold"} align="center">
                     Andrew
                   </Typography> */}
-                  <Box
+                  {/* <Box
                     onClick={() => {
                       start(1);
                     }}
@@ -855,7 +855,7 @@ export const MarketPlace = () => {
                       style={{ borderRadius: "15px", objectFit: "cover" }}
                     ></img>
                     <Typography align="center">No Air</Typography>
-                  </Box>
+                  </Box> */}
                   {/* <Box mt={2}>
                     <Button
                       onClick={() => {
@@ -868,7 +868,7 @@ export const MarketPlace = () => {
                     </Button>
                   </Box> */}
                 </Box>
-                <Box position="relative">
+                {/* <Box position="relative">
                   <img
                     src="/howie-B.webp"
                     alt="no-air"
@@ -897,7 +897,7 @@ export const MarketPlace = () => {
                       size="small"
                     ></Chip>
                   </Box>
-                </Box>
+                </Box> */}
               </Box>
             ) : (
               <Box p={4} display="flex" alignItems="flex-start">
