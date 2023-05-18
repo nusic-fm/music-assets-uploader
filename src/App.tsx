@@ -354,8 +354,7 @@ const App = () => {
           </Box>
           <Box>
             <Typography fontFamily="BenchNine">
-              Residents and businesses of Little Haiti-Miami are being displaced
-              by Real Estate development
+              A Groundbreaking Opportunity in Little Haiti
             </Typography>
             <Typography
               // variant="caption"
@@ -363,13 +362,15 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              Why? The value of each sq.ft. of their community has increased
-              56,1% within a year
+              Empowering Equity
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
-              The Captain Haiti Foundation is creating a digital twin of the
-              neighborhood in the metaverse to raise money and save Little
-              Haiti-Miami from gentrification
+              Join the historic move by the Captain Haiti Foundation and Dargent
+              Group. Through the secured $5 million fund, you can help combat
+              gentrification and support public art in Miami's Little Haiti.
+              Your limited-edition geo-located music-NFT does more than just
+              preserve Haitian heritage. It grants you first-option rights to
+              purchase any property acquired through this fund.
             </Typography>
           </Box>
         </Box>
@@ -487,8 +488,7 @@ const App = () => {
           </Box>
           <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
-              Each Music-NFT of “Bare Yo!” is geolocated to 1 square foot of
-              Little Haiti
+              NFTs Beyond Digital Art
             </Typography>
             <Typography
               // variant="caption"
@@ -496,13 +496,14 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              Each Music-NFT will fund Captain Haiti’s bid to buy back his
-              neighborhood
+              The Power of Cultural Legacy
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
-              The NFT-funded smart village will serve as a “living lab” for
-              year-round living, working, and playing, with the goal of becoming
-              a destination for WEB3 innovation
+              The Captain Haiti NFTs, available through a donation of $18.04,
+              aren't your typical NFTs. They are tangible connections to the
+              vibrant Haitian spirit in Miami. By becoming an owner, you're
+              contributing to maintaining the neighborhood's cultural vitality
+              and supporting local businesses.
             </Typography>
           </Box>
         </Box>
@@ -517,7 +518,7 @@ const App = () => {
           <iframe
             width="100%"
             height="100%"
-            src="https://www.youtube.com/embed/gENgcFL6LnM"
+            src="https://www.youtube.com/embed/KqvjMHMGTGA"
             title="Take the #BareYoChallenge - Make the song go Platinum and fund a smart village in Miami."
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -526,7 +527,7 @@ const App = () => {
 
           <Box display={"flex"} flexDirection="column" justifyContent={"start"}>
             <Typography fontFamily="BenchNine">
-              Hurry! Buildings are constantly going up for sale in Little Haiti
+              Real Estate Ownership Meets Social Impact
             </Typography>
             <Typography
               // variant="caption"
@@ -534,12 +535,15 @@ const App = () => {
               fontFamily="BenchNine"
               variant="h4"
             >
-              Most tenants only have Month to Month leases. If their buildings
-              are sold to someone else, they will be removed sooner or later!
+              Transforming Communities
             </Typography>
             <Typography fontFamily="BenchNine" variant="body1">
-              By purchasing the Music-NFT “Bare Yo!” , you are joining in saving
-              these buildings and bringing innovation and opportunity for all!
+              A Captain Haiti geo-located music-NFT is more than a property
+              option. It's a social impact statement. Your contribution supports
+              the beautification of Little Haiti, encourages cultural exchange,
+              and stimulates the local economy. Join this revolutionary
+              collaboration today by visiting BuyLittleHaiti.com. Let's shape
+              the future of Little Haiti together.
             </Typography>
           </Box>
         </Box>
