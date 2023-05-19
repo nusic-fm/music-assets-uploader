@@ -578,7 +578,7 @@ const App = () => {
             >
               <Box width={{ sx: "100%", md: "80%" }} position={"relative"}>
                 <img
-                  src="/captain-mint.png"
+                  src="/captain-mint.jpg"
                   alt=""
                   width={"100%"}
                   style={{ objectFit: "cover" }}
@@ -586,7 +586,7 @@ const App = () => {
                 <Box position={"absolute"} top={0} width={"100%"}>
                   <Box display={"flex"} justifyContent="center" width={"100%"}>
                     <Box
-                      sx={{ background: "rgba(0,0,0,60%)" }}
+                      sx={{ background: "rgba(0,0,0,80%)" }}
                       width={"100%"}
                       p={2}
                     >
@@ -677,7 +677,7 @@ const App = () => {
                     justifyContent="space-around"
                     alignItems={"center"}
                     flexWrap={"wrap"}
-                    sx={{ background: "rgba(0,0,0,40%)" }}
+                    sx={{ background: "rgba(0,0,0,80%)" }}
                     gap={1}
                     p={2}
                   >
@@ -868,6 +868,15 @@ const App = () => {
               Breakdown Only
             </Typography>
           </Grid>
+          <Grid item xs={4}>
+            <Typography>First Option To Purchase</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>X</Typography>
+          </Grid>
           <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
             <Typography>Geo-Location</Typography>
           </Grid>
@@ -885,22 +894,24 @@ const App = () => {
             <Typography>Location</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>17 Physical Addresses</Typography>
+            <Typography textAlign={"center"}>
+              5930 NE 2nd Avenue, Miami, Florida, 33137
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>Little Haiti</Typography>
+            <Typography textAlign={"center"}></Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography noWrap>Circulation</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>112,171 Sq. Ft.</Typography>
+            <Typography textAlign={"center"}>6,150 Sq.Ft.</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>9,634,750 Sq. Ft.</Typography>
+            <Typography textAlign={"center"}></Typography>
           </Grid>
           <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
-            <Typography>Social Club</Typography>
+            <Typography>Little Haiti Walls</Typography>
           </Grid>
           <Grid
             item
@@ -913,13 +924,13 @@ const App = () => {
             sx={{ background: "rgba(204, 204, 204, 15%)" }}
           ></Grid>
           <Grid item xs={4}>
-            <Typography>Discounts</Typography>
+            <Typography>Discounts with Vendors</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography textAlign={"center"}>X</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
+            <Typography textAlign={"center"}></Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography>Free Samples and Goods</Typography>
@@ -929,12 +940,14 @@ const App = () => {
           </Grid>
           <Grid item xs={4}></Grid>
           <Grid item xs={4}>
-            <Typography>Free Events</Typography>
+            <Typography>Free Admission</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
+            <Typography textAlign={"center"}>Unlimited</Typography>
           </Grid>
-          <Grid item xs={4}></Grid>
+          <Grid item xs={4}>
+            <Typography textAlign={"center"}>1</Typography>
+          </Grid>
           <Grid item xs={4} sx={{ background: "rgba(204, 204, 204, 15%)" }}>
             <Typography>Metaverse</Typography>
           </Grid>
@@ -949,16 +962,16 @@ const App = () => {
             sx={{ background: "rgba(204, 204, 204, 15%)" }}
           ></Grid>
           <Grid item xs={4}>
-            <Typography>Metaverse Concert</Typography>
+            <Typography>Concert</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography textAlign={"center"}>X</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography textAlign={"center"}>X</Typography>
+            <Typography textAlign={"center"}></Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography>Metaverse Listing</Typography>
+            <Typography>Events</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography textAlign={"center"}>X</Typography>
@@ -977,7 +990,7 @@ const App = () => {
             xs={4}
             sx={{ background: "rgba(204, 204, 204, 15%)" }}
           ></Grid>
-          <Grid item xs={4}>
+          {/* <Grid item xs={4}>
             <Typography>“Bare Yo!” Party Mix</Typography>
           </Grid>
           <Grid item xs={4}>
@@ -985,13 +998,13 @@ const App = () => {
           </Grid>
           <Grid item xs={4}>
             <Typography textAlign={"center"}>X</Typography>
-          </Grid>
+          </Grid> */}
           <Grid item xs={4}>
             <Typography>$CAPH tokens</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography noWrap textAlign={"center"}>
-              10,000,000
+              1,000,000,000
             </Typography>
           </Grid>
           <Grid item xs={4}>
