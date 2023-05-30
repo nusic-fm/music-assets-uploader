@@ -573,8 +573,17 @@ function App() {
 
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
-      <Box display="flex" justifyContent="end" p={2}>
-        {userAddress ? (
+      <Box
+        sx={{ bgcolor: "#fff" }}
+        display="flex"
+        justifyContent="space-between"
+        px={{ xs: 4, md: 6 }}
+        py={3}
+      >
+        <Typography variant="h4" fontWeight="600">
+          Diaspora
+        </Typography>
+        {/* {userAddress ? (
           <Tooltip title={userAddress}>
             <Chip
               clickable
@@ -587,10 +596,15 @@ function App() {
           <Button variant="contained" onClick={login}>
             Login
           </Button>
-        )}
+        )} */}
       </Box>
-      <Box p={{ xs: 4, md: 10 }}>
-        <Typography variant="h4" fontWeight="600" align="left">
+      <Box p={{ xs: 4, md: 6 }}>
+        <Typography
+          variant="h4"
+          fontWeight="900"
+          align="left"
+          fontFamily={"Roboto"}
+        >
           Music Metadata Information
         </Typography>
         <Grid container mt={8} gap={{ xs: 2 }}>

@@ -16,7 +16,7 @@ import { ethers } from "ethers";
 
 WebFont.load({
   google: {
-    families: ["Tenor Sans"],
+    families: ["Open Sans", "Roboto"],
   },
 });
 
@@ -45,7 +45,7 @@ export const getLibrary = (provider: any): ethers.providers.Web3Provider => {
 
 const themeSettings = createTheme({
   palette: {
-    mode: "dark",
+    // mode: "dark",
     primary: {
       main: "#573FC8",
       light: "#000000",
@@ -56,13 +56,13 @@ const themeSettings = createTheme({
     info: {
       main: "#A794FF",
     },
-    background: { paper: "#16162A" },
+    background: { paper: "#EDEDED" },
   },
   typography: {
     allVariants: {
-      color: "#ffffff",
+      color: "black",
     },
-    fontFamily: `"Tenor Sans" , sans-serif`,
+    fontFamily: `"Open Sans" , sans-serif`,
   },
 });
 const theme = responsiveFontSizes(themeSettings);
