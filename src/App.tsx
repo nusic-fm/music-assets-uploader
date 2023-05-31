@@ -577,12 +577,10 @@ function App() {
         sx={{ bgcolor: "#fff" }}
         display="flex"
         justifyContent="space-between"
-        px={{ xs: 4, md: 6 }}
+        px={{ xs: 4 }}
         py={3}
       >
-        <Typography variant="h4" fontWeight="600">
-          Diaspora
-        </Typography>
+        <img src="/diaspora.png" alt="" width={"200px"} />
         {/* {userAddress ? (
           <Tooltip title={userAddress}>
             <Chip
@@ -598,7 +596,7 @@ function App() {
           </Button>
         )} */}
       </Box>
-      <Box p={{ xs: 4, md: 6 }}>
+      <Box p={{ xs: 4 }}>
         <Typography
           variant="h4"
           fontWeight="900"
@@ -806,7 +804,7 @@ function App() {
                   color={"black"}
                   textAlign="center"
                 >
-                  Metadata Information
+                  Overview
                 </Typography>
                 <Grid container>
                   <Grid item xs={12}>
