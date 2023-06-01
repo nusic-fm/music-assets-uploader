@@ -1025,6 +1025,64 @@ function App() {
         sectionsHash={sectionsHash}
         isEncryptFiles={isEncryptFiles}
       />
+      <Box mt={20} pb={8}>
+        <Typography variant="h5" align="center" fontFamily="monospace">
+          Powered By
+        </Typography>
+        {/* <Typography variant="h3" align="center">
+          NUSIC
+        </Typography> */}
+        <Box
+          display="flex"
+          justifyContent="center"
+          p={2}
+          sx={{ bgcolor: "black" }}
+          my={2}
+        >
+          <Button href="//nusic.fm" target="_blank">
+            <img src="/nusic-white.png" alt="nusic" width="250px"></img>
+          </Button>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="h5" fontFamily="Roboto" align="center">
+            The Decentralized Financial Rails for Music
+          </Typography>
+          <Box maxWidth={{ md: "33%" }} mt={2} px={2}>
+            <Typography align="center" fontFamily="Open Sans" variant="body1">
+              NUSIC empowers you to release music into Web 3 on your own terms,
+              under your own brand, for your own community. Our solutions have
+              won multiple awards from top Web 3 infrastructure providers & our
+              distributed team is ready to plug your music into the
+              decentralized financial rails that power music on the next
+              generation of the internet.
+            </Typography>
+          </Box>
+          {/* <Box my={2}>
+            <TextField
+              placeholder="Spotify Artist ID"
+              onChange={(e) => setSpotifyArtistId(e.target.value)}
+            />
+          </Box> */}
+          {/* <Button
+            variant="contained"
+            onClick={onSpotifyId}
+            // size="small"
+            sx={{
+              fontFamily: "BenchNine",
+              borderRadius: "18px",
+              // textTransform: "unset",
+              // fontWeight: "900",
+            }}
+          >
+            Plug in your music now
+          </Button> */}
+        </Box>
+      </Box>
     </Box>
   );
 }
