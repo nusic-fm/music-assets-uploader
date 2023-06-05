@@ -31,21 +31,25 @@ import { useDropzone } from "react-dropzone";
 import TransactionDialog from "./components/TransactionDialog";
 import { Web3Storage } from "web3.storage";
 import { useNavigate } from "react-router-dom";
-import {
-  DirectSecp256k1HdWallet,
-  OfflineDirectSigner,
-  OfflineSigner,
-} from "@cosmjs/proto-signing";
+// import {
+//   DirectSecp256k1HdWallet,
+//   OfflineDirectSigner,
+//   OfflineSigner,
+// } from "@cosmjs/proto-signing";
 import { getSigningStargateClient, txClient } from "./module";
-import {
-  MsgCreateFullTrack,
-  MsgCreateSection,
-  MsgCreateStem,
-} from "./module/types/metadatalayercosmos/tx";
+// import {
+//   MsgCreateFullTrack,
+//   MsgCreateSection,
+//   MsgCreateStem,
+// } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { songMoodsOptions } from "./utils/songMoods";
+import CreditsRows from "./components/CreditsRows";
+import MasterRecordingOwnerships from "./components/MasterRecordingOwnerships";
+import CompositionOwnerships from "./components/CompositionOwnerships";
 
 export const rpc = process.env.REACT_APP_RPC as string;
 export const rest = process.env.REACT_APP_REST as string;
@@ -222,6 +226,7 @@ function App() {
   const [featureArtists, setFeatureArtists] = useState<string[]>([]);
   const [title, setTitle] = useState<string>();
   const [album, setAlbum] = useState<string>();
+  const [projectType, setProjectType] = useState<string>();
   const [genrePrimary, setGenrePrimary] = useState<string>();
   const [genreSecondary, setGenreSecondary] = useState<string>();
   const [songMoods, setSongMoods] = useState<string[]>([]);
@@ -239,6 +244,16 @@ function App() {
   const [recordLabel, setRecordLabel] = useState<string>();
   const [distributor, setDistributor] = useState<string>();
   const [dateCreated, setDateCreated] = useState<string>();
+
+  const [credits, setCredits] = useState({ 1: {} });
+  const [masterOwnerships, setMasterOwnerships] = useState({ 1: {} });
+  const [compositionOwnerships, setCompositionOwnerships] = useState({ 1: {} });
+  const [lyrics, setLyrics] = useState<string>();
+  const [language, setLanguage] = useState<string>();
+  const [explicitLyrics, setExplicitLyrics] = useState<boolean>();
+
+  const [additionalCreationRow, setAdditionalCreationRow] = useState(false);
+  const [locations, setLocations] = useState([]);
 
   const [fileUrl, setFileUrl] = useState<string>();
   const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
@@ -312,92 +327,107 @@ function App() {
     a.click();
   };
 
-  const onTx = async () => {
+  const processTx = async () => {
     const titleWithoutSpace = getWithoutSpace(title as string)?.slice(0, 10);
     const genrePrimaryWithoutSpace = getWithoutSpace(genrePrimary as string);
     const fullTrackContent = {
       id: `fulltrack${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
       cid,
       artist,
+      featureArtists,
       title,
       album,
+      projectType,
       genrePrimary,
       genreSecondary,
-      bpm,
+      songMoods,
+      songType,
       key,
+      duration,
+      startBeatOffsetMs: startBeatOffsetMs.toString(),
+      bpm,
       timeSignature,
       noOfBars,
       noOfBeats,
-      duration,
-      startBeatOffsetMs: startBeatOffsetMs.toString(),
+      isrcCode,
+      upcCode,
+      recordLabel,
+      distributor,
+      dateCreated,
+      credits,
+      masterOwnerships,
+      compositionOwnerships,
+      lyrics,
+      language,
+      explicitLyrics,
       sections: Object.keys(sectionsObj).length,
       stems: Object.keys(stemsObj).length,
     };
 
-    const { creator, signingClient } = await getSigningStargateClient();
-    const { keplr } = window;
-    if (!keplr) {
-      alert("You need to install Keplr");
-      return;
-    }
-    const offlineSigner: OfflineSigner = keplr.getOfflineSigner!(cosmosChainId);
-    const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
-      await txClient(offlineSigner);
+    // const { creator, signingClient } = await getSigningStargateClient();
+    // const { keplr } = window;
+    // if (!keplr) {
+    //   alert("You need to install Keplr");
+    //   return;
+    // }
+    // const offlineSigner: OfflineSigner = keplr.getOfflineSigner!(cosmosChainId);
+    // const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
+    //   await txClient(offlineSigner);
 
-    let parentFullTrackId;
-    try {
-      const fromJson = MsgCreateFullTrack.fromJSON({
-        creator,
-        cid,
-        artistName: artist,
-        featureArtists,
-        trackTitle: title,
-        album,
-        genrePrimary,
-        genreSecondary,
-        songMoods,
-        songType,
-        key,
-        bpm,
-        timeSignature,
-        bars: noOfBars,
-        beats: noOfBeats,
-        durationMs: (duration || 0) * 1000,
-        startBeatOffsetMs: startBeatOffsetMs.toString(),
-        sectionsCount: Object.keys(sectionsObj).length,
-        stemsCount: Object.keys(stemsObj).length,
-        isrcCode,
-        upcCode,
-        recordLabel,
-        distributor,
-        dateCreated,
-      });
-      const msgEncoded = msgCreateFullTrack(fromJson);
-      // // const broadCast = await signAndBroadcast([msgEncoded]);
-      const broadCast = await signingClient.signAndBroadcast(
-        creator,
-        [msgEncoded],
-        "auto"
-      );
-      const id = JSON.parse(
-        JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
-      );
-      const creatorAddress = JSON.parse(
-        JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
-      );
-      parentFullTrackId = id;
-      console.log(broadCast, id, creatorAddress);
-    } catch (err) {
-      console.log("error: ", err);
-      alert("Error creating fulltrack tx.");
-      return;
-    }
+    // let parentFullTrackId;
+    // try {
+    //   const fromJson = MsgCreateFullTrack.fromJSON({
+    //     creator,
+    //     cid,
+    //     artistName: artist,
+    //     featureArtists,
+    //     trackTitle: title,
+    //     album,
+    //     genrePrimary,
+    //     genreSecondary,
+    //     songMoods,
+    //     songType,
+    //     key,
+    //     bpm,
+    //     timeSignature,
+    //     bars: noOfBars,
+    //     beats: noOfBeats,
+    //     durationMs: (duration || 0) * 1000,
+    //     startBeatOffsetMs: startBeatOffsetMs.toString(),
+    //     sectionsCount: Object.keys(sectionsObj).length,
+    //     stemsCount: Object.keys(stemsObj).length,
+    //     isrcCode,
+    //     upcCode,
+    //     recordLabel,
+    //     distributor,
+    //     dateCreated,
+    //   });
+    //   const msgEncoded = msgCreateFullTrack(fromJson);
+    //   // // const broadCast = await signAndBroadcast([msgEncoded]);
+    //   const broadCast = await signingClient.signAndBroadcast(
+    //     creator,
+    //     [msgEncoded],
+    //     "auto"
+    //   );
+    //   const id = JSON.parse(
+    //     JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
+    //   );
+    //   const creatorAddress = JSON.parse(
+    //     JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
+    //   );
+    //   parentFullTrackId = id;
+    //   console.log(broadCast, id, creatorAddress);
+    // } catch (err) {
+    //   console.log("error: ", err);
+    //   alert("Error creating fulltrack tx.");
+    //   return;
+    // }
 
     setActiveTxStep(2);
     // Stems
     const stems = Object.values(stemsObj);
     const stemsContent = [];
-    const broadCastStemsMsgs = [];
+    // const broadCastStemsMsgs = [];
     if (stems.length) {
       for (let i = 0; i < stems.length; i++) {
         const stemObj = stems[i];
@@ -409,29 +439,29 @@ function App() {
           name: stemObj.name,
           type: stemObj.type,
         });
-        const fromJson = MsgCreateStem.fromJSON({
-          creator,
-          fullTrackID: parentFullTrackId,
-          stemCid: cid, //TODO
-          stemName: stemObj.name,
-          stemType: stemObj.type,
-        });
-        const msgEncoded = msgCreateStem(fromJson);
-        broadCastStemsMsgs.push(msgEncoded);
-      }
-      try {
-        //// const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
-        // const broadCastedStems = await signingClient.signAndBroadcast(
+        // const fromJson = MsgCreateStem.fromJSON({
         //   creator,
-        //   broadCastStemsMsgs,
-        //   "auto"
-        // );
-        // console.log({ broadCastStemsMsgs });
-        // console.log({ broadCastedStems });
-      } catch (err) {
-        console.log("error: ", err);
-        alert("Error creating stems tx.");
+        //   fullTrackID: parentFullTrackId,
+        //   stemCid: cid, //TODO
+        //   stemName: stemObj.name,
+        //   stemType: stemObj.type,
+        // });
+        // const msgEncoded = msgCreateStem(fromJson);
+        // broadCastStemsMsgs.push(msgEncoded);
       }
+      //   try {
+      //     //// const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
+      //     // const broadCastedStems = await signingClient.signAndBroadcast(
+      //     //   creator,
+      //     //   broadCastStemsMsgs,
+      //     //   "auto"
+      //     // );
+      //     // console.log({ broadCastStemsMsgs });
+      //     // console.log({ broadCastedStems });
+      //   } catch (err) {
+      //     console.log("error: ", err);
+      //     alert("Error creating stems tx.");
+      //   }
     }
     // setActiveTxStep(3);
 
@@ -442,15 +472,15 @@ function App() {
       const broadCastSectionsMsgs = [];
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
-        const fromJson = MsgCreateSection.fromJSON({
-          creator,
-          fullTrackID: parentFullTrackId,
-          sectionName: section.name,
-          sectionStartTimeMs: section.start * 1000,
-          sectionEndTimeMs: section.end * 1000,
-        });
-        const msgEncoded = msgCreateSection(fromJson);
-        broadCastSectionsMsgs.push(msgEncoded);
+        // const fromJson = MsgCreateSection.fromJSON({
+        //   creator,
+        //   fullTrackID: parentFullTrackId,
+        //   sectionName: section.name,
+        //   sectionStartTimeMs: section.start * 1000,
+        //   sectionEndTimeMs: section.end * 1000,
+        // });
+        //     const msgEncoded = msgCreateSection(fromJson);
+        //     broadCastSectionsMsgs.push(msgEncoded);
         sectionsContent.push({
           id: `section${
             i + 1
@@ -461,54 +491,54 @@ function App() {
           bars: section.bars,
           beats: section.bars * noOfBeatsPerBar,
         });
-        // const sectionHash = await new Promise<string>((res) => {
-        //   api.tx.uploadModule
-        //     .createSection(
-        //       `section${
-        //         i + 1
-        //       }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-        //       section.name,
-        //       section.start * 1000,
-        //       section.end * 1000,
-        //       section.bars,
-        //       section.bars * noOfBeatsPerBar
-        //     )
-        //     .signAndSend(account, ({ events = [], status }) => {
-        //       if (status.isFinalized) {
-        //         console.log(
-        //           `Transaction included at blockHash ${status.asFinalized}`
-        //         );
+        //     // const sectionHash = await new Promise<string>((res) => {
+        //     //   api.tx.uploadModule
+        //     //     .createSection(
+        //     //       `section${
+        //     //         i + 1
+        //     //       }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+        //     //       section.name,
+        //     //       section.start * 1000,
+        //     //       section.end * 1000,
+        //     //       section.bars,
+        //     //       section.bars * noOfBeatsPerBar
+        //     //     )
+        //     //     .signAndSend(account, ({ events = [], status }) => {
+        //     //       if (status.isFinalized) {
+        //     //         console.log(
+        //     //           `Transaction included at blockHash ${status.asFinalized}`
+        //     //         );
 
-        //         // Loop through Vec<EventRecord> to display all events
-        //         events.forEach(({ phase, event: { data, method, section } }) => {
-        //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-        //         });
-        //         res(status.hash.toString());
-        //       }
-        //     });
-        // });
-        // setSectionsHash([...sectionsHash, sectionHash]);
+        //     //         // Loop through Vec<EventRecord> to display all events
+        //     //         events.forEach(({ phase, event: { data, method, section } }) => {
+        //     //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+        //     //         });
+        //     //         res(status.hash.toString());
+        //     //       }
+        //     //     });
+        //     // });
+        //     // setSectionsHash([...sectionsHash, sectionHash]);
       }
-      try {
-        // const broadCastedStems = await signAndBroadcast(broadCastSectionsMsgs);
-        console.log({ broadCastSectionsMsgs });
-        const broadCastedStems = await signingClient.signAndBroadcast(
-          creator,
-          [...broadCastSectionsMsgs, ...broadCastStemsMsgs],
-          "auto"
-        );
-        console.log(broadCastedStems);
-      } catch (err) {
-        console.log("error: ", err);
-        alert("Error creating sections tx.");
-      }
+      //   try {
+      //     // const broadCastedStems = await signAndBroadcast(broadCastSectionsMsgs);
+      //     console.log({ broadCastSectionsMsgs });
+      //     const broadCastedStems = await signingClient.signAndBroadcast(
+      //       creator,
+      //       [...broadCastSectionsMsgs, ...broadCastStemsMsgs],
+      //       "auto"
+      //     );
+      //     console.log(broadCastedStems);
+      //   } catch (err) {
+      //     console.log("error: ", err);
+      //     alert("Error creating sections tx.");
+      //   }
     }
     download(
       JSON.stringify({
         fullTrackContent,
         stemsContent,
         sectionsContent,
-        fullTrackId: parentFullTrackId,
+        // fullTrackId: parentFullTrackId,
       }),
       `NUSIC-${titleWithoutSpace}-metadata.json`,
       "text/plain"
@@ -535,8 +565,8 @@ function App() {
     const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
     const allFiles = [fullTrackFile, ...stemFiles];
     let finalFiles;
-    const isIgnoreStorage = !process.env.REACT_APP_IGNORE_STORAGE;
-    if (isIgnoreStorage) {
+    const storeFiles = !process.env.REACT_APP_IGNORE_STORAGE;
+    if (storeFiles) {
       if (isEncryptFiles) {
         finalFiles = await encryptFiles(allFiles);
       } else {
@@ -572,7 +602,7 @@ function App() {
   };
   useEffect(() => {
     if (cid) {
-      onTx();
+      processTx();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cid]);
@@ -732,6 +762,7 @@ function App() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        helperText="Press Enter to add"
                         // variant="filled"
                         // label="freeSolo"
                         // placeholder="Favorites"
@@ -763,14 +794,21 @@ function App() {
                   ></TextField>
                 </Box>
               </Grid>
-              <Grid item md={1}></Grid>
+              {/* <Grid item md={1}></Grid> */}
               <Grid item xs={2} md={2}>
                 <Box>
-                  <Typography>Single</Typography>
-                  <FormControlLabel
-                    control={<IOSSwitch sx={{ m: 1 }} />}
-                    label=""
-                  />
+                  <Typography>Project Type</Typography>
+                  <Select
+                    onChange={(e) => setProjectType(e.target.value as string)}
+                    fullWidth
+                    size="small"
+                  >
+                    <MenuItem value="Single">Single</MenuItem>
+                    <MenuItem value="Ep">Ep</MenuItem>
+                    <MenuItem value="Album">Album</MenuItem>
+                    <MenuItem value="Single">Single</MenuItem>
+                    <MenuItem value="Playlist">Playlist</MenuItem>
+                  </Select>
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
@@ -797,10 +835,10 @@ function App() {
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>MOOD(Max 3) Optional</Typography>
+                  <Typography>Song Mood (Up to 3 Optional)</Typography>
                   <Autocomplete
                     multiple
-                    options={[]}
+                    options={songMoodsOptions}
                     // defaultValue={[top100Films[13].title]}
                     freeSolo
                     value={songMoods}
@@ -817,6 +855,7 @@ function App() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        helperText="Press Enter to add"
                         // variant="filled"
                         // label="freeSolo"
                         // placeholder="Favorites"
@@ -829,12 +868,25 @@ function App() {
               <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>Song Type</Typography>
-                  <TextField
+                  <Select
+                    fullWidth
+                    size="small"
+                    value={songType}
+                    onChange={(e) => setSongType(e.target.value as string)}
+                  >
+                    <MenuItem value={"Original"}>Original</MenuItem>
+                    <MenuItem value={"Remix"}>Remix</MenuItem>
+                    <MenuItem value={"Accapella"}>Accapella</MenuItem>
+                    <MenuItem value="Acoustic">Acoustic</MenuItem>
+                    <MenuItem value="Cover">Cover</MenuItem>
+                    <MenuItem value="Live Recording">Live Recording</MenuItem>
+                  </Select>
+                  {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setSongType(e.target.value)}
                     size="small"
                     fullWidth
-                  ></TextField>
+                  ></TextField> */}
                 </Box>
               </Grid>
               <Grid item xs={10} md={2}>
@@ -1027,30 +1079,12 @@ function App() {
                   </LocalizationProvider>
                 </Box>
               </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Credits(Optional)</Typography>
-                  <TextField fullWidth size="small"></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={2}>
-                <Box>
-                  <Typography>Role</Typography>
-                  <TextField size="small"></TextField>
-                </Box>
-              </Grid>
+              <Grid item md={8}></Grid>
+              <CreditsRows rowsObj={credits} setCredits={setCredits} />
 
-              <Grid item xs={4} md={1}>
-                <Box>
-                  <Typography>
-                    <br />
-                  </Typography>
-                  <Button variant="outlined">Add</Button>
-                </Box>
-              </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1" fontWeight={700}>
-                  Location of Creation (max2)
+                  Location of Creation (max 2)
                 </Typography>
               </Grid>
               <Grid item xs={10} md={4}>
@@ -1083,72 +1117,67 @@ function App() {
                   <Typography>
                     <br />
                   </Typography>
-                  <Button variant="outlined">Add</Button>
+                  <Button
+                    variant="outlined"
+                    disabled={additionalCreationRow}
+                    onClick={() => setAdditionalCreationRow(true)}
+                  >
+                    Add
+                  </Button>
                 </Box>
               </Grid>
+              {additionalCreationRow && (
+                <>
+                  <Grid item xs={10} md={4}>
+                    <Box>
+                      <Typography>Studio Name</Typography>
+                      <TextField fullWidth size="small" />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={10} md={4}>
+                    <Box
+                      display={"flex"}
+                      justifyContent="space-between"
+                      gap={2}
+                    >
+                      <Box>
+                        <Typography>City</Typography>
+                        <TextField fullWidth size="small"></TextField>
+                      </Box>
+                      <Box>
+                        <Typography>State</Typography>
+                        <TextField fullWidth size="small" />
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={6} md={2}>
+                    <Box>
+                      <Typography>Country</Typography>
+                      <TextField fullWidth size="small"></TextField>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6} md={1}></Grid>
+                </>
+              )}
               <Grid item xs={12}>
                 <Typography variant="body1" fontWeight={700}>
                   Master Recording Ownership (up to 4)
                 </Typography>
               </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Name</Typography>
-                  <TextField fullWidth size="small" />
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={4}>
-                <Box>
-                  <Typography>% of ownership</Typography>
-                  <TextField fullWidth size="small"></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={false} md={2}></Grid>
-              <Grid item xs={4} md={1}>
-                <Box>
-                  <Typography>
-                    <br />
-                  </Typography>
-                  <Button variant="outlined">Add</Button>
-                </Box>
-              </Grid>
+              <MasterRecordingOwnerships
+                rowsObj={masterOwnerships}
+                setOwnerships={setMasterOwnerships}
+              />
               <Grid item xs={12}>
                 <Typography variant="body1" fontWeight={700}>
                   Composition Ownership (up to 8)
                 </Typography>
               </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Name</Typography>
-                  <TextField fullWidth size="small"></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box display={"flex"} justifyContent="space-between" gap={2}>
-                  <Box>
-                    <Typography>IPI</Typography>
-                    <TextField size="small"></TextField>
-                  </Box>
-                  <Box>
-                    <Typography>PRO</Typography>
-                    <TextField size="small"></TextField>
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={2}>
-                <Box>
-                  <Typography>% of ownership</Typography>
-                  <TextField size="small"></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={1}>
-                <Box>
-                  <Typography>
-                    <br />
-                  </Typography>
-                  <Button variant="outlined">Add</Button>
-                </Box>
-              </Grid>
+              <CompositionOwnerships
+                rowsObj={compositionOwnerships}
+                setOwnerships={setCompositionOwnerships}
+              />
               <Grid xs={12}>
                 <Box>
                   <Typography>Lyrics</Typography>
@@ -1158,19 +1187,26 @@ function App() {
                     maxRows={10}
                     fullWidth
                     sx={{ mt: 0.5 }}
+                    onChange={(e) => setLyrics(e.target.value)}
                   ></TextField>
                 </Box>
               </Grid>
               <Grid xs={8} md={4}>
                 <Box>
                   <Typography>Language</Typography>
-                  <TextField fullWidth size="small"></TextField>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    onChange={(e) => setLanguage(e.target.value)}
+                  ></TextField>
                 </Box>
               </Grid>
               <Grid xs={2} md={2}>
                 <Box>
                   <Typography>Explicit Lyrics</Typography>
-                  <Checkbox></Checkbox>
+                  <Checkbox
+                    onChange={(e, checked) => setExplicitLyrics(checked)}
+                  ></Checkbox>
                 </Box>
               </Grid>
               {/* <Grid item xs={10} md={4}>
@@ -1430,15 +1466,9 @@ function App() {
         {/* <Typography variant="h3" align="center">
           NUSIC
         </Typography> */}
-        <Box
-          display="flex"
-          justifyContent="center"
-          p={2}
-          sx={{ bgcolor: "black" }}
-          my={2}
-        >
+        <Box display="flex" justifyContent="center" p={2} my={2}>
           <Button href="//nusic.fm" target="_blank">
-            <img src="/nusic-white.png" alt="nusic" width="250px"></img>
+            <img src="/nusic_black.png" alt="nusic" width="250px"></img>
           </Button>
         </Box>
         <Box
