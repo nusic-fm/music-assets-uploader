@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 // import { Web3Storage } from "web3.storage";
 // import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
@@ -81,15 +81,16 @@ const MusicUploader = (props: any) => {
 
   return (
     <Box>
-      <Typography>Full Track Uploader</Typography>
+      {/* <Typography>Full Track Uploader</Typography> */}
       <Box pt={1}>
         <Button
-          variant="outlined"
+          variant="contained"
           component="label"
           onChange={onFilesUpload}
           disabled={!!fullTrackFile}
+          size="small"
         >
-          Upload
+          Upload Track
           <input type="file" hidden />
         </Button>
         {/* {!file ? (

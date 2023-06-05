@@ -14,6 +14,11 @@ import {
   Chip,
   Tooltip,
   Skeleton,
+  FormControlLabel,
+  styled,
+  SwitchProps,
+  Switch,
+  Autocomplete,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import MusicUploader from "./components/MusicUploader";
@@ -38,6 +43,9 @@ import {
   MsgCreateStem,
 } from "./module/types/metadatalayercosmos/tx";
 import { ChainInfo } from "@keplr-wallet/types";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export const rpc = process.env.REACT_APP_RPC as string;
 export const rest = process.env.REACT_APP_REST as string;
@@ -152,6 +160,57 @@ type SectionsObj = {
   [internalId: string]: Section;
 };
 
+const IOSSwitch = styled((props: SwitchProps) => (
+  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
+))(({ theme }) => ({
+  width: 42,
+  height: 26,
+  padding: 0,
+  "& .MuiSwitch-switchBase": {
+    padding: 0,
+    margin: 2,
+    transitionDuration: "300ms",
+    "&.Mui-checked": {
+      transform: "translateX(16px)",
+      color: "#fff",
+      "& + .MuiSwitch-track": {
+        backgroundColor: theme.palette.mode === "dark" ? "#2ECA45" : "#573FC8",
+        opacity: 1,
+        border: 0,
+      },
+      "&.Mui-disabled + .MuiSwitch-track": {
+        opacity: 0.5,
+      },
+    },
+    "&.Mui-focusVisible .MuiSwitch-thumb": {
+      color: "#33cf4d",
+      border: "6px solid #fff",
+    },
+    "&.Mui-disabled .MuiSwitch-thumb": {
+      color:
+        theme.palette.mode === "light"
+          ? theme.palette.grey[100]
+          : theme.palette.grey[600],
+    },
+    "&.Mui-disabled + .MuiSwitch-track": {
+      opacity: theme.palette.mode === "light" ? 0.7 : 0.3,
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    boxSizing: "border-box",
+    width: 22,
+    height: 22,
+  },
+  "& .MuiSwitch-track": {
+    borderRadius: 26 / 2,
+    backgroundColor: theme.palette.mode === "light" ? "#c4c4c4" : "#39393D",
+    opacity: 1,
+    transition: theme.transitions.create(["background-color"], {
+      duration: 500,
+    }),
+  },
+}));
+
 const getWithoutSpace = (str: string) => str?.split(" ").join("");
 // const aliceMnemonic =
 //   "cost hello lounge proof dinner ask degree spoil donor brown diary midnight cargo fog enroll across cupboard zero chief gate decade toss pretty profit";
@@ -160,16 +219,27 @@ function App() {
   const [fullTrackFile, setFullTrackFile] = useState<File>();
   const [cid, setCid] = useState<string>();
   const [artist, setArtist] = useState<string>();
-  const [duration, setDuration] = useState<number>();
+  const [featureArtists, setFeatureArtists] = useState<string[]>([]);
   const [title, setTitle] = useState<string>();
   const [album, setAlbum] = useState<string>();
-  const [genre, setGenre] = useState<string>();
-  const [bpm, setBpm] = useState<number>();
+  const [genrePrimary, setGenrePrimary] = useState<string>();
+  const [genreSecondary, setGenreSecondary] = useState<string>();
+  const [songMoods, setSongMoods] = useState<string[]>([]);
+  const [songType, setSongType] = useState<string>();
   const [key, setKey] = useState<string>();
+  const [duration, setDuration] = useState<number>();
+  const [bpm, setBpm] = useState<number>();
   const [timeSignature, setTimeSignature] = useState<string>();
   const [noOfBeatsPerBar, setNoOfBeatsPerBar] = useState<number>(0);
   const [noOfBars, setNoOfBars] = useState<number>();
   const [noOfBeats, setNoOfBeats] = useState<number>();
+
+  const [isrcCode, setIsrcCode] = useState<string>();
+  const [upcCode, setUpcCode] = useState<string>();
+  const [recordLabel, setRecordLabel] = useState<string>();
+  const [distributor, setDistributor] = useState<string>();
+  const [dateCreated, setDateCreated] = useState<string>();
+
   const [fileUrl, setFileUrl] = useState<string>();
   const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
   const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
@@ -244,14 +314,15 @@ function App() {
 
   const onTx = async () => {
     const titleWithoutSpace = getWithoutSpace(title as string)?.slice(0, 10);
-    const genreWithoutSpace = getWithoutSpace(genre as string);
+    const genrePrimaryWithoutSpace = getWithoutSpace(genrePrimary as string);
     const fullTrackContent = {
-      id: `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+      id: `fulltrack${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
       cid,
       artist,
       title,
       album,
-      genre,
+      genrePrimary,
+      genreSecondary,
       bpm,
       key,
       timeSignature,
@@ -279,18 +350,27 @@ function App() {
         creator,
         cid,
         artistName: artist,
+        featureArtists,
         trackTitle: title,
         album,
-        bpm,
+        genrePrimary,
+        genreSecondary,
+        songMoods,
+        songType,
         key,
+        bpm,
+        timeSignature,
         bars: noOfBars,
         beats: noOfBeats,
-        genre,
-        timeSignature,
         durationMs: (duration || 0) * 1000,
         startBeatOffsetMs: startBeatOffsetMs.toString(),
         sectionsCount: Object.keys(sectionsObj).length,
         stemsCount: Object.keys(stemsObj).length,
+        isrcCode,
+        upcCode,
+        recordLabel,
+        distributor,
+        dateCreated,
       });
       const msgEncoded = msgCreateFullTrack(fromJson);
       // // const broadCast = await signAndBroadcast([msgEncoded]);
@@ -324,7 +404,7 @@ function App() {
         stemsContent.push({
           id: `stem${
             i + 1
-          }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+          }${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
           cid,
           name: stemObj.name,
           type: stemObj.type,
@@ -374,7 +454,7 @@ function App() {
         sectionsContent.push({
           id: `section${
             i + 1
-          }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+          }${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
           name: section.name,
           startMs: section.start * 1000,
           endMs: section.end * 1000,
@@ -597,67 +677,174 @@ function App() {
         )} */}
       </Box>
       <Box p={{ xs: 4 }}>
-        <Typography
-          variant="h4"
-          fontWeight="900"
-          align="left"
-          fontFamily={"Roboto"}
-        >
-          Music Metadata Information
-        </Typography>
+        <Box display={"flex"} alignItems="center" gap={{ xs: 1, md: 4 }}>
+          <Typography
+            variant="h5"
+            fontWeight="600"
+            // align="left"
+            fontFamily={"Roboto"}
+          >
+            Music Metadata Information
+          </Typography>
+          <MusicUploader
+            fullTrackFile={fullTrackFile}
+            setFullTrackFile={setFullTrackFile}
+            setFileUrl={setFileUrl}
+            setDuration={setDuration}
+          />
+        </Box>
         <Grid container mt={8} gap={{ xs: 2 }}>
           <Grid item xs={12} md={7}>
             <Grid container gap={2}>
               <Grid item xs={10} md={4}>
-                <Box display="flex" justifyContent="start">
-                  <Box>
-                    <Typography>Artist</Typography>
-                    <TextField
-                      variant="outlined"
-                      onChange={(e: any) => setArtist(e.target.value)}
-                    ></TextField>
-                  </Box>
+                <Box>
+                  <Typography>Artist</Typography>
+                  <TextField
+                    variant="outlined"
+                    onChange={(e: any) => setArtist(e.target.value)}
+                    fullWidth
+                    size="small"
+                  ></TextField>
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
-                <Box display="flex" justifyContent="start">
-                  <Box>
-                    <Typography>Track Title</Typography>
-                    <TextField
-                      variant="outlined"
-                      onChange={(e: any) => setTitle(e.target.value)}
-                    ></TextField>
-                  </Box>
+                <Box>
+                  <Typography>Feature Artists</Typography>
+                  <Autocomplete
+                    multiple
+                    options={[]}
+                    value={featureArtists}
+                    onChange={(e, values: string[]) =>
+                      setFeatureArtists(values)
+                    }
+                    // defaultValue={[top100Films[13].title]}
+                    freeSolo
+                    renderTags={(value: readonly string[], getTagProps) =>
+                      value.map((option: string, index: number) => (
+                        <Chip
+                          variant="outlined"
+                          label={option}
+                          size="small"
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // variant="filled"
+                        // label="freeSolo"
+                        // placeholder="Favorites"
+                      />
+                    )}
+                    size="small"
+                  />
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Track Title</Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    onChange={(e: any) => setTitle(e.target.value)}
+                    size="small"
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={6} md={4}>
                 <Box>
                   <Typography>Album Name</Typography>
                   <TextField
                     variant="outlined"
                     onChange={(e: any) => setAlbum(e.target.value)}
+                    fullWidth
+                    size="small"
                   ></TextField>
+                </Box>
+              </Grid>
+              <Grid item md={1}></Grid>
+              <Grid item xs={2} md={2}>
+                <Box>
+                  <Typography>Single</Typography>
+                  <FormControlLabel
+                    control={<IOSSwitch sx={{ m: 1 }} />}
+                    label=""
+                  />
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Genre</Typography>
+                  <Typography>Genre Primary</Typography>
                   <TextField
                     variant="outlined"
-                    onChange={(e: any) => setGenre(e.target.value)}
+                    onChange={(e: any) => setGenrePrimary(e.target.value)}
+                    fullWidth
+                    size="small"
                   ></TextField>
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Key</Typography>
-                  {/* <TextField
+                  <Typography>Genre Secondary</Typography>
+                  <TextField
                     variant="outlined"
-                    onChange={(e: any) => setKey(e.target.value)}
-                  ></TextField> */}
+                    onChange={(e: any) => setGenreSecondary(e.target.value)}
+                    fullWidth
+                    size="small"
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>MOOD(Max 3) Optional</Typography>
+                  <Autocomplete
+                    multiple
+                    options={[]}
+                    // defaultValue={[top100Films[13].title]}
+                    freeSolo
+                    value={songMoods}
+                    onChange={(e, values: string[]) => setSongMoods(values)}
+                    renderTags={(value: readonly string[], getTagProps) =>
+                      value.map((option: string, index: number) => (
+                        <Chip
+                          variant="outlined"
+                          label={option}
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // variant="filled"
+                        // label="freeSolo"
+                        // placeholder="Favorites"
+                      />
+                    )}
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Song Type</Typography>
+                  <TextField
+                    variant="outlined"
+                    onChange={(e: any) => setSongType(e.target.value)}
+                    size="small"
+                    fullWidth
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={2}>
+                <Box>
+                  <Typography>Song Key</Typography>
                   <Select
+                    fullWidth
                     variant="outlined"
                     onChange={(e: any) => setKey(e.target.value)}
+                    size="small"
                   >
                     {musicKeys.map(({ key, id }) => {
                       return (
@@ -666,15 +853,10 @@ function App() {
                         </MenuItem>
                       );
                     })}
-                    {/* 
-                    <MenuItem value={"Vocal"}>C Minor</MenuItem>
-                    <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
-                    <MenuItem value={"Bass"}>Bass</MenuItem>
-                    <MenuItem value={"Drums"}>Drums</MenuItem> */}
                   </Select>
                 </Box>
               </Grid>
-              <Grid item xs={10} md={4}>
+              {/* <Grid item xs={10} md={4}>
                 <Box>
                   <MusicUploader
                     fullTrackFile={fullTrackFile}
@@ -683,24 +865,27 @@ function App() {
                     setDuration={setDuration}
                   />
                 </Box>
-              </Grid>
+              </Grid> */}
               <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>Duration</Typography>
-                  {duration ? (
-                    <TextField
-                      variant="outlined"
-                      value={duration}
-                      disabled
-                    ></TextField>
-                  ) : (
-                    <Skeleton
-                      variant="text"
-                      width={"50%"}
-                      height="50px"
-                      animation={false}
-                    />
-                  )}
+                  <Tooltip title="Automatically set from the Uploaded Track">
+                    {duration ? (
+                      <TextField
+                        variant="outlined"
+                        value={duration}
+                        size="small"
+                        disabled
+                      ></TextField>
+                    ) : (
+                      <Skeleton
+                        variant="text"
+                        width={"50%"}
+                        height="50px"
+                        animation={false}
+                      />
+                    )}
+                  </Tooltip>
                   {/* <TextField
                     variant="outlined"
                     value={duration}
@@ -720,12 +905,18 @@ function App() {
                     }
                     type="number"
                     placeholder="Waveform Selection"
+                    size="small"
                     endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton onClick={onFetchStartBeatOffet} edge="end">
-                          <CachedIcon />
-                        </IconButton>
-                      </InputAdornment>
+                      <Tooltip title="Auto fetch from the Uploaded Track">
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={onFetchStartBeatOffet}
+                            edge="end"
+                          >
+                            <CachedIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      </Tooltip>
                     }
                   />
                 </Box>
@@ -737,6 +928,8 @@ function App() {
                     variant="outlined"
                     type={"number"}
                     onChange={(e: any) => setBpm(parseInt(e.target.value))}
+                    size="small"
+                    fullWidth
                   ></TextField>
                 </Box>
               </Grid>
@@ -747,10 +940,12 @@ function App() {
                     required
                     variant="outlined"
                     onChange={(e: any) => setTimeSignature(e.target.value)}
+                    size="small"
+                    fullWidth
                   ></TextField>
                 </Box>
               </Grid>
-              <Grid item xs={10} md={4}>
+              <Grid item xs={10} md={3}>
                 <Box>
                   <Typography>No Of Measures</Typography>
                   {noOfBars ? (
@@ -759,6 +954,7 @@ function App() {
                       type="number"
                       value={noOfBars}
                       disabled
+                      size="small"
                     ></TextField>
                   ) : (
                     <Skeleton
@@ -776,7 +972,208 @@ function App() {
                   ></TextField> */}
                 </Box>
               </Grid>
+              {/* <Grid item xs={12}>
+                <Divider />
+              </Grid> */}
               <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>ISRC Code</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    onChange={(e) => setIsrcCode(e.target.value)}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>UPC Code</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    onChange={(e) => setUpcCode(e.target.value)}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Record Label</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    onChange={(e) => setRecordLabel(e.target.value)}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Distributor</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    onChange={(e) => setDistributor(e.target.value)}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Date Created</Typography>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      onChange={(value, cotext) => {
+                        setDateCreated((value as Date).toJSON());
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Credits(Optional)</Typography>
+                  <TextField fullWidth size="small"></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={6} md={2}>
+                <Box>
+                  <Typography>Role</Typography>
+                  <TextField size="small"></TextField>
+                </Box>
+              </Grid>
+
+              <Grid item xs={4} md={1}>
+                <Box>
+                  <Typography>
+                    <br />
+                  </Typography>
+                  <Button variant="outlined">Add</Button>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body1" fontWeight={700}>
+                  Location of Creation (max2)
+                </Typography>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Studio Name</Typography>
+                  <TextField fullWidth size="small" />
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box display={"flex"} justifyContent="space-between" gap={2}>
+                  <Box>
+                    <Typography>City</Typography>
+                    <TextField fullWidth size="small"></TextField>
+                  </Box>
+                  <Box>
+                    <Typography>State</Typography>
+                    <TextField fullWidth size="small" />
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={6} md={2}>
+                <Box>
+                  <Typography>Country</Typography>
+                  <TextField fullWidth size="small"></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={6} md={1}>
+                <Box>
+                  <Typography>
+                    <br />
+                  </Typography>
+                  <Button variant="outlined">Add</Button>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body1" fontWeight={700}>
+                  Master Recording Ownership (up to 4)
+                </Typography>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Name</Typography>
+                  <TextField fullWidth size="small" />
+                </Box>
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <Box>
+                  <Typography>% of ownership</Typography>
+                  <TextField fullWidth size="small"></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={false} md={2}></Grid>
+              <Grid item xs={4} md={1}>
+                <Box>
+                  <Typography>
+                    <br />
+                  </Typography>
+                  <Button variant="outlined">Add</Button>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body1" fontWeight={700}>
+                  Composition Ownership (up to 8)
+                </Typography>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box>
+                  <Typography>Name</Typography>
+                  <TextField fullWidth size="small"></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={4}>
+                <Box display={"flex"} justifyContent="space-between" gap={2}>
+                  <Box>
+                    <Typography>IPI</Typography>
+                    <TextField size="small"></TextField>
+                  </Box>
+                  <Box>
+                    <Typography>PRO</Typography>
+                    <TextField size="small"></TextField>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={2}>
+                <Box>
+                  <Typography>% of ownership</Typography>
+                  <TextField size="small"></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={1}>
+                <Box>
+                  <Typography>
+                    <br />
+                  </Typography>
+                  <Button variant="outlined">Add</Button>
+                </Box>
+              </Grid>
+              <Grid xs={12}>
+                <Box>
+                  <Typography>Lyrics</Typography>
+                  <TextField
+                    multiline
+                    minRows={4}
+                    maxRows={10}
+                    fullWidth
+                    sx={{ mt: 0.5 }}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid xs={8} md={4}>
+                <Box>
+                  <Typography>Language</Typography>
+                  <TextField fullWidth size="small"></TextField>
+                </Box>
+              </Grid>
+              <Grid xs={2} md={2}>
+                <Box>
+                  <Typography>Explicit Lyrics</Typography>
+                  <Checkbox></Checkbox>
+                </Box>
+              </Grid>
+              {/* <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>Encrypt Assets</Typography>
                   <Checkbox
@@ -785,7 +1182,7 @@ function App() {
                     sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
                   />
                 </Box>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -799,10 +1196,11 @@ function App() {
                 p={1}
               >
                 <Typography
-                  variant="h5"
+                  variant="h6"
                   p={1}
                   color={"black"}
                   textAlign="center"
+                  fontFamily={"Roboto"}
                 >
                   Overview
                 </Typography>
@@ -851,7 +1249,7 @@ function App() {
                         </Typography>
                       </Box>
                       <Box>
-                        <Typography color="black">{genre}</Typography>
+                        <Typography color="black">{genrePrimary}</Typography>
                       </Box>
                     </Box>
                   </Grid>
