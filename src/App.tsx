@@ -762,7 +762,7 @@ function App() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        helperText="Press Enter to add"
+                        placeholder="Press Enter to add"
                         // variant="filled"
                         // label="freeSolo"
                         // placeholder="Favorites"
@@ -855,7 +855,6 @@ function App() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        helperText="Press Enter to add"
                         // variant="filled"
                         // label="freeSolo"
                         // placeholder="Favorites"
