@@ -1,12 +1,15 @@
 import { Grid, Box, Typography, TextField, Button } from "@mui/material";
+import React from "react";
+import { useState } from "react";
 
 type Props = { rowsObj: any; setOwnerships: (o: any) => void };
 
 function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
+  const [nextId, setNextId] = useState(2);
   return (
     <>
-      {Object.keys(rowsObj).map((key) => (
-        <>
+      {Object.keys(rowsObj).map((key, i) => (
+        <React.Fragment key={key}>
           <Grid item xs={10} md={4}>
             <Box>
               <Typography>Name</Typography>
@@ -70,23 +73,35 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
               <Typography>
                 <br />
               </Typography>
-              {Object.keys(rowsObj).length === Number(key) && (
+              {Object.keys(rowsObj).length - 1 === i ? (
                 <Button
                   variant="outlined"
                   disabled={Object.keys(rowsObj).length === 8}
-                  onClick={() =>
+                  onClick={() => {
                     setOwnerships({
                       ...rowsObj,
-                      [Object.keys(rowsObj).length + 1]: {},
-                    })
-                  }
+                      [nextId]: {},
+                    });
+                    setNextId(nextId + 1);
+                  }}
                 >
                   Add
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    const obj = { ...rowsObj };
+                    delete obj[key];
+                    setOwnerships(obj);
+                  }}
+                >
+                  Delete
                 </Button>
               )}
             </Box>
           </Grid>
-        </>
+        </React.Fragment>
       ))}
     </>
   );

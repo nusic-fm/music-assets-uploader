@@ -223,7 +223,7 @@ function App() {
   const [fullTrackFile, setFullTrackFile] = useState<File>();
   const [cid, setCid] = useState<string>();
   const [artist, setArtist] = useState<string>();
-  const [featureArtists, setFeatureArtists] = useState<string[]>([]);
+  const [featuredArtists, setFeaturedArtists] = useState<string[]>([]);
   const [title, setTitle] = useState<string>();
   const [album, setAlbum] = useState<string>();
   const [projectType, setProjectType] = useState<string>();
@@ -334,7 +334,7 @@ function App() {
       id: `fulltrack${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
       cid,
       artist,
-      featureArtists,
+      featuredArtists,
       title,
       album,
       projectType,
@@ -739,13 +739,13 @@ function App() {
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Feature Artists</Typography>
+                  <Typography>Featured Artists</Typography>
                   <Autocomplete
                     multiple
                     options={[]}
-                    value={featureArtists}
+                    value={featuredArtists}
                     onChange={(e, values: string[]) =>
-                      setFeatureArtists(values)
+                      setFeaturedArtists(values)
                     }
                     // defaultValue={[top100Films[13].title]}
                     freeSolo
@@ -803,11 +803,11 @@ function App() {
                     fullWidth
                     size="small"
                   >
-                    <MenuItem value="Single">Single</MenuItem>
-                    <MenuItem value="Ep">Ep</MenuItem>
-                    <MenuItem value="Album">Album</MenuItem>
-                    <MenuItem value="Single">Single</MenuItem>
-                    <MenuItem value="Playlist">Playlist</MenuItem>
+                    <MenuItem value="SINGLE">SINGLE</MenuItem>
+                    <MenuItem value="EP">EP</MenuItem>
+                    <MenuItem value="ALBUM">ALBUM</MenuItem>
+                    <MenuItem value="SINGLE">SINGLE</MenuItem>
+                    <MenuItem value="PLAYLIST">PLAYLIST</MenuItem>
                   </Select>
                 </Box>
               </Grid>
