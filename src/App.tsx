@@ -46,7 +46,12 @@ import { ChainInfo } from "@keplr-wallet/types";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { songMoodsOptions } from "./utils/songMoods";
+import {
+  genrePrimaryOptions,
+  genreSecondaryOptions,
+  songMoodsOptions,
+  subGenreOptions,
+} from "./utils";
 import CreditsRows from "./components/CreditsRows";
 import MasterRecordingOwnerships from "./components/MasterRecordingOwnerships";
 import CompositionOwnerships from "./components/CompositionOwnerships";
@@ -227,8 +232,9 @@ function App() {
   const [title, setTitle] = useState<string>();
   const [album, setAlbum] = useState<string>();
   const [projectType, setProjectType] = useState<string>();
-  const [genrePrimary, setGenrePrimary] = useState<string>();
-  const [genreSecondary, setGenreSecondary] = useState<string>();
+  const [genrePrimary, setGenrePrimary] = useState<string[]>([]);
+  const [genreSecondary, setGenreSecondary] = useState<string[]>([]);
+  const [subGenre, setSubGenre] = useState<string[]>([]);
   const [songMoods, setSongMoods] = useState<string[]>([]);
   const [songType, setSongType] = useState<string>();
   const [key, setKey] = useState<string>();
@@ -329,7 +335,7 @@ function App() {
 
   const processTx = async () => {
     const titleWithoutSpace = getWithoutSpace(title as string)?.slice(0, 10);
-    const genrePrimaryWithoutSpace = getWithoutSpace(genrePrimary as string);
+    const genrePrimaryWithoutSpace = getWithoutSpace(genrePrimary[0]);
     const fullTrackContent = {
       id: `fulltrack${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
       cid,
@@ -813,29 +819,123 @@ function App() {
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Genre Primary</Typography>
-                  <TextField
+                  <Typography>Main Genre (max 2)</Typography>
+                  <Autocomplete
+                    multiple
+                    options={genrePrimaryOptions}
+                    // defaultValue={[top100Films[13].title]}
+                    freeSolo
+                    value={genrePrimary}
+                    onChange={(e, values: string[]) => setGenrePrimary(values)}
+                    renderTags={(value: readonly string[], getTagProps) =>
+                      value.map((option: string, index: number) => (
+                        <Chip
+                          variant="outlined"
+                          size="small"
+                          label={option}
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // variant="filled"
+                        // label="freeSolo"
+                        // placeholder="Favorites"
+                      />
+                    )}
+                    size="small"
+                  />
+                  {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setGenrePrimary(e.target.value)}
                     fullWidth
                     size="small"
-                  ></TextField>
+                  ></TextField> */}
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Genre Secondary</Typography>
-                  <TextField
+                  <Typography>Secondary Genre (max 2)</Typography>
+                  <Autocomplete
+                    multiple
+                    options={genreSecondaryOptions}
+                    // defaultValue={[top100Films[13].title]}
+                    freeSolo
+                    value={genreSecondary}
+                    onChange={(e, values: string[]) =>
+                      setGenreSecondary(values)
+                    }
+                    renderTags={(value: readonly string[], getTagProps) =>
+                      value.map((option: string, index: number) => (
+                        <Chip
+                          variant="outlined"
+                          size="small"
+                          label={option}
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // variant="filled"
+                        // label="freeSolo"
+                        // placeholder="Favorites"
+                      />
+                    )}
+                    size="small"
+                  />
+                  {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setGenreSecondary(e.target.value)}
                     fullWidth
                     size="small"
-                  ></TextField>
+                  ></TextField> */}
+                </Box>
+              </Grid>
+              <Grid item xs={10} md={3}>
+                <Box>
+                  <Typography>Sub Genre (max 2)</Typography>
+                  <Autocomplete
+                    multiple
+                    options={subGenreOptions}
+                    // defaultValue={[top100Films[13].title]}
+                    freeSolo
+                    value={subGenre}
+                    onChange={(e, values: string[]) => setSubGenre(values)}
+                    renderTags={(value: readonly string[], getTagProps) =>
+                      value.map((option: string, index: number) => (
+                        <Chip
+                          variant="outlined"
+                          label={option}
+                          size="small"
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // variant="filled"
+                        // label="freeSolo"
+                        // placeholder="Favorites"
+                      />
+                    )}
+                    size="small"
+                  />
+                  {/* <TextField
+                    variant="outlined"
+                    onChange={(e: any) => setGenreSecondary(e.target.value)}
+                    fullWidth
+                    size="small"
+                  ></TextField> */}
                 </Box>
               </Grid>
               <Grid item xs={10} md={4}>
                 <Box>
-                  <Typography>Song Mood (Up to 3 Optional)</Typography>
+                  <Typography>Song Mood (Up to 3 - Optional Field)</Typography>
                   <Autocomplete
                     multiple
                     options={songMoodsOptions}
@@ -848,6 +948,7 @@ function App() {
                         <Chip
                           variant="outlined"
                           label={option}
+                          size="small"
                           {...getTagProps({ index })}
                         />
                       ))
@@ -855,6 +956,11 @@ function App() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        inputProps={{
+                          ...params.inputProps,
+                          maxLength: 3,
+                        }}
+
                         // variant="filled"
                         // label="freeSolo"
                         // placeholder="Favorites"
