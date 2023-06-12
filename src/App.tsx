@@ -31,6 +31,8 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 import CardWithAnimation from "./components/CardWithAnimation";
 import CloseIcon from "@mui/icons-material/Close";
+import NftsByWallet from "./components/NftsByWallet";
+import { MoralisNftData, SelectedNftDetails } from "./models";
 // import { CoinbaseWallet, Injected } from "./hooks/useWalletConnectors";
 // import { Injected } from "./hooks/useWalletConnectors";
 // import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -87,6 +89,15 @@ const App = () => {
   const [timerObj, setTimerObj] = useState(getTimerObj);
   const [txInfo, setTxInfo] = useState<{ hash: string }>();
   // const cardRef = useRef(null);
+  // const [selectedNft, setSelectedNft] = useState<SelectedNftDetails>();
+  const [insertUrl, setInsertUrl] = useState<string>();
+
+  const onInsert = async (nft: SelectedNftDetails | MoralisNftData) => {
+    if (nft.artworkUrl) {
+      setInsertUrl(nft.artworkUrl);
+    } else {
+    }
+  };
 
   const fetchEthPrice = async () => {
     const pricingContract = new ethers.Contract(
@@ -381,28 +392,32 @@ const App = () => {
                   >
                     Mint
                   </LoadingButton>
-                  {/* <Tooltip title="Connect your Wallet to receive the NFT directly into your address">
-                    <Button
-                      component="label"
-                      variant="outlined"
-                      sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
-                      // endIcon={<InfoOutlinedIcon />}
-                      // ref={cardRef}
-                    >
-                      <CrossmintPayButton
-                        style={{ display: "none" }}
-                        clientId="0c4a330a-7286-4e0d-9d79-43ab7a03db65"
-                        mintConfig={{
-                          type: "erc-721",
-                          totalPrice: (tokenPrice * quantity).toFixed(2),
-                          tokenQuantity: quantity,
-                        }}
-                        // environment="staging"
-                        mintTo={account ?? undefined}
-                      />
-                      Mint with CARD
-                    </Button>
-                  </Tooltip> */}
+                  {/* <Tooltip title="Connect your Wallet to receive the NFT directly into your address"> */}
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
+                    // endIcon={<InfoOutlinedIcon />}
+                    // ref={cardRef}
+                  >
+                    <CrossmintPayButton
+                      style={{ display: "none" }}
+                      clientId="0c4a330a-7286-4e0d-9d79-43ab7a03db65"
+                      mintConfig={{
+                        type: "erc-721",
+                        totalPrice: (tokenPrice * quantity).toFixed(2),
+                        tokenQuantity: quantity,
+                      }}
+                      // environment="staging"
+                      mintTo={account ?? undefined}
+                    />
+                    Mint with CARD
+                  </Button>
+                  <Typography align="center" variant="caption">
+                    Connect your Wallet to receive the NFT directly into your
+                    address when using Card Payment
+                  </Typography>
+                  {/* </Tooltip> */}
                   <Box mt={4}>
                     <a
                       className="twitter-share-button"
@@ -582,6 +597,108 @@ const App = () => {
           <Box mt={4}>
             <img src="/pfp.gif" alt="" width={"100%"} />
           </Box>
+        </Stack>
+        <Stack
+          mt={10}
+          mx={{ md: "20%" }}
+          p={2}
+          gap={2}
+          // sx={{
+          //   boxShadow:
+          //     "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
+          // }}
+        >
+          <Box mt={1} borderRadius={"6px"}>
+            {/* <Typography variant="h5" align="center">
+              Inject your PFP into the NUSIC alive pass
+            </Typography>
+            <Typography align="center" color={"gray"}>
+              Connect your favorite NFT directly to your NUSIC Alive Pass
+            </Typography> */}
+            <Typography variant="h3">Try it!</Typography>
+            <Box mt={2}>
+              <Typography variant="h6" fontWeight={700}>
+                Select an NFT from your wallet
+              </Typography>
+              <NftsByWallet
+                onConnect={() => setShowWalletConnector(true)}
+                onInsert={onInsert}
+              />
+            </Box>
+            <Box
+              my={5}
+              border="1px solid #303030"
+              py={5}
+              px={2}
+              borderRadius="6px"
+            >
+              <Box
+                display={"flex"}
+                justifyContent="center"
+                position={"relative"}
+              >
+                <Box width={{ xs: "100%", md: "400px" }}>
+                  <img src="new_card.png" alt="" width={"100%"} />
+                </Box>
+                {insertUrl && (
+                  <Box
+                    position={"absolute"}
+                    width="100%"
+                    height="100%"
+                    display={"flex"}
+                    justifyContent="center"
+                    alignItems={"center"}
+                  >
+                    <Box
+                      width={{ xs: "100px", md: "140px" }}
+                      height={{ xs: "100px", md: "140px" }}
+                    >
+                      <img
+                        src={insertUrl}
+                        alt=""
+                        width={"100%"}
+                        height={"100%"}
+                        style={{ objectFit: "cover", borderRadius: "50%" }}
+                      />
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+              <Stack alignItems={"center"} gap={2} mt={5}>
+                <LoadingButton
+                  loading={isLoading}
+                  variant="contained"
+                  sx={{ width: { xs: "100%", md: "50%" } }}
+                  onClick={onMint}
+                >
+                  Mint
+                </LoadingButton>
+                <Tooltip title="Connect your Wallet to receive the NFT directly into your address">
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    sx={{ width: { xs: "100%", md: "50%", color: "white" } }}
+                    // endIcon={<InfoOutlinedIcon />}
+                    // ref={cardRef}
+                  >
+                    <CrossmintPayButton
+                      style={{ display: "none" }}
+                      clientId="0c4a330a-7286-4e0d-9d79-43ab7a03db65"
+                      mintConfig={{
+                        type: "erc-721",
+                        totalPrice: (tokenPrice * quantity).toFixed(2),
+                        tokenQuantity: quantity,
+                      }}
+                      // environment="staging"
+                      mintTo={account ?? undefined}
+                    />
+                    Mint with CARD
+                  </Button>
+                </Tooltip>
+              </Stack>
+            </Box>
+          </Box>
+          <Box mt={4}>{/* <img src="/pfp.gif" alt="" width={"100%"} /> */}</Box>
         </Stack>
         <Box mt={10}>
           <Typography variant="h4" align="center" fontWeight={700}>
