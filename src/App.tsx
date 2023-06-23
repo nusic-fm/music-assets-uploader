@@ -154,25 +154,25 @@ function App() {
 
   const onTx = async () => {
     //wss://rpc.polkadot.io
-    // let wsProvider;
-    // let api: ApiPromise;
-    // try {
-    //   wsProvider = new WsProvider(
-    //     "wss://node-6948493832736464896.rz.onfinality.io/ws?apikey=78d805ee-1473-4737-a764-1b9fece4dd60"
-    //   );
-    //   api = await ApiPromise.create({
-    //     provider: wsProvider,
-    //     throwOnConnect: true,
-    //   });
-    // } catch (e) {
-    //   setFullTrackHash("error");
-    //   setActiveTxStep(4);
-    //   return;
-    // }
-    // // // Do something
-    // // console.log(api.genesisHash.toHex());
-    // const keyring = new Keyring({ type: "sr25519" });
-    // const account = keyring.addFromUri("//Alice", { name: "Alice default" });
+    let wsProvider;
+    let api: ApiPromise;
+    try {
+      wsProvider = new WsProvider(
+        "ws://localhost:9944"
+      );
+      api = await ApiPromise.create({
+        provider: wsProvider,
+        throwOnConnect: true,
+      });
+    } catch (e) {
+      setFullTrackHash("error");
+      setActiveTxStep(4);
+      return;
+    }
+    // // Do something
+    console.log(api.genesisHash.toHex());
+    const keyring = new Keyring({ type: "sr25519" });
+    const account = keyring.addFromUri("//Alice", { name: "Alice default" });
 
     // const PHRASE = process.env.REACT_APP_WALLET_PHRASE as string;
     // const account = keyring.addFromUri(PHRASE);
@@ -195,44 +195,47 @@ function App() {
       sections: Object.keys(sectionsObj).length,
       stems: Object.keys(stemsObj).length,
     };
-    // try {
-    //   const fullTrackTxHash = await new Promise<string>((res) => {
-    //     api.tx.uploadModule
-    //       .createFulltrack(
-    //         `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-    //         cid,
-    //         artist?.slice(0, 128),
-    //         title?.slice(0, 128),
-    //         album?.slice(0, 128),
-    //         genre,
-    //         bpm,
-    //         key,
-    //         timeSignature,
-    //         noOfBars,
-    //         noOfBeats,
-    //         duration,
-    //         startBeatOffsetMs.toString(),
-    //         Object.keys(sectionsObj).length,
-    //         Object.keys(stemsObj).length
-    //       )
-    //       .signAndSend(account, ({ events = [], status }) => {
-    //         if (status.isFinalized) {
-    //           console.log(
-    //             `Transaction included at blockHash ${status.asFinalized}`
-    //           );
 
-    //           // Loop through Vec<EventRecord> to display all events
-    //           events.forEach(({ phase, event: { data, method, section } }) => {
-    //             console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-    //           });
-    //           res(status.hash.toString());
-    //         }
-    //       });
-    //   });
-    //   setFullTrackHash(fullTrackTxHash);
-    // } catch (e) {
-    //   alert(e);
-    // }
+    try {
+      const fullTrackTxHash = await new Promise<string>((res) => {
+        api.tx.templateModule
+          .createFulltrack(
+            `fulltrack${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+            cid,
+            artist?.slice(0, 128),
+            title?.slice(0, 128),
+            album?.slice(0, 128),
+            genre,
+            bpm,
+            key,
+            timeSignature,
+            noOfBars,
+            noOfBeats,
+            duration,
+            startBeatOffsetMs.toString(),
+            Object.keys(sectionsObj).length,
+            Object.keys(stemsObj).length
+          )
+          .signAndSend(account, ({ events = [], status }) => {
+            console.log("Transaction sent!!");
+
+            if (status.isFinalized) {
+              console.log(
+                `Transaction included at blockHash ${status.asFinalized}`
+              );
+
+              // Loop through Vec<EventRecord> to display all events
+              events.forEach(({ phase, event: { data, method, section } }) => {
+                console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+              });
+              res(status.hash.toString());
+            }
+          });
+      });
+      setFullTrackHash(fullTrackTxHash);
+    } catch (e) {
+      alert(e);
+    }
     setActiveTxStep(2);
     // Stems
     const stems = Object.values(stemsObj);
@@ -277,9 +280,8 @@ function App() {
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
       sectionsContent.push({
-        id: `section${
-          i + 1
-        }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
+        id: `section${i + 1
+          }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
         name: section.name,
         startMs: section.start * 1000,
         endMs: section.end * 1000,
