@@ -28,6 +28,9 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// import LoopRoundedIcon from "@mui/icons-material/LoopRounded";
+import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
+import PauseRounded from "@mui/icons-material/PauseRounded";
 
 const SectionNames = [
   "Intro",
@@ -311,8 +314,14 @@ const WaveForm = (props) => {
     <Box mt={5}>
       <Typography variant="h6">Waveform Explorer</Typography>
       <Box mt={4}>
-        <Button variant="contained" onClick={pauseOrPlay} disabled={isLoading}>
-          {isPlaying ? "Pause" : "Play"}
+        <Button
+          variant="contained"
+          onClick={pauseOrPlay}
+          disabled={isLoading}
+          sx={{ px: 1 }}
+        >
+          {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
+          {/* {isPlaying ? "Pause" : "Play"} */}
         </Button>
         <Button
           sx={{ ml: 3 }}
@@ -333,7 +342,19 @@ const WaveForm = (props) => {
             animation={false}
           ></Skeleton>
         )}
-        <Box id="waveform" style={{ width: "100%" }}></Box>
+        <Box
+          id="waveform"
+          style={{ width: "100%" }}
+          tabIndex="0"
+          sx={{ ":focus": { outline: "none" } }}
+          onKeyDown={(e) => {
+            if (e.keyCode === 32) {
+              e.preventDefault();
+              e.stopPropagation();
+              pauseOrPlay();
+            }
+          }}
+        ></Box>
         <Box id="wave-timeline"></Box>
       </Box>
       <Box display="flex" justifyContent="end">
@@ -567,11 +588,18 @@ const WaveForm = (props) => {
                       </Typography>
                       <IconButton
                         onClick={() => {
-                          wavesurferIns.current.regions.list[i].play();
+                          wavesurferIns.current.regions.list[i].playLoop();
                         }}
                       >
                         <PlayCircleFilledWhiteOutlinedIcon />
                       </IconButton>
+                      {/* <IconButton
+                        onClick={() => {
+                          wavesurferIns.current.regions.list[i].playLoop();
+                        }}
+                      >
+                        <LoopRoundedIcon />
+                      </IconButton> */}
                     </Box>
                     {/* <Typography>End: {section.end.toFixed(2)}s</Typography> */}
                     {/* <Box>

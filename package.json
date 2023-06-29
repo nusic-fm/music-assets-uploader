@@ -38,7 +38,7 @@
     "react-scripts": "5.0.1",
     "tone": "^14.7.77",
     "typescript": "^4.6.4",
-    "wavesurfer.js": "^6.2.0",
+    "wavesurfer.js": "^6.6.4",
     "web-vitals": "^2.1.4",
     "web3.storage": "^4.2.0",
     "webfontloader": "^1.6.28"
@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@keplr-wallet/types": "0.10.2",
-    "@types/wavesurfer.js": "^6.0.3",
+    "@types/wavesurfer.js": "^6.0.6",
     "@types/webfontloader": "^1.6.34",
     "react-app-rewired": "2.2.1"
   }
