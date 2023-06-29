@@ -27,7 +27,7 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
           </Grid>
           <Grid item xs={6} md={4}>
             <Box>
-              <Typography>% of ownership</Typography>
+              <Typography noWrap>% of ownership</Typography>
               <TextField
                 fullWidth
                 size="small"

@@ -9,8 +9,6 @@ import {
   Box,
   Button,
   Typography,
-  Stack,
-  Slider,
   Select,
   MenuItem,
   IconButton,
@@ -31,6 +29,8 @@ import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 
 const SectionNames = [
   "Intro",
@@ -313,7 +313,7 @@ const WaveForm = (props) => {
   return (
     <Box mt={5}>
       <Typography variant="h6">Waveform Explorer</Typography>
-      <Box mt={4}>
+      <Box mt={4} display="flex" flexWrap="wrap" gap={2}>
         <Button
           variant="contained"
           onClick={pauseOrPlay}
@@ -324,9 +324,38 @@ const WaveForm = (props) => {
           {/* {isPlaying ? "Pause" : "Play"} */}
         </Button>
         <Button
-          sx={{ ml: 3 }}
+          disabled={isLoading}
+          size="small"
+          startIcon={
+            <IconButton
+              disabled={isLoading}
+              size="small"
+              onClick={(e) => {
+                const newZoomVal = zoomValue - 10;
+                wavesurferIns.current.zoom(newZoomVal);
+                setZoomValue(newZoomVal);
+              }}
+            >
+              <ZoomOutIcon />
+            </IconButton>
+          }
+          endIcon={
+            <IconButton
+              disabled={isLoading}
+              size="small"
+              onClick={() => {
+                const newZoomVal = zoomValue + 10;
+                wavesurferIns.current.zoom(newZoomVal);
+                setZoomValue(newZoomVal);
+              }}
+            >
+              <ZoomInIcon />
+            </IconButton>
+          }
+        ></Button>
+        <Button
           onClick={addSection}
-          variant="contained"
+          variant="outlined"
           disabled={isLoading || !noOfBars}
         >
           Add Section
@@ -357,7 +386,7 @@ const WaveForm = (props) => {
         ></Box>
         <Box id="wave-timeline"></Box>
       </Box>
-      <Box display="flex" justifyContent="end">
+      {/* <Box display="flex" justifyContent="end" mt={{ xs: 4, md: 0 }}>
         {url && (
           <Stack
             spacing={2}
@@ -366,7 +395,24 @@ const WaveForm = (props) => {
             alignItems="center"
             width={300}
           >
-            <ZoomOutIcon color="primary" />
+            <IconButton
+              onClick={() => {
+                const newZoomVal = zoomValue - 10;
+                wavesurferIns.current.zoom(newZoomVal);
+                setZoomValue(newZoomVal);
+              }}
+            >
+              <ZoomOutIcon color="primary" />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                const newZoomVal = zoomValue + 10;
+                wavesurferIns.current.zoom(newZoomVal);
+                setZoomValue(newZoomVal);
+              }}
+            >
+              <ZoomInIcon color="primary" />
+            </IconButton>
             <Slider
               aria-label="Volume"
               value={zoomValue}
@@ -375,10 +421,9 @@ const WaveForm = (props) => {
               min={10}
               max={100}
             />
-            <ZoomInIcon color="primary" />
           </Stack>
         )}
-      </Box>
+      </Box> */}
       <Accordion mt={4} width="100%" color="primary">
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">Audio Fingerprint</Typography>
@@ -422,29 +467,35 @@ const WaveForm = (props) => {
             <Card key={i}>
               <Box p={2}>
                 <Box mb={1}>
-                  <Typography>Section Name</Typography>
-                  <Select
-                    size="small"
-                    value={section.name}
-                    onChange={(e) => {
-                      const newSectionsObj = { ...sectionsObj };
-                      const id = Object.keys(newSectionsObj).filter(
-                        (key) => key === section.id.toString()
-                      )[0];
-                      newSectionsObj[id].name = e.target.value;
-                      setSectionsObj(newSectionsObj);
-                    }}
-                  >
-                    <MenuItem value={"Intro"}>Intro</MenuItem>
-                    <MenuItem value={"Verse"}>Verse</MenuItem>
-                    <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
-                    <MenuItem value={"Chorus"}>Chorus</MenuItem>
-                    <MenuItem value={"Post-Chorus"}>Post-Chorus</MenuItem>
-                    <MenuItem value={"Breakdown"}>Breakdown</MenuItem>
-                    <MenuItem value={"Bridge"}>Bridge</MenuItem>
-                    <MenuItem value={"Hook"}>Hook</MenuItem>
-                    <MenuItem value={"Outro"}>Outro</MenuItem>
-                  </Select>
+                  {/* <Typography>Section Name</Typography> */}
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">
+                      Section Name
+                    </InputLabel>
+                    <Select
+                      size="small"
+                      label="Section Name"
+                      value={section.name}
+                      onChange={(e) => {
+                        const newSectionsObj = { ...sectionsObj };
+                        const id = Object.keys(newSectionsObj).filter(
+                          (key) => key === section.id.toString()
+                        )[0];
+                        newSectionsObj[id].name = e.target.value;
+                        setSectionsObj(newSectionsObj);
+                      }}
+                    >
+                      <MenuItem value={"Intro"}>Intro</MenuItem>
+                      <MenuItem value={"Verse"}>Verse</MenuItem>
+                      <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
+                      <MenuItem value={"Chorus"}>Chorus</MenuItem>
+                      <MenuItem value={"Post-Chorus"}>Post-Chorus</MenuItem>
+                      <MenuItem value={"Breakdown"}>Breakdown</MenuItem>
+                      <MenuItem value={"Bridge"}>Bridge</MenuItem>
+                      <MenuItem value={"Hook"}>Hook</MenuItem>
+                      <MenuItem value={"Outro"}>Outro</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
                   <Typography>End Measure</Typography>

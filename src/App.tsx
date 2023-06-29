@@ -746,7 +746,7 @@ function App() {
               sx={{ fontWeight: 900 }}
             ></Tab>
             <Tab
-              label="NFT Metadata"
+              label="Proof of Creation"
               value={3}
               wrapped
               sx={{ fontWeight: 900 }}
