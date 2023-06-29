@@ -14,11 +14,12 @@ import {
   Chip,
   Tooltip,
   Skeleton,
-  FormControlLabel,
   styled,
   SwitchProps,
   Switch,
   Autocomplete,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import MusicUploader from "./components/MusicUploader";
@@ -280,6 +281,7 @@ function App() {
 
   const [userAddress, setUserAddress] = useState<string>();
   const navigate = useNavigate();
+  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
 
   useEffect(() => {
     if (acceptedFiles.length) {
@@ -722,298 +724,358 @@ function App() {
           >
             Music Metadata Information
           </Typography>
-          <MusicUploader
-            fullTrackFile={fullTrackFile}
-            setFullTrackFile={setFullTrackFile}
-            setFileUrl={setFileUrl}
-            setDuration={setDuration}
-          />
         </Box>
-        <Grid container mt={8} gap={{ xs: 2 }}>
-          <Grid item xs={12} md={7}>
-            <Grid container gap={2}>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Artist</Typography>
-                  <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setArtist(e.target.value)}
-                    fullWidth
-                    size="small"
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Featured Artists</Typography>
-                  <Autocomplete
-                    multiple
-                    options={[]}
-                    value={featuredArtists}
-                    onChange={(e, values: string[]) =>
-                      setFeaturedArtists(values)
-                    }
-                    // defaultValue={[top100Films[13].title]}
-                    freeSolo
-                    renderTags={(value: readonly string[], getTagProps) =>
-                      value.map((option: string, index: number) => (
-                        <Chip
-                          variant="outlined"
-                          label={option}
-                          size="small"
-                          {...getTagProps({ index })}
+        <Box mt={2}>
+          <Tabs
+            value={selectedTabIndex}
+            onChange={(e, val) => setSelectedTabIndex(val)}
+            variant="fullWidth"
+            // textColor="secondary"
+            // indicatorColor="secondary"
+          >
+            <Tab
+              label="Artist Metadata"
+              value={1}
+              wrapped
+              sx={{ fontWeight: 900 }}
+            ></Tab>
+            <Tab
+              label="Song Metadata"
+              value={2}
+              wrapped
+              sx={{ fontWeight: 900 }}
+            ></Tab>
+            <Tab
+              label="NFT Metadata"
+              value={3}
+              wrapped
+              sx={{ fontWeight: 900 }}
+            ></Tab>
+          </Tabs>
+        </Box>
+        {selectedTabIndex === 1 && (
+          <Grid container mt={8} gap={{ xs: 2 }}>
+            <Grid item xs={12} md={12}>
+              <Grid container gap={2}>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Artist</Typography>
+                    <TextField
+                      variant="outlined"
+                      value={artist}
+                      onChange={(e: any) => setArtist(e.target.value)}
+                      fullWidth
+                      size="small"
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Featured Artists</Typography>
+                    <Autocomplete
+                      multiple
+                      options={[]}
+                      value={featuredArtists}
+                      onChange={(e, values: string[]) =>
+                        setFeaturedArtists(values)
+                      }
+                      // defaultValue={[top100Films[13].title]}
+                      freeSolo
+                      renderTags={(value: readonly string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            size="small"
+                            {...getTagProps({ index })}
+                          />
+                        ))
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Press Enter to add"
+                          // variant="filled"
+                          // label="freeSolo"
+                          // placeholder="Favorites"
                         />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Press Enter to add"
-                        // variant="filled"
-                        // label="freeSolo"
-                        // placeholder="Favorites"
-                      />
-                    )}
-                    size="small"
-                  />
-                </Box>
+                      )}
+                      size="small"
+                    />
+                  </Box>
+                </Grid>
+                <CreditsRows rowsObj={credits} setCredits={setCredits} />
+                <Grid item xs={12}>
+                  <Typography variant="body1" fontWeight={700}>
+                    Master Recording Ownership (up to 4)
+                  </Typography>
+                </Grid>
+                <MasterRecordingOwnerships
+                  rowsObj={masterOwnerships}
+                  setOwnerships={setMasterOwnerships}
+                />
+                <Grid item xs={12}>
+                  <Typography variant="body1" fontWeight={700}>
+                    Composition Ownership (up to 8)
+                  </Typography>
+                </Grid>
+                <CompositionOwnerships
+                  rowsObj={compositionOwnerships}
+                  setOwnerships={setCompositionOwnerships}
+                />
               </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Track Title</Typography>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    onChange={(e: any) => setTitle(e.target.value)}
-                    size="small"
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={4}>
-                <Box>
-                  <Typography>Album Name</Typography>
-                  <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setAlbum(e.target.value)}
-                    fullWidth
-                    size="small"
-                  ></TextField>
-                </Box>
-              </Grid>
-              {/* <Grid item md={1}></Grid> */}
-              <Grid item xs={2} md={2}>
-                <Box>
-                  <Typography>Project Type</Typography>
-                  <Select
-                    onChange={(e) => setProjectType(e.target.value as string)}
-                    fullWidth
-                    size="small"
-                  >
-                    <MenuItem value="SINGLE">SINGLE</MenuItem>
-                    <MenuItem value="EP">EP</MenuItem>
-                    <MenuItem value="ALBUM">ALBUM</MenuItem>
-                    <MenuItem value="SINGLE">SINGLE</MenuItem>
-                    <MenuItem value="PLAYLIST">PLAYLIST</MenuItem>
-                  </Select>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Main Genre (max 2)</Typography>
-                  <Autocomplete
-                    multiple
-                    options={genrePrimaryOptions}
-                    // defaultValue={[top100Films[13].title]}
-                    freeSolo
-                    value={genrePrimary}
-                    onChange={(e, values: string[]) => setGenrePrimary(values)}
-                    renderTags={(value: readonly string[], getTagProps) =>
-                      value.map((option: string, index: number) => (
-                        <Chip
-                          variant="outlined"
-                          size="small"
-                          label={option}
-                          {...getTagProps({ index })}
+            </Grid>
+          </Grid>
+        )}
+
+        {selectedTabIndex === 2 && (
+          <Grid container mt={8} gap={{ xs: 2 }}>
+            <Grid item xs={12} md={12}>
+              <Grid container gap={2}>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Track Title</Typography>
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      value={title}
+                      onChange={(e: any) => setTitle(e.target.value)}
+                      size="small"
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} md={4}>
+                  <Box>
+                    <Typography>Album Name</Typography>
+                    <TextField
+                      variant="outlined"
+                      value={album}
+                      onChange={(e: any) => setAlbum(e.target.value)}
+                      fullWidth
+                      size="small"
+                    ></TextField>
+                  </Box>
+                </Grid>
+                {/* <Grid item md={1}></Grid> */}
+                <Grid item xs={2} md={2}>
+                  <Box>
+                    <Typography>Project Type</Typography>
+                    <Select
+                      value={projectType}
+                      onChange={(e) => setProjectType(e.target.value as string)}
+                      fullWidth
+                      size="small"
+                    >
+                      <MenuItem value="SINGLE">SINGLE</MenuItem>
+                      <MenuItem value="EP">EP</MenuItem>
+                      <MenuItem value="ALBUM">ALBUM</MenuItem>
+                      <MenuItem value="SINGLE">SINGLE</MenuItem>
+                      <MenuItem value="PLAYLIST">PLAYLIST</MenuItem>
+                    </Select>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Main Genre (max 2)</Typography>
+                    <Autocomplete
+                      multiple
+                      options={genrePrimaryOptions}
+                      // defaultValue={[top100Films[13].title]}
+                      freeSolo
+                      value={genrePrimary}
+                      onChange={(e, values: string[]) =>
+                        setGenrePrimary(values)
+                      }
+                      renderTags={(value: readonly string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                          <Chip
+                            variant="outlined"
+                            size="small"
+                            label={option}
+                            {...getTagProps({ index })}
+                          />
+                        ))
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          // variant="filled"
+                          // label="freeSolo"
+                          // placeholder="Favorites"
                         />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        // variant="filled"
-                        // label="freeSolo"
-                        // placeholder="Favorites"
-                      />
-                    )}
-                    size="small"
-                  />
-                  {/* <TextField
+                      )}
+                      size="small"
+                    />
+                    {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setGenrePrimary(e.target.value)}
                     fullWidth
                     size="small"
                   ></TextField> */}
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Secondary Genre (max 2)</Typography>
-                  <Autocomplete
-                    multiple
-                    options={genreSecondaryOptions}
-                    // defaultValue={[top100Films[13].title]}
-                    freeSolo
-                    value={genreSecondary}
-                    onChange={(e, values: string[]) =>
-                      setGenreSecondary(values)
-                    }
-                    renderTags={(value: readonly string[], getTagProps) =>
-                      value.map((option: string, index: number) => (
-                        <Chip
-                          variant="outlined"
-                          size="small"
-                          label={option}
-                          {...getTagProps({ index })}
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Secondary Genre (max 2)</Typography>
+                    <Autocomplete
+                      multiple
+                      options={genreSecondaryOptions}
+                      // defaultValue={[top100Films[13].title]}
+                      freeSolo
+                      value={genreSecondary}
+                      onChange={(e, values: string[]) =>
+                        setGenreSecondary(values)
+                      }
+                      renderTags={(value: readonly string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                          <Chip
+                            variant="outlined"
+                            size="small"
+                            label={option}
+                            {...getTagProps({ index })}
+                          />
+                        ))
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          // variant="filled"
+                          // label="freeSolo"
+                          // placeholder="Favorites"
                         />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        // variant="filled"
-                        // label="freeSolo"
-                        // placeholder="Favorites"
-                      />
-                    )}
-                    size="small"
-                  />
-                  {/* <TextField
+                      )}
+                      size="small"
+                    />
+                    {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setGenreSecondary(e.target.value)}
                     fullWidth
                     size="small"
                   ></TextField> */}
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={3}>
-                <Box>
-                  <Typography>Sub Genre (max 2)</Typography>
-                  <Autocomplete
-                    multiple
-                    options={subGenreOptions}
-                    // defaultValue={[top100Films[13].title]}
-                    freeSolo
-                    value={subGenre}
-                    onChange={(e, values: string[]) => setSubGenre(values)}
-                    renderTags={(value: readonly string[], getTagProps) =>
-                      value.map((option: string, index: number) => (
-                        <Chip
-                          variant="outlined"
-                          label={option}
-                          size="small"
-                          {...getTagProps({ index })}
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={3}>
+                  <Box>
+                    <Typography>Sub Genre (max 2)</Typography>
+                    <Autocomplete
+                      multiple
+                      options={subGenreOptions}
+                      // defaultValue={[top100Films[13].title]}
+                      freeSolo
+                      value={subGenre}
+                      onChange={(e, values: string[]) => setSubGenre(values)}
+                      renderTags={(value: readonly string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            size="small"
+                            {...getTagProps({ index })}
+                          />
+                        ))
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          // variant="filled"
+                          // label="freeSolo"
+                          // placeholder="Favorites"
                         />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        // variant="filled"
-                        // label="freeSolo"
-                        // placeholder="Favorites"
-                      />
-                    )}
-                    size="small"
-                  />
-                  {/* <TextField
+                      )}
+                      size="small"
+                    />
+                    {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setGenreSecondary(e.target.value)}
                     fullWidth
                     size="small"
                   ></TextField> */}
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Song Mood (Up to 3 - Optional Field)</Typography>
-                  <Autocomplete
-                    multiple
-                    options={songMoodsOptions}
-                    // defaultValue={[top100Films[13].title]}
-                    freeSolo
-                    value={songMoods}
-                    onChange={(e, values: string[]) => setSongMoods(values)}
-                    renderTags={(value: readonly string[], getTagProps) =>
-                      value.map((option: string, index: number) => (
-                        <Chip
-                          variant="outlined"
-                          label={option}
-                          size="small"
-                          {...getTagProps({ index })}
-                        />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        inputProps={{
-                          ...params.inputProps,
-                          maxLength: 3,
-                        }}
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>
+                      Song Mood (Up to 3 - Optional Field)
+                    </Typography>
+                    <Autocomplete
+                      multiple
+                      options={songMoodsOptions}
+                      // defaultValue={[top100Films[13].title]}
+                      freeSolo
+                      value={songMoods}
+                      onChange={(e, values: string[]) => setSongMoods(values)}
+                      renderTags={(value: readonly string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            size="small"
+                            {...getTagProps({ index })}
+                          />
+                        ))
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          inputProps={{
+                            ...params.inputProps,
+                            maxLength: 3,
+                          }}
 
-                        // variant="filled"
-                        // label="freeSolo"
-                        // placeholder="Favorites"
-                      />
-                    )}
-                    size="small"
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Song Type</Typography>
-                  <Select
-                    fullWidth
-                    size="small"
-                    value={songType}
-                    onChange={(e) => setSongType(e.target.value as string)}
-                  >
-                    <MenuItem value={"Original"}>Original</MenuItem>
-                    <MenuItem value={"Remix"}>Remix</MenuItem>
-                    <MenuItem value={"Accapella"}>Accapella</MenuItem>
-                    <MenuItem value="Acoustic">Acoustic</MenuItem>
-                    <MenuItem value="Cover">Cover</MenuItem>
-                    <MenuItem value="Live Recording">Live Recording</MenuItem>
-                  </Select>
-                  {/* <TextField
+                          // variant="filled"
+                          // label="freeSolo"
+                          // placeholder="Favorites"
+                        />
+                      )}
+                      size="small"
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Song Type</Typography>
+                    <Select
+                      fullWidth
+                      size="small"
+                      value={songType}
+                      onChange={(e) => setSongType(e.target.value as string)}
+                    >
+                      <MenuItem value={"Original"}>Original</MenuItem>
+                      <MenuItem value={"Remix"}>Remix</MenuItem>
+                      <MenuItem value={"Accapella"}>Accapella</MenuItem>
+                      <MenuItem value="Acoustic">Acoustic</MenuItem>
+                      <MenuItem value="Cover">Cover</MenuItem>
+                      <MenuItem value="Live Recording">Live Recording</MenuItem>
+                    </Select>
+                    {/* <TextField
                     variant="outlined"
                     onChange={(e: any) => setSongType(e.target.value)}
                     size="small"
                     fullWidth
                   ></TextField> */}
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={2}>
-                <Box>
-                  <Typography>Song Key</Typography>
-                  <Select
-                    fullWidth
-                    variant="outlined"
-                    onChange={(e: any) => setKey(e.target.value)}
-                    size="small"
-                  >
-                    {musicKeys.map(({ key, id }) => {
-                      return (
-                        <MenuItem value={id} key={id}>
-                          {key.toUpperCase()}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </Box>
-              </Grid>
-              {/* <Grid item xs={10} md={4}>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={2}>
+                  <Box>
+                    <Typography>Song Key</Typography>
+                    <Select
+                      fullWidth
+                      variant="outlined"
+                      value={key}
+                      onChange={(e: any) => setKey(e.target.value)}
+                      size="small"
+                    >
+                      {musicKeys.map(({ key, id }) => {
+                        return (
+                          <MenuItem value={id} key={id}>
+                            {key.toUpperCase()}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </Box>
+                </Grid>
+                {/* <Grid item xs={10} md={4}>
                 <Box>
                   <MusicUploader
                     fullTrackFile={fullTrackFile}
@@ -1023,298 +1085,182 @@ function App() {
                   />
                 </Box>
               </Grid> */}
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Duration</Typography>
-                  <Tooltip title="Automatically set from the Uploaded Track">
-                    {duration ? (
-                      <TextField
-                        variant="outlined"
-                        value={duration}
-                        size="small"
-                        disabled
-                      ></TextField>
-                    ) : (
-                      <Skeleton
-                        variant="text"
-                        width={"50%"}
-                        height="50px"
-                        animation={false}
-                      />
-                    )}
-                  </Tooltip>
-                  {/* <TextField
-                    variant="outlined"
-                    value={duration}
-                    disabled
-                    // placeholder="Fetched from upload"
-                    helperText="auto calculation"
-                  ></TextField> */}
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Start Beat offset(ms)</Typography>
-                  <OutlinedInput
-                    value={startBeatOffsetMs}
-                    onChange={(e) =>
-                      setStartBeatOffsetMs(parseInt(e.target.value))
-                    }
-                    type="number"
-                    placeholder="Waveform Selection"
-                    size="small"
-                    endAdornment={
-                      <Tooltip title="Auto fetch from the Uploaded Track">
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={onFetchStartBeatOffet}
-                            edge="end"
-                          >
-                            <CachedIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      </Tooltip>
-                    }
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Bpm</Typography>
-                  <TextField
-                    variant="outlined"
-                    type={"number"}
-                    onChange={(e: any) => setBpm(parseInt(e.target.value))}
-                    size="small"
-                    fullWidth
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Time Signature</Typography>
-                  <TextField
-                    required
-                    variant="outlined"
-                    onChange={(e: any) => setTimeSignature(e.target.value)}
-                    size="small"
-                    fullWidth
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={3}>
-                <Box>
-                  <Typography>No Of Measures</Typography>
-                  {noOfBars ? (
-                    <TextField
-                      variant="outlined"
-                      type="number"
-                      value={noOfBars}
-                      disabled
-                      size="small"
-                    ></TextField>
-                  ) : (
-                    <Skeleton
-                      variant="text"
-                      width={"50%"}
-                      height="50px"
-                      animation={false}
-                    />
-                  )}
-                  {/* <TextField
-                    variant="outlined"
-                    type="number"
-                    value={noOfBars}
-                    disabled
-                  ></TextField> */}
-                </Box>
-              </Grid>
-              {/* <Grid item xs={12}>
+
+                {/* <Grid item xs={12}>
                 <Divider />
               </Grid> */}
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>ISRC Code</Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    onChange={(e) => setIsrcCode(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>UPC Code</Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    onChange={(e) => setUpcCode(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Record Label</Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    onChange={(e) => setRecordLabel(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Distributor</Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    onChange={(e) => setDistributor(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Date Created</Typography>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      onChange={(value, cotext) => {
-                        setDateCreated((value as Date).toJSON());
-                      }}
-                    />
-                  </LocalizationProvider>
-                </Box>
-              </Grid>
-              <Grid item md={8}></Grid>
-              <CreditsRows rowsObj={credits} setCredits={setCredits} />
-
-              <Grid item xs={12}>
-                <Typography variant="body1" fontWeight={700}>
-                  Location of Creation (max 2)
-                </Typography>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Studio Name</Typography>
-                  <TextField fullWidth size="small" />
-                </Box>
-              </Grid>
-              <Grid item xs={10} md={4}>
-                <Box display={"flex"} justifyContent="space-between" gap={2}>
+                <Grid item xs={10} md={4}>
                   <Box>
-                    <Typography>City</Typography>
-                    <TextField fullWidth size="small"></TextField>
+                    <Typography>ISRC Code</Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={isrcCode}
+                      onChange={(e) => setIsrcCode(e.target.value)}
+                    ></TextField>
                   </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
                   <Box>
-                    <Typography>State</Typography>
+                    <Typography>UPC Code</Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={upcCode}
+                      onChange={(e) => setUpcCode(e.target.value)}
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Record Label</Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={recordLabel}
+                      onChange={(e) => setRecordLabel(e.target.value)}
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Distributor</Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={distributor}
+                      onChange={(e) => setDistributor(e.target.value)}
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Date Created</Typography>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        onChange={(value, cotext) => {
+                          setDateCreated((value as Date).toJSON());
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </Box>
+                </Grid>
+                <Grid item md={8}></Grid>
+                {/* <CreditsRows rowsObj={credits} setCredits={setCredits} /> */}
+
+                <Grid item xs={12}>
+                  <Typography variant="body1" fontWeight={700}>
+                    Location of Creation (max 2)
+                  </Typography>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Studio Name</Typography>
                     <TextField fullWidth size="small" />
                   </Box>
-                </Box>
-              </Grid>
-
-              <Grid item xs={6} md={2}>
-                <Box>
-                  <Typography>Country</Typography>
-                  <TextField fullWidth size="small"></TextField>
-                </Box>
-              </Grid>
-              <Grid item xs={6} md={1}>
-                <Box>
-                  <Typography>
-                    <br />
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    disabled={additionalCreationRow}
-                    onClick={() => setAdditionalCreationRow(true)}
-                  >
-                    Add
-                  </Button>
-                </Box>
-              </Grid>
-              {additionalCreationRow && (
-                <>
-                  <Grid item xs={10} md={4}>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box display={"flex"} justifyContent="space-between" gap={2}>
                     <Box>
-                      <Typography>Studio Name</Typography>
-                      <TextField fullWidth size="small" />
-                    </Box>
-                  </Grid>
-                  <Grid item xs={10} md={4}>
-                    <Box
-                      display={"flex"}
-                      justifyContent="space-between"
-                      gap={2}
-                    >
-                      <Box>
-                        <Typography>City</Typography>
-                        <TextField fullWidth size="small"></TextField>
-                      </Box>
-                      <Box>
-                        <Typography>State</Typography>
-                        <TextField fullWidth size="small" />
-                      </Box>
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={6} md={2}>
-                    <Box>
-                      <Typography>Country</Typography>
+                      <Typography>City</Typography>
                       <TextField fullWidth size="small"></TextField>
                     </Box>
-                  </Grid>
-                  <Grid item xs={6} md={1}></Grid>
-                </>
-              )}
-              <Grid item xs={12}>
-                <Typography variant="body1" fontWeight={700}>
-                  Master Recording Ownership (up to 4)
-                </Typography>
-              </Grid>
-              <MasterRecordingOwnerships
-                rowsObj={masterOwnerships}
-                setOwnerships={setMasterOwnerships}
-              />
-              <Grid item xs={12}>
-                <Typography variant="body1" fontWeight={700}>
-                  Composition Ownership (up to 8)
-                </Typography>
-              </Grid>
-              <CompositionOwnerships
-                rowsObj={compositionOwnerships}
-                setOwnerships={setCompositionOwnerships}
-              />
-              <Grid xs={12}>
-                <Box>
-                  <Typography>Lyrics</Typography>
-                  <TextField
-                    multiline
-                    minRows={4}
-                    maxRows={10}
-                    fullWidth
-                    sx={{ mt: 0.5 }}
-                    onChange={(e) => setLyrics(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid xs={8} md={4}>
-                <Box>
-                  <Typography>Language</Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    onChange={(e) => setLanguage(e.target.value)}
-                  ></TextField>
-                </Box>
-              </Grid>
-              <Grid xs={2} md={2}>
-                <Box>
-                  <Typography>Explicit Lyrics</Typography>
-                  <Checkbox
-                    onChange={(e, checked) => setExplicitLyrics(checked)}
-                  ></Checkbox>
-                </Box>
-              </Grid>
-              {/* <Grid item xs={10} md={4}>
+                    <Box>
+                      <Typography>State</Typography>
+                      <TextField fullWidth size="small" />
+                    </Box>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={6} md={2}>
+                  <Box>
+                    <Typography>Country</Typography>
+                    <TextField fullWidth size="small"></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} md={1}>
+                  <Box>
+                    <Typography>
+                      <br />
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      disabled={additionalCreationRow}
+                      onClick={() => setAdditionalCreationRow(true)}
+                    >
+                      Add
+                    </Button>
+                  </Box>
+                </Grid>
+                {additionalCreationRow && (
+                  <>
+                    <Grid item xs={10} md={4}>
+                      <Box>
+                        <Typography>Studio Name</Typography>
+                        <TextField fullWidth size="small" />
+                      </Box>
+                    </Grid>
+                    <Grid item xs={10} md={4}>
+                      <Box
+                        display={"flex"}
+                        justifyContent="space-between"
+                        gap={2}
+                      >
+                        <Box>
+                          <Typography>City</Typography>
+                          <TextField fullWidth size="small"></TextField>
+                        </Box>
+                        <Box>
+                          <Typography>State</Typography>
+                          <TextField fullWidth size="small" />
+                        </Box>
+                      </Box>
+                    </Grid>
+
+                    <Grid item xs={6} md={2}>
+                      <Box>
+                        <Typography>Country</Typography>
+                        <TextField fullWidth size="small"></TextField>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={6} md={1}></Grid>
+                  </>
+                )}
+                <Grid xs={12}>
+                  <Box>
+                    <Typography>Lyrics</Typography>
+                    <TextField
+                      multiline
+                      minRows={4}
+                      maxRows={10}
+                      fullWidth
+                      sx={{ mt: 0.5 }}
+                      value={lyrics}
+                      onChange={(e) => setLyrics(e.target.value)}
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid xs={8} md={4}>
+                  <Box>
+                    <Typography>Language</Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid xs={2} md={2}>
+                  <Box>
+                    <Typography>Explicit Lyrics</Typography>
+                    <Checkbox
+                      value={explicitLyrics}
+                      onChange={(e, checked) => setExplicitLyrics(checked)}
+                    ></Checkbox>
+                  </Box>
+                </Grid>
+                {/* <Grid item xs={10} md={4}>
                 <Box>
                   <Typography>Encrypt Assets</Typography>
                   <Checkbox
@@ -1324,236 +1270,369 @@ function App() {
                   />
                 </Box>
               </Grid> */}
+              </Grid>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              {/* <Box>
+                <Box
+                  style={{
+                    backgroundColor: "white",
+                    color: "black",
+                    borderRadius: "4px",
+                  }}
+                  p={1}
+                >
+                  <Typography
+                    variant="h6"
+                    p={1}
+                    color={"black"}
+                    textAlign="center"
+                    fontFamily={"Roboto"}
+                  >
+                    Overview
+                  </Typography>
+                  <Grid container>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Artist:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{artist}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Track Title:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{title}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Album:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{album}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Genre:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{genrePrimary}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Bpm:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{bpm}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Key:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{key}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Time Signature:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{timeSignature}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            No Of Measures:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{noOfBars}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Duration:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">{duration}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Start Beat Offset:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography color="black">
+                            {startBeatOffsetMs}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box p={1} display="flex" alignItems={"center"}>
+                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
+                          <Typography fontWeight="bold" color="black">
+                            Music Cid:
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography
+                            color="black"
+                            overflow={"hidden"}
+                            textOverflow={"ellipsis"}
+                            whiteSpace="nowrap"
+                          >
+                            {cid}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Box> */}
             </Grid>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Box>
-              <Box
-                style={{
-                  backgroundColor: "white",
-                  color: "black",
-                  borderRadius: "4px",
-                }}
-                p={1}
-              >
-                <Typography
-                  variant="h6"
-                  p={1}
-                  color={"black"}
-                  textAlign="center"
-                  fontFamily={"Roboto"}
-                >
-                  Overview
-                </Typography>
-                <Grid container>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Artist:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{artist}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Track Title:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{title}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Album:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{album}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Genre:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{genrePrimary}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Bpm:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{bpm}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Key:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{key}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Time Signature:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{timeSignature}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          No Of Measures:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{noOfBars}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Duration:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">{duration}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Start Beat Offset:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography color="black">
-                          {startBeatOffsetMs}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box p={1} display="flex" alignItems={"center"}>
-                      <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                        <Typography fontWeight="bold" color="black">
-                          Music Cid:
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          color="black"
-                          overflow={"hidden"}
-                          textOverflow={"ellipsis"}
-                          whiteSpace="nowrap"
-                        >
-                          {cid}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
+        )}
+        {selectedTabIndex === 3 && (
+          <Grid container mt={8} gap={{ xs: 2 }}>
+            <Grid item xs={12} md={12}>
+              <Grid container gap={2}>
+                <Grid item xs={10} md={4}>
+                  <Typography>Audio</Typography>
+                  <MusicUploader
+                    fullTrackFile={fullTrackFile}
+                    setFullTrackFile={setFullTrackFile}
+                    setFileUrl={setFileUrl}
+                    setDuration={setDuration}
+                  />
                 </Grid>
+                <Grid item xs={10} md={3}>
+                  <Box>
+                    <Typography>Duration</Typography>
+                    <Tooltip title="Automatically set from the Uploaded Track">
+                      {duration ? (
+                        <TextField
+                          variant="outlined"
+                          value={duration}
+                          size="small"
+                          disabled
+                        ></TextField>
+                      ) : (
+                        <Skeleton
+                          variant="text"
+                          width={"50%"}
+                          height="50px"
+                          animation={false}
+                        />
+                      )}
+                    </Tooltip>
+                    {/* <TextField
+                    variant="outlined"
+                    value={duration}
+                    disabled
+                    // placeholder="Fetched from upload"
+                    helperText="auto calculation"
+                  ></TextField> */}
+                  </Box>
+                </Grid>
+                <Grid md={1} />
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Start Beat offset(ms)</Typography>
+                    <OutlinedInput
+                      value={startBeatOffsetMs}
+                      onChange={(e) =>
+                        setStartBeatOffsetMs(parseInt(e.target.value))
+                      }
+                      type="number"
+                      placeholder="Waveform Selection"
+                      size="small"
+                      endAdornment={
+                        <Tooltip title="Fetch from the selected Position on the waveform">
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={onFetchStartBeatOffet}
+                              edge="end"
+                            >
+                              <CachedIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        </Tooltip>
+                      }
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Bpm</Typography>
+                    <TextField
+                      variant="outlined"
+                      type={"number"}
+                      value={bpm}
+                      onChange={(e: any) => setBpm(parseInt(e.target.value))}
+                      size="small"
+                      // fullWidth
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={4}>
+                  <Box>
+                    <Typography>Time Signature</Typography>
+                    <TextField
+                      required
+                      variant="outlined"
+                      value={timeSignature}
+                      onChange={(e: any) => setTimeSignature(e.target.value)}
+                      size="small"
+                      // fullWidth
+                    ></TextField>
+                  </Box>
+                </Grid>
+                <Grid item xs={10} md={3}>
+                  <Box>
+                    <Typography>No Of Measures</Typography>
+                    {noOfBars ? (
+                      <TextField
+                        variant="outlined"
+                        type="number"
+                        value={noOfBars}
+                        disabled
+                        size="small"
+                      ></TextField>
+                    ) : (
+                      <Skeleton
+                        variant="text"
+                        width={"50%"}
+                        height="50px"
+                        animation={false}
+                      />
+                    )}
+                    {/* <TextField
+                    variant="outlined"
+                    type="number"
+                    value={noOfBars}
+                    disabled
+                  ></TextField> */}
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        )}
+        <Box display={selectedTabIndex === 3 ? "initial" : "none"}>
+          <WaveForm
+            url={fileUrl}
+            durationOfEachBarInSec={durationOfEachBarInSec}
+            noOfBars={noOfBars}
+            startBeatOffsetMs={startBeatOffsetMs}
+            getSelectedBeatOffet={getSelectedBeatOffet}
+            sectionsObj={sectionsObj}
+            setSectionsObj={setSectionsObj}
+          />
+        </Box>
+        {selectedTabIndex === 3 && (
+          <Box>
+            <Box mt={8}>
+              <Typography variant="h6">Proof of Creation</Typography>
+              <Box mt={4} display="flex" justifyContent="center">
+                <AcceptStems
+                  getRootProps={getRootProps}
+                  getInputProps={getInputProps}
+                />
+              </Box>
+              <Box
+                mt={4}
+                display="flex"
+                gap={2}
+                justifyContent="center"
+                flexWrap="wrap"
+              >
+                {Object.values(stemsObj).map(({ file, name, type }, i) => (
+                  <Box>
+                    <Box display="flex" justifyContent="center">
+                      <Select
+                        size="small"
+                        value={type}
+                        onChange={(e) => {
+                          const newObject = { ...stemsObj };
+                          newObject[i].type = String(e.target.value);
+                          setStemsObj(newObject);
+                        }}
+                      >
+                        <MenuItem value={"Vocal"}>Vocal</MenuItem>
+                        <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
+                        <MenuItem value={"Bass"}>Bass</MenuItem>
+                        <MenuItem value={"Drums"}>Drums</MenuItem>
+                      </Select>
+                    </Box>
+                    <Box mt={2}>
+                      <TextField
+                        placeholder="Name"
+                        value={name}
+                        onChange={(e) => {
+                          const newObject = { ...stemsObj };
+                          newObject[i].name = e.target.value;
+                          setStemsObj(newObject);
+                        }}
+                      ></TextField>
+                    </Box>
+                  </Box>
+                ))}
               </Box>
             </Box>
-          </Grid>
-        </Grid>
-        <WaveForm
-          url={fileUrl}
-          durationOfEachBarInSec={durationOfEachBarInSec}
-          noOfBars={noOfBars}
-          startBeatOffsetMs={startBeatOffsetMs}
-          getSelectedBeatOffet={getSelectedBeatOffet}
-          sectionsObj={sectionsObj}
-          setSectionsObj={setSectionsObj}
-        />
-        <Box mt={8}>
-          <Typography variant="h6">Proof of Creation</Typography>
-          <Box mt={4} display="flex" justifyContent="center">
-            <AcceptStems
-              getRootProps={getRootProps}
-              getInputProps={getInputProps}
-            />
+            <Box mt={8} display="flex" justifyContent="center">
+              <Button variant="contained" color="primary" onClick={onTxClick}>
+                Send To Blockchain
+              </Button>
+            </Box>
           </Box>
-          <Box
-            mt={4}
-            display="flex"
-            gap={2}
-            justifyContent="center"
-            flexWrap="wrap"
-          >
-            {Object.values(stemsObj).map(({ file, name, type }, i) => (
-              <Box>
-                <Box display="flex" justifyContent="center">
-                  <Select
-                    size="small"
-                    value={type}
-                    onChange={(e) => {
-                      const newObject = { ...stemsObj };
-                      newObject[i].type = String(e.target.value);
-                      setStemsObj(newObject);
-                    }}
-                  >
-                    <MenuItem value={"Vocal"}>Vocal</MenuItem>
-                    <MenuItem value={"Instrumental"}>Instrumental</MenuItem>
-                    <MenuItem value={"Bass"}>Bass</MenuItem>
-                    <MenuItem value={"Drums"}>Drums</MenuItem>
-                  </Select>
-                </Box>
-                <Box mt={2}>
-                  <TextField
-                    placeholder="Name"
-                    value={name}
-                    onChange={(e) => {
-                      const newObject = { ...stemsObj };
-                      newObject[i].name = e.target.value;
-                      setStemsObj(newObject);
-                    }}
-                  ></TextField>
-                </Box>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-        <Box mt={8} display="flex" justifyContent="center">
-          <Button variant="contained" color="primary" onClick={onTxClick}>
-            Send To Blockchain
-          </Button>
-        </Box>
+        )}
       </Box>
       <TransactionDialog
         isTxDialogOpen={isTxDialogOpen}
@@ -1564,7 +1643,7 @@ function App() {
         sectionsHash={sectionsHash}
         isEncryptFiles={isEncryptFiles}
       />
-      <Box mt={20} pb={8}>
+      <Box mt={"20%"} pb={8}>
         <Typography variant="h5" align="center" fontFamily="monospace">
           Powered By
         </Typography>

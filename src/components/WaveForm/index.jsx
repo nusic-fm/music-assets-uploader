@@ -21,8 +21,6 @@ import {
 } from "@mui/material";
 import colormap from "colormap";
 import { useEffect, useRef, useState } from "react";
-import RemoveIcon from "@mui/icons-material/Remove";
-import AddIcon from "@mui/icons-material/Add";
 import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -31,6 +29,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // import LoopRoundedIcon from "@mui/icons-material/LoopRounded";
 import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
 import PauseRounded from "@mui/icons-material/PauseRounded";
+import ZoomInIcon from "@mui/icons-material/ZoomIn";
+import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 
 const SectionNames = [
   "Intro",
@@ -366,7 +366,7 @@ const WaveForm = (props) => {
             alignItems="center"
             width={300}
           >
-            <RemoveIcon color="primary" />
+            <ZoomOutIcon color="primary" />
             <Slider
               aria-label="Volume"
               value={zoomValue}
@@ -375,7 +375,7 @@ const WaveForm = (props) => {
               min={10}
               max={100}
             />
-            <AddIcon color="primary" />
+            <ZoomInIcon color="primary" />
           </Stack>
         )}
       </Box>
