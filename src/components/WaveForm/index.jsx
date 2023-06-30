@@ -9,12 +9,13 @@ import {
   Box,
   Button,
   Typography,
-  Select,
-  MenuItem,
+  // Select,
+  // MenuItem,
   IconButton,
   Card,
   TextField,
   Skeleton,
+  Autocomplete,
   // TextField,
 } from "@mui/material";
 import colormap from "colormap";
@@ -468,7 +469,33 @@ const WaveForm = (props) => {
               <Box p={2}>
                 <Box mb={1}>
                   {/* <Typography>Section Name</Typography> */}
-                  <FormControl fullWidth>
+                  <Autocomplete
+                    freeSolo
+                    options={[
+                      "Intro",
+                      "Verse",
+                      "Pre-Chorus",
+                      "Chorus",
+                      "Post-Chorus",
+                      "Breakdown",
+                      "Bridge",
+                      "Hook",
+                      "Outro",
+                    ]}
+                    onChange={(e, newValue) => {
+                      const newSectionsObj = { ...sectionsObj };
+                      const id = Object.keys(newSectionsObj).filter(
+                        (key) => key === section.id.toString()
+                      )[0];
+                      newSectionsObj[id].name = newValue;
+                      // e.target.value;
+                      setSectionsObj(newSectionsObj);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Section Name" />
+                    )}
+                  ></Autocomplete>
+                  {/* <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">
                       Section Name
                     </InputLabel>
@@ -495,7 +522,7 @@ const WaveForm = (props) => {
                       <MenuItem value={"Hook"}>Hook</MenuItem>
                       <MenuItem value={"Outro"}>Outro</MenuItem>
                     </Select>
-                  </FormControl>
+                  </FormControl> */}
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
                   <Typography>End Measure</Typography>
