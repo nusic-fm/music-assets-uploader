@@ -12,19 +12,20 @@ import {
 import MusicUploader from "../MusicUploader";
 import CachedIcon from "@mui/icons-material/Cached";
 
+export type ProofOfCreationMetadataObj = {
+  fullTrackFile?: File;
+  fileUrl?: string;
+  duration?: number;
+  durationOfEachBarInSec?: number;
+  startBeatOffsetMs: number;
+  bpm?: number;
+  timeSignature: string;
+  noOfBeatsPerBar: number;
+  noOfBars?: number;
+  noOfBeats?: number;
+};
 type Props = {
-  proofOfCreationMetadataObj: {
-    fullTrackFile?: File;
-    fileUrl?: string;
-    duration?: number;
-    durationOfEachBarInSec?: number;
-    startBeatOffsetMs: number;
-    bpm?: number;
-    timeSignature: string;
-    noOfBeatsPerBar: number;
-    noOfBars?: number;
-    noOfBeats?: number;
-  };
+  proofOfCreationMetadataObj: ProofOfCreationMetadataObj;
   setProofOfCreationMetadataObj: (obj: any) => void;
   onFetchStartBeatOffet: () => Promise<void>;
 };

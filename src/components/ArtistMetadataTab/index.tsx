@@ -10,20 +10,21 @@ import CompositionOwnerships from "../CompositionOwnerships";
 import CreditsRows from "../CreditsRows";
 import MasterRecordingOwnerships from "../MasterRecordingOwnerships";
 
-type Props = {
-  artistMetadataObj: {
-    artist: string;
-    featuredArtists: never[];
-    credits: {
-      1: {};
-    };
-    masterOwnerships: {
-      1: {};
-    };
-    compositionOwnerships: {
-      1: {};
-    };
+export type ArtistMetadataObj = {
+  artist: string;
+  featuredArtists: never[];
+  credits: {
+    1: {};
   };
+  masterOwnerships: {
+    1: {};
+  };
+  compositionOwnerships: {
+    1: {};
+  };
+};
+type Props = {
+  artistMetadataObj: ArtistMetadataObj;
   setArtistMetadataObj: (obj: any) => void;
 };
 

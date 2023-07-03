@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Box,
@@ -16,9 +17,14 @@ import { useDropzone } from "react-dropzone";
 import TransactionDialog from "./components/TransactionDialog";
 import { Web3Storage } from "web3.storage";
 import { useNavigate } from "react-router-dom";
-import ArtistMetadataTab from "./components/ArtistMetadataTab";
+import ArtistMetadataTab, {
+  ArtistMetadataObj,
+} from "./components/ArtistMetadataTab";
 import SongMetadataTab, { SongMetadataObj } from "./components/SongMetadataTab";
-import ProofOfCreationTab from "./components/ProofOfCreationTab";
+import ProofOfCreationTab, {
+  ProofOfCreationMetadataObj,
+} from "./components/ProofOfCreationTab";
+import useSaveChanges from "./hooks/useSaveChanges";
 const CryptoJS = require("crypto-js");
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
@@ -28,7 +34,7 @@ type StemsObj = {
   [key: string]: Stem;
 };
 type Section = { name: string; start: number; end: number; bars: number };
-type SectionsObj = {
+export type SectionsObj = {
   [internalId: string]: Section;
 };
 
@@ -88,13 +94,15 @@ const getWithoutSpace = (str: string) => str?.split(" ").join("");
 //   "cost hello lounge proof dinner ask degree spoil donor brown diary midnight cargo fog enroll across cupboard zero chief gate decade toss pretty profit";
 
 function App() {
-  const [artistMetadataObj, setArtistMetadataObj] = useState({
-    artist: "",
-    featuredArtists: [],
-    credits: { 1: {} },
-    masterOwnerships: { 1: {} },
-    compositionOwnerships: { 1: {} },
-  });
+  const [artistMetadataObj, setArtistMetadataObj] = useState<ArtistMetadataObj>(
+    {
+      artist: "",
+      featuredArtists: [],
+      credits: { 1: {} },
+      masterOwnerships: { 1: {} },
+      compositionOwnerships: { 1: {} },
+    }
+  );
   const [songMetadataObj, setSongMetadataObj] = useState<SongMetadataObj>({
     title: "",
     album: "",
@@ -116,22 +124,15 @@ function App() {
     explicitLyrics: false,
     locationOfCreation: { 1: {}, 2: {} },
   });
-  const [proofOfCreationMetadataObj, setProofOfCreationMetadataObj] = useState<{
-    fullTrackFile?: File;
-    fileUrl?: string;
-    duration?: number;
-    durationOfEachBarInSec?: number;
-    startBeatOffsetMs: number;
-    bpm?: number;
-    timeSignature: string;
-    noOfBeatsPerBar: number;
-    noOfBars?: number;
-    noOfBeats?: number;
-  }>({
-    startBeatOffsetMs: 0,
-    timeSignature: "",
-    noOfBeatsPerBar: 0,
-  });
+  const [proofOfCreationMetadataObj, setProofOfCreationMetadataObj] =
+    useState<ProofOfCreationMetadataObj>({
+      startBeatOffsetMs: 0,
+      timeSignature: "",
+      noOfBeatsPerBar: 0,
+    });
+  const [isLocallySaving, setIsLocallySaving] = useState(false);
+  const [isStartListening, setIsStartListening] = useState(false);
+
   const [cid, setCid] = useState<string>();
   const [sectionsObj, setSectionsObj] = useState<SectionsObj>({});
   const [stemsObj, setStemsObj] = useState<StemsObj>({});
@@ -149,6 +150,23 @@ function App() {
   const [userAddress, setUserAddress] = useState<string>();
   const navigate = useNavigate();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
+  const [draftAvailable, setDraftAvailable] = useState(false);
+
+  const { getFromLocalStorage } = useSaveChanges(
+    {
+      artistMetadataObj,
+      songMetadataObj,
+    },
+    isStartListening,
+    setIsLocallySaving
+  );
+
+  useEffect(() => {
+    const obj = getFromLocalStorage();
+    if (obj) {
+      setDraftAvailable(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (acceptedFiles.length) {
@@ -600,15 +618,43 @@ function App() {
         )} */}
       </Box>
       <Box p={{ xs: 4 }}>
-        <Box display={"flex"} alignItems="center" gap={{ xs: 1, md: 4 }}>
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            // align="left"
-            fontFamily={"Roboto"}
-          >
-            Music Metadata Information
-          </Typography>
+        <Box
+          display={"flex"}
+          alignItems="center"
+          gap={{ xs: 1, md: 4 }}
+          justifyContent="space-between"
+          flexWrap={"wrap"}
+        >
+          <Box display={"flex"} alignItems="center" gap={1}>
+            <Typography
+              variant="h5"
+              fontWeight="600"
+              // align="left"
+              fontFamily={"Roboto"}
+            >
+              Music Metadata Information
+            </Typography>
+            {/* <Typography variant="caption" fontStyle={"italic"} color="gray">
+              saved
+            </Typography> */}
+          </Box>
+          {draftAvailable && !isStartListening && (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                const obj = getFromLocalStorage();
+                if (obj) {
+                  const { artistMetadataObj, songMetadataObj } = obj;
+                  setArtistMetadataObj(artistMetadataObj);
+                  setSongMetadataObj(songMetadataObj);
+                  // setSectionsObj(sectionsObj);
+                }
+              }}
+            >
+              Load Previous State
+            </Button>
+          )}
         </Box>
         <Box mt={2}>
           <Tabs
@@ -641,20 +687,31 @@ function App() {
         {selectedTabIndex === 1 && (
           <ArtistMetadataTab
             artistMetadataObj={artistMetadataObj}
-            setArtistMetadataObj={setArtistMetadataObj}
+            setArtistMetadataObj={(obj: ArtistMetadataObj) => {
+              setIsStartListening(true);
+              setArtistMetadataObj(obj);
+            }}
           />
         )}
 
         {selectedTabIndex === 2 && (
           <SongMetadataTab
             songMetadataObj={songMetadataObj}
-            setSongMetadataObj={setSongMetadataObj}
+            setSongMetadataObj={(obj: SongMetadataObj) => {
+              setIsStartListening(true);
+              setSongMetadataObj(obj);
+            }}
           />
         )}
         {selectedTabIndex === 3 && (
           <ProofOfCreationTab
             proofOfCreationMetadataObj={proofOfCreationMetadataObj}
-            setProofOfCreationMetadataObj={setProofOfCreationMetadataObj}
+            setProofOfCreationMetadataObj={(
+              obj: ProofOfCreationMetadataObj
+            ) => {
+              setIsStartListening(true);
+              setProofOfCreationMetadataObj(obj);
+            }}
             onFetchStartBeatOffet={onFetchStartBeatOffet}
           />
         )}

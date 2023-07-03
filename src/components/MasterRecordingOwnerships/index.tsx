@@ -41,6 +41,7 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
             </Box>
           </Grid>
           <Grid item xs={false} md={2}></Grid>
+          <Grid item xs={false}></Grid>
           <Grid item xs={4} md={1}>
             <Box>
               <Typography>

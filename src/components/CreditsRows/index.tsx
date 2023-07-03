@@ -80,6 +80,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               />
             </Box>
           </Grid>
+          <Grid item xs={false}></Grid>
           <Grid item md={2}>
             <Typography>Other Info</Typography>
             <Tooltip title="Instrument Played">
