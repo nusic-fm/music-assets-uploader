@@ -42,7 +42,7 @@ const TransactionDialog = (props: any) => {
                   ? "Encrypting and Storing on Web3.Storage"
                   : "Storing on Web3.Storage"}
               </Typography>
-              <LinearProgress color="secondary" />
+              <LinearProgress />
             </StepContent>
           </Step>
           <Step>
@@ -60,7 +60,7 @@ const TransactionDialog = (props: any) => {
               <Typography variant="caption">
                 Transaction in progress...
               </Typography>
-              <LinearProgress color="secondary" />
+              <LinearProgress />
             </StepContent>
           </Step>
           <Step>
@@ -80,7 +80,7 @@ const TransactionDialog = (props: any) => {
               <Typography variant="caption">
                 Transaction in progress...
               </Typography>
-              <LinearProgress color="secondary" />
+              <LinearProgress />
             </StepContent>
           </Step>
           <Step>
@@ -100,7 +100,7 @@ const TransactionDialog = (props: any) => {
               <Typography variant="caption">
                 Transaction in progress...
               </Typography>
-              <LinearProgress color="secondary" />
+              <LinearProgress />
             </StepContent>
           </Step>
         </Stepper>

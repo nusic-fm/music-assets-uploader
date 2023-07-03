@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 // import PauseCircleFilledOutlinedIcon from "@mui/icons-material/PauseCircleFilledOutlined";
 
 const MusicUploader = (props: any) => {
-  const { fullTrackFile, setFileUrl, setDuration, setFullTrackFile } = props;
+  const { fullTrackFile, onMultiplePropsChange } = props;
   const [, setIsPlaying] = useState<any>(false);
   const audioRef = useRef<any>(null);
 
@@ -16,9 +16,9 @@ const MusicUploader = (props: any) => {
     if (files.length === 0) {
       return;
     }
-    setFullTrackFile(files[0]);
+    // setFullTrackFile(files[0]);
     const url = URL.createObjectURL(files[0]);
-    setFileUrl(url);
+    // setFileUrl(url);
     const audio = new Audio(url);
     audioRef.current = audio;
     audio.addEventListener(
@@ -27,7 +27,12 @@ const MusicUploader = (props: any) => {
         // Obtain the duration in seconds of the audio file (with milliseconds as well, a float value)
         var duration = audio.duration;
 
-        setDuration(duration);
+        // setDuration(duration);
+        onMultiplePropsChange({
+          fullTrackFile: files[0],
+          fileUrl: url,
+          duration,
+        });
       },
       false
     );

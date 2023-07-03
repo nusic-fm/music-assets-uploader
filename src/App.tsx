@@ -2,164 +2,26 @@
 import {
   Box,
   Button,
-  Grid,
   TextField,
   Typography,
-  OutlinedInput,
-  InputAdornment,
-  IconButton,
   Select,
   MenuItem,
-  Checkbox,
-  Chip,
-  Tooltip,
-  Skeleton,
-  styled,
-  SwitchProps,
-  Switch,
-  Autocomplete,
   Tabs,
   Tab,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import MusicUploader from "./components/MusicUploader";
 import WaveForm from "./components/WaveForm";
-import CachedIcon from "@mui/icons-material/Cached";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
-// import axios from "axios";
-// import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import TransactionDialog from "./components/TransactionDialog";
 import { Web3Storage } from "web3.storage";
 import { useNavigate } from "react-router-dom";
-// import {
-//   DirectSecp256k1HdWallet,
-//   OfflineDirectSigner,
-//   OfflineSigner,
-// } from "@cosmjs/proto-signing";
-import { getSigningStargateClient, txClient } from "./module";
-// import {
-//   MsgCreateFullTrack,
-//   MsgCreateSection,
-//   MsgCreateStem,
-// } from "./module/types/metadatalayercosmos/tx";
-import { ChainInfo } from "@keplr-wallet/types";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import {
-  genrePrimaryOptions,
-  genreSecondaryOptions,
-  songMoodsOptions,
-  subGenreOptions,
-} from "./utils";
-import CreditsRows from "./components/CreditsRows";
-import MasterRecordingOwnerships from "./components/MasterRecordingOwnerships";
-import CompositionOwnerships from "./components/CompositionOwnerships";
-
-export const rpc = process.env.REACT_APP_RPC as string;
-export const rest = process.env.REACT_APP_REST as string;
-// export const cosmosChainId = "metadatalayercosmos";
-export const cosmosChainId = process.env.REACT_APP_COSMOS_CHAINID as string;
-const chainName = process.env.REACT_APP_COSMOS_CHAIN_NAME as string;
-
-export const getCheckersChainInfo = (): ChainInfo => ({
-  chainId: cosmosChainId,
-  chainName,
-  rpc,
-  rest,
-  bip44: {
-    coinType: 118,
-  },
-  bech32Config: {
-    bech32PrefixAccAddr: "nusic",
-    // eslint-disable-next-line no-useless-concat
-    bech32PrefixAccPub: "nusic" + "pub",
-    // eslint-disable-next-line no-useless-concat
-    bech32PrefixValAddr: "nusic" + "valoper",
-    // eslint-disable-next-line no-useless-concat
-    bech32PrefixValPub: "nusic" + "valoperpub",
-    // eslint-disable-next-line no-useless-concat
-    bech32PrefixConsAddr: "nusic" + "valcons",
-    // eslint-disable-next-line no-useless-concat
-    bech32PrefixConsPub: "nusic" + "valconspub",
-  },
-  currencies: [
-    {
-      coinDenom: "NUSIC",
-      coinMinimalDenom: "nusic",
-      coinDecimals: 0,
-      coinGeckoId: "nusic",
-    },
-  ],
-  feeCurrencies: [
-    {
-      coinDenom: "NUSIC",
-      coinMinimalDenom: "nusic",
-      coinDecimals: 0,
-      coinGeckoId: "nusic",
-    },
-  ],
-  stakeCurrency: {
-    coinDenom: "NUSIC",
-    coinMinimalDenom: "nusic",
-    coinDecimals: 0,
-    coinGeckoId: "nusic",
-  },
-  coinType: 118,
-  gasPriceStep: {
-    low: 1,
-    average: 1,
-    high: 1,
-  },
-  features: ["stargate", "ibc-transfer", "no-legacy-stdTx"],
-});
-
-// const getAliceSignerFromMnemonic = async (): Promise<OfflineDirectSigner> => {
-//   return DirectSecp256k1HdWallet.fromMnemonic(aliceMnemonic, {
-//     prefix: "nusic",
-//   });
-//   // return new Promise((resolve) => {
-//   //     readFile("./testnet.alice.mnemonic.key", (err, data) => {
-//   //         const wallet = DirectSecp256k1HdWallet.fromMnemonic(data.toString(), {
-//   //             prefix: "cosmos",
-//   //         })
-//   //         resolve(wallet);
-//   //     })
-//   // })
-// };
-
+import ArtistMetadataTab from "./components/ArtistMetadataTab";
+import SongMetadataTab, { SongMetadataObj } from "./components/SongMetadataTab";
+import ProofOfCreationTab from "./components/ProofOfCreationTab";
 const CryptoJS = require("crypto-js");
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
-// type StemType = "Vocal" | "Instrumental" | "Bass" | "Drums";
-const musicKeys = [
-  { key: "C major", id: "CMa" },
-  { key: "D♭ major", id: "DflMa" },
-  { key: "D major", id: "DMa" },
-  { key: "E♭ major", id: "EflMa" },
-  { key: "E major", id: "EMa" },
-  { key: "F major", id: "FMa" },
-  { key: "F# major", id: "FshMa" },
-  { key: "G major", id: "GMa" },
-  { key: "A♭ major", id: "AflMa" },
-  { key: "A major", id: "AMa" },
-  { key: "B♭ major", id: "BflMa" },
-  { key: "B major", id: "BMa" },
-  { key: "C minor", id: "CMi" },
-  { key: "C# minor", id: "CshMi" },
-  { key: "D minor", id: "DMi" },
-  { key: "E♭ minor", id: "EflMi" },
-  { key: "E minor", id: "EMi" },
-  { key: "F minor", id: "FMi" },
-  { key: "F# minor", id: "FshMi" },
-  { key: "G minor", id: "GMi" },
-  { key: "G# minor", id: "GshMi" },
-  { key: "A minor", id: "AMi" },
-  { key: "A♭ minor", id: "AflMi" },
-  { key: "B♭ minor", id: "BflMi" },
-  { key: "B minor", id: "BMi" },
-];
 
 type Stem = { file: File; name: string; type: string };
 type StemsObj = {
@@ -170,102 +32,107 @@ type SectionsObj = {
   [internalId: string]: Section;
 };
 
-const IOSSwitch = styled((props: SwitchProps) => (
-  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
-))(({ theme }) => ({
-  width: 42,
-  height: 26,
-  padding: 0,
-  "& .MuiSwitch-switchBase": {
-    padding: 0,
-    margin: 2,
-    transitionDuration: "300ms",
-    "&.Mui-checked": {
-      transform: "translateX(16px)",
-      color: "#fff",
-      "& + .MuiSwitch-track": {
-        backgroundColor: theme.palette.mode === "dark" ? "#2ECA45" : "#573FC8",
-        opacity: 1,
-        border: 0,
-      },
-      "&.Mui-disabled + .MuiSwitch-track": {
-        opacity: 0.5,
-      },
-    },
-    "&.Mui-focusVisible .MuiSwitch-thumb": {
-      color: "#33cf4d",
-      border: "6px solid #fff",
-    },
-    "&.Mui-disabled .MuiSwitch-thumb": {
-      color:
-        theme.palette.mode === "light"
-          ? theme.palette.grey[100]
-          : theme.palette.grey[600],
-    },
-    "&.Mui-disabled + .MuiSwitch-track": {
-      opacity: theme.palette.mode === "light" ? 0.7 : 0.3,
-    },
-  },
-  "& .MuiSwitch-thumb": {
-    boxSizing: "border-box",
-    width: 22,
-    height: 22,
-  },
-  "& .MuiSwitch-track": {
-    borderRadius: 26 / 2,
-    backgroundColor: theme.palette.mode === "light" ? "#c4c4c4" : "#39393D",
-    opacity: 1,
-    transition: theme.transitions.create(["background-color"], {
-      duration: 500,
-    }),
-  },
-}));
+// const IOSSwitch = styled((props: SwitchProps) => (
+//   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
+// ))(({ theme }) => ({
+//   width: 42,
+//   height: 26,
+//   padding: 0,
+//   "& .MuiSwitch-switchBase": {
+//     padding: 0,
+//     margin: 2,
+//     transitionDuration: "300ms",
+//     "&.Mui-checked": {
+//       transform: "translateX(16px)",
+//       color: "#fff",
+//       "& + .MuiSwitch-track": {
+//         backgroundColor: theme.palette.mode === "dark" ? "#2ECA45" : "#573FC8",
+//         opacity: 1,
+//         border: 0,
+//       },
+//       "&.Mui-disabled + .MuiSwitch-track": {
+//         opacity: 0.5,
+//       },
+//     },
+//     "&.Mui-focusVisible .MuiSwitch-thumb": {
+//       color: "#33cf4d",
+//       border: "6px solid #fff",
+//     },
+//     "&.Mui-disabled .MuiSwitch-thumb": {
+//       color:
+//         theme.palette.mode === "light"
+//           ? theme.palette.grey[100]
+//           : theme.palette.grey[600],
+//     },
+//     "&.Mui-disabled + .MuiSwitch-track": {
+//       opacity: theme.palette.mode === "light" ? 0.7 : 0.3,
+//     },
+//   },
+//   "& .MuiSwitch-thumb": {
+//     boxSizing: "border-box",
+//     width: 22,
+//     height: 22,
+//   },
+//   "& .MuiSwitch-track": {
+//     borderRadius: 26 / 2,
+//     backgroundColor: theme.palette.mode === "light" ? "#c4c4c4" : "#39393D",
+//     opacity: 1,
+//     transition: theme.transitions.create(["background-color"], {
+//       duration: 500,
+//     }),
+//   },
+// }));
 
 const getWithoutSpace = (str: string) => str?.split(" ").join("");
 // const aliceMnemonic =
 //   "cost hello lounge proof dinner ask degree spoil donor brown diary midnight cargo fog enroll across cupboard zero chief gate decade toss pretty profit";
 
 function App() {
-  const [fullTrackFile, setFullTrackFile] = useState<File>();
+  const [artistMetadataObj, setArtistMetadataObj] = useState({
+    artist: "",
+    featuredArtists: [],
+    credits: { 1: {} },
+    masterOwnerships: { 1: {} },
+    compositionOwnerships: { 1: {} },
+  });
+  const [songMetadataObj, setSongMetadataObj] = useState<SongMetadataObj>({
+    title: "",
+    album: "",
+    projectType: "",
+    genrePrimary: [],
+    genreSecondary: [],
+    subGenre: [],
+    songMoods: [],
+    songType: "",
+    key: "",
+    isrcCode: "",
+    upcCode: "",
+    recordLabel: "",
+    distributor: "",
+    dateCreated: "",
+    additionalCreationRow: false,
+    lyrics: "",
+    language: "",
+    explicitLyrics: false,
+    locationOfCreation: { 1: {}, 2: {} },
+  });
+  const [proofOfCreationMetadataObj, setProofOfCreationMetadataObj] = useState<{
+    fullTrackFile?: File;
+    fileUrl?: string;
+    duration?: number;
+    durationOfEachBarInSec?: number;
+    startBeatOffsetMs: number;
+    bpm?: number;
+    timeSignature: string;
+    noOfBeatsPerBar: number;
+    noOfBars?: number;
+    noOfBeats?: number;
+  }>({
+    startBeatOffsetMs: 0,
+    timeSignature: "",
+    noOfBeatsPerBar: 0,
+  });
   const [cid, setCid] = useState<string>();
-  const [artist, setArtist] = useState<string>();
-  const [featuredArtists, setFeaturedArtists] = useState<string[]>([]);
-  const [title, setTitle] = useState<string>();
-  const [album, setAlbum] = useState<string>();
-  const [projectType, setProjectType] = useState<string>();
-  const [genrePrimary, setGenrePrimary] = useState<string[]>([]);
-  const [genreSecondary, setGenreSecondary] = useState<string[]>([]);
-  const [subGenre, setSubGenre] = useState<string[]>([]);
-  const [songMoods, setSongMoods] = useState<string[]>([]);
-  const [songType, setSongType] = useState<string>();
-  const [key, setKey] = useState<string>();
-  const [duration, setDuration] = useState<number>();
-  const [bpm, setBpm] = useState<number>();
-  const [timeSignature, setTimeSignature] = useState<string>();
-  const [noOfBeatsPerBar, setNoOfBeatsPerBar] = useState<number>(0);
-  const [noOfBars, setNoOfBars] = useState<number>();
-  const [noOfBeats, setNoOfBeats] = useState<number>();
-
-  const [isrcCode, setIsrcCode] = useState<string>();
-  const [upcCode, setUpcCode] = useState<string>();
-  const [recordLabel, setRecordLabel] = useState<string>();
-  const [distributor, setDistributor] = useState<string>();
-  const [dateCreated, setDateCreated] = useState<string>();
-
-  const [credits, setCredits] = useState({ 1: {} });
-  const [masterOwnerships, setMasterOwnerships] = useState({ 1: {} });
-  const [compositionOwnerships, setCompositionOwnerships] = useState({ 1: {} });
-  const [lyrics, setLyrics] = useState<string>();
-  const [language, setLanguage] = useState<string>();
-  const [explicitLyrics, setExplicitLyrics] = useState<boolean>();
-
-  const [additionalCreationRow, setAdditionalCreationRow] = useState(false);
-  const [locations, setLocations] = useState([]);
-
-  const [fileUrl, setFileUrl] = useState<string>();
-  const [startBeatOffsetMs, setStartBeatOffsetMs] = useState<number>(0);
-  const [durationOfEachBarInSec, setDurationOfEachBarInSec] =
-    useState<number>();
   const [sectionsObj, setSectionsObj] = useState<SectionsObj>({});
   const [stemsObj, setStemsObj] = useState<StemsObj>({});
 
@@ -299,24 +166,36 @@ function App() {
   }, [acceptedFiles]);
 
   useEffect(() => {
+    const { duration, bpm, timeSignature, startBeatOffsetMs } =
+      proofOfCreationMetadataObj;
     if (duration && bpm && timeSignature?.includes("/4")) {
       const beatsPerSecond = bpm / 60;
       const totalNoOfBeats =
         beatsPerSecond * (duration - startBeatOffsetMs / 1000);
-      setNoOfBeats(totalNoOfBeats);
+      // setNoOfBeats(totalNoOfBeats);
       const noOfBeatsPerBar = parseFloat(timeSignature.split("/")[0]);
-      setNoOfBeatsPerBar(noOfBeatsPerBar);
+      // setNoOfBeatsPerBar(noOfBeatsPerBar);
       const noOfMeasures = Math.floor(totalNoOfBeats / noOfBeatsPerBar);
-      setNoOfBars(noOfMeasures);
+      // setNoOfBars(noOfMeasures);
       const durationOfEachBar = duration / noOfMeasures;
-      setDurationOfEachBarInSec(durationOfEachBar);
+      // setDurationOfEachBarInSec(durationOfEachBar);
+      setProofOfCreationMetadataObj({
+        ...proofOfCreationMetadataObj,
+        noOfBeats: totalNoOfBeats,
+        noOfBeatsPerBar,
+        noOfBars: noOfMeasures,
+        durationOfEachBarInSec: durationOfEachBar,
+      });
     }
-  }, [duration, bpm, timeSignature, startBeatOffsetMs]);
+  }, [proofOfCreationMetadataObj]);
 
   const onFetchStartBeatOffet = async () => {
-    if (fileUrl) {
+    if (proofOfCreationMetadataObj.fileUrl) {
       const time = document.getElementsByTagName("audio")[0]?.currentTime;
-      setStartBeatOffsetMs(Math.floor(time * 1000));
+      setProofOfCreationMetadataObj({
+        ...proofOfCreationMetadataObj,
+        startBeatOffsetMs: Math.floor(time * 1000),
+      });
     }
     // const response = await fetch(
     //   "http://localhost:8080/cid/bafybeianjehxvg3qpore2bkt5vjmou5qovxuxl46izid4wm4kugxtxcq5e"
@@ -336,8 +215,47 @@ function App() {
   };
 
   const processTx = async () => {
+    const {
+      artist,
+      featuredArtists,
+      credits,
+      masterOwnerships,
+      compositionOwnerships,
+    } = artistMetadataObj;
+
+    const {
+      album,
+      dateCreated,
+      distributor,
+      explicitLyrics,
+      genrePrimary,
+      genreSecondary,
+      isrcCode,
+      key,
+      language,
+      lyrics,
+      projectType,
+      recordLabel,
+      songMoods,
+      songType,
+      subGenre,
+      title,
+      upcCode,
+    } = songMetadataObj;
+
+    const {
+      bpm,
+      duration,
+      startBeatOffsetMs,
+      timeSignature,
+      noOfBars,
+      noOfBeats,
+      noOfBeatsPerBar,
+    } = proofOfCreationMetadataObj;
+
     const titleWithoutSpace = getWithoutSpace(title as string)?.slice(0, 10);
     const genrePrimaryWithoutSpace = getWithoutSpace(genrePrimary[0]);
+
     const fullTrackContent = {
       id: `fulltrack${titleWithoutSpace}${genrePrimaryWithoutSpace}${key}${bpm}`,
       cid,
@@ -348,6 +266,7 @@ function App() {
       projectType,
       genrePrimary,
       genreSecondary,
+      subGenre,
       songMoods,
       songType,
       key,
@@ -562,6 +481,8 @@ function App() {
   //   // const txHash = await api.tx.uploadModule.createClaim()
   // };
   const onTxClick = async () => {
+    const storeFiles = !Boolean(process.env.REACT_APP_IGNORE_STORAGE);
+    const { fullTrackFile } = proofOfCreationMetadataObj;
     if (!fullTrackFile) {
       alert("Upload Full Track.");
       return;
@@ -573,7 +494,6 @@ function App() {
     const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
     const allFiles = [fullTrackFile, ...stemFiles];
     let finalFiles;
-    const storeFiles = !process.env.REACT_APP_IGNORE_STORAGE;
     if (storeFiles) {
       if (isEncryptFiles) {
         finalFiles = await encryptFiles(allFiles);
@@ -654,41 +574,6 @@ function App() {
     window.location.reload();
   };
 
-  const login = async () => {
-    // const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic();
-    // const alice = (await aliceSigner.getAccounts())[0].address;
-    // console.log("Alice's address from signer", alice);
-    const { creator } = await getSigningStargateClient();
-    setUserAddress(creator);
-    // const chainId = await signingClient.getChainId();
-    // console.log({ creator, chainId });
-    // const { keplr } = window;
-    // if (!keplr) {
-    //   alert("You need to install Keplr");
-    //   return;
-    // }
-    // const offlineSigner: OfflineSigner =
-    //   keplr.getOfflineSigner!(cosmosChainId);
-    // const { msgCreateFullTrack, signAndBroadcast } = await txClient(
-    //   offlineSigner
-    // );
-    // const fromJson = MsgCreateFullTrack.fromJSON({
-    //   creator,
-    //   cid: "cid",
-    //   artistName: "artist",
-    //   trackTitle: "title",
-    //   album: "album",
-    // });
-    // const msgEncoded = msgCreateFullTrack(fromJson);
-    // const tx = await signingClient.signAndBroadcast(
-    //   creator,
-    //   [msgEncoded],
-    //   "auto"
-    // );
-    // // const tx = await signAndBroadcast([msgEncoded]);
-    // console.log(tx);
-  };
-
   return (
     <Box sx={{ bgcolor: "background.paper", minHeight: "100vh" }}>
       <Box
@@ -754,823 +639,33 @@ function App() {
           </Tabs>
         </Box>
         {selectedTabIndex === 1 && (
-          <Grid container mt={8} gap={{ xs: 2 }}>
-            <Grid item xs={12} md={12}>
-              <Grid container gap={2}>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Artist</Typography>
-                    <TextField
-                      variant="outlined"
-                      value={artist}
-                      onChange={(e: any) => setArtist(e.target.value)}
-                      fullWidth
-                      size="small"
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Featured Artists</Typography>
-                    <Autocomplete
-                      multiple
-                      options={[]}
-                      value={featuredArtists}
-                      onChange={(e, values: string[]) =>
-                        setFeaturedArtists(values)
-                      }
-                      // defaultValue={[top100Films[13].title]}
-                      freeSolo
-                      renderTags={(value: readonly string[], getTagProps) =>
-                        value.map((option: string, index: number) => (
-                          <Chip
-                            variant="outlined"
-                            label={option}
-                            size="small"
-                            {...getTagProps({ index })}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          placeholder="Press Enter to add"
-                          // variant="filled"
-                          // label="freeSolo"
-                          // placeholder="Favorites"
-                        />
-                      )}
-                      size="small"
-                    />
-                  </Box>
-                </Grid>
-                <CreditsRows rowsObj={credits} setCredits={setCredits} />
-                <Grid item xs={12}>
-                  <Typography variant="body1" fontWeight={700}>
-                    Master Recording Ownership (up to 4)
-                  </Typography>
-                </Grid>
-                <MasterRecordingOwnerships
-                  rowsObj={masterOwnerships}
-                  setOwnerships={setMasterOwnerships}
-                />
-                <Grid item xs={12}>
-                  <Typography variant="body1" fontWeight={700}>
-                    Composition Ownership (up to 8)
-                  </Typography>
-                </Grid>
-                <CompositionOwnerships
-                  rowsObj={compositionOwnerships}
-                  setOwnerships={setCompositionOwnerships}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
+          <ArtistMetadataTab
+            artistMetadataObj={artistMetadataObj}
+            setArtistMetadataObj={setArtistMetadataObj}
+          />
         )}
 
         {selectedTabIndex === 2 && (
-          <Grid container mt={8} gap={{ xs: 2 }}>
-            <Grid item xs={12} md={12}>
-              <Grid container gap={2}>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Track Title</Typography>
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      value={title}
-                      onChange={(e: any) => setTitle(e.target.value)}
-                      size="small"
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={6} md={4}>
-                  <Box>
-                    <Typography>Album Name</Typography>
-                    <TextField
-                      variant="outlined"
-                      value={album}
-                      onChange={(e: any) => setAlbum(e.target.value)}
-                      fullWidth
-                      size="small"
-                    ></TextField>
-                  </Box>
-                </Grid>
-                {/* <Grid item md={1}></Grid> */}
-                <Grid item xs={2} md={2}>
-                  <Box>
-                    <Typography>Project Type</Typography>
-                    <Select
-                      value={projectType}
-                      onChange={(e) => setProjectType(e.target.value as string)}
-                      fullWidth
-                      size="small"
-                    >
-                      <MenuItem value="SINGLE">SINGLE</MenuItem>
-                      <MenuItem value="EP">EP</MenuItem>
-                      <MenuItem value="ALBUM">ALBUM</MenuItem>
-                      <MenuItem value="SINGLE">SINGLE</MenuItem>
-                      <MenuItem value="PLAYLIST">PLAYLIST</MenuItem>
-                    </Select>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Main Genre (max 2)</Typography>
-                    <Autocomplete
-                      multiple
-                      options={genrePrimaryOptions}
-                      // defaultValue={[top100Films[13].title]}
-                      freeSolo
-                      value={genrePrimary}
-                      onChange={(e, values: string[]) =>
-                        setGenrePrimary(values)
-                      }
-                      renderTags={(value: readonly string[], getTagProps) =>
-                        value.map((option: string, index: number) => (
-                          <Chip
-                            variant="outlined"
-                            size="small"
-                            label={option}
-                            {...getTagProps({ index })}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          // variant="filled"
-                          // label="freeSolo"
-                          // placeholder="Favorites"
-                        />
-                      )}
-                      size="small"
-                    />
-                    {/* <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setGenrePrimary(e.target.value)}
-                    fullWidth
-                    size="small"
-                  ></TextField> */}
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Secondary Genre (max 2)</Typography>
-                    <Autocomplete
-                      multiple
-                      options={genreSecondaryOptions}
-                      // defaultValue={[top100Films[13].title]}
-                      freeSolo
-                      value={genreSecondary}
-                      onChange={(e, values: string[]) =>
-                        setGenreSecondary(values)
-                      }
-                      renderTags={(value: readonly string[], getTagProps) =>
-                        value.map((option: string, index: number) => (
-                          <Chip
-                            variant="outlined"
-                            size="small"
-                            label={option}
-                            {...getTagProps({ index })}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          // variant="filled"
-                          // label="freeSolo"
-                          // placeholder="Favorites"
-                        />
-                      )}
-                      size="small"
-                    />
-                    {/* <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setGenreSecondary(e.target.value)}
-                    fullWidth
-                    size="small"
-                  ></TextField> */}
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={3}>
-                  <Box>
-                    <Typography>Sub Genre (max 2)</Typography>
-                    <Autocomplete
-                      multiple
-                      options={subGenreOptions}
-                      // defaultValue={[top100Films[13].title]}
-                      freeSolo
-                      value={subGenre}
-                      onChange={(e, values: string[]) => setSubGenre(values)}
-                      renderTags={(value: readonly string[], getTagProps) =>
-                        value.map((option: string, index: number) => (
-                          <Chip
-                            variant="outlined"
-                            label={option}
-                            size="small"
-                            {...getTagProps({ index })}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          // variant="filled"
-                          // label="freeSolo"
-                          // placeholder="Favorites"
-                        />
-                      )}
-                      size="small"
-                    />
-                    {/* <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setGenreSecondary(e.target.value)}
-                    fullWidth
-                    size="small"
-                  ></TextField> */}
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>
-                      Song Mood (Up to 3 - Optional Field)
-                    </Typography>
-                    <Autocomplete
-                      multiple
-                      options={songMoodsOptions}
-                      // defaultValue={[top100Films[13].title]}
-                      freeSolo
-                      value={songMoods}
-                      onChange={(e, values: string[]) => setSongMoods(values)}
-                      renderTags={(value: readonly string[], getTagProps) =>
-                        value.map((option: string, index: number) => (
-                          <Chip
-                            variant="outlined"
-                            label={option}
-                            size="small"
-                            {...getTagProps({ index })}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          inputProps={{
-                            ...params.inputProps,
-                            maxLength: 3,
-                          }}
-
-                          // variant="filled"
-                          // label="freeSolo"
-                          // placeholder="Favorites"
-                        />
-                      )}
-                      size="small"
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Song Type</Typography>
-                    <Select
-                      fullWidth
-                      size="small"
-                      value={songType}
-                      onChange={(e) => setSongType(e.target.value as string)}
-                    >
-                      <MenuItem value={"Original"}>Original</MenuItem>
-                      <MenuItem value={"Remix"}>Remix</MenuItem>
-                      <MenuItem value={"Accapella"}>Accapella</MenuItem>
-                      <MenuItem value="Acoustic">Acoustic</MenuItem>
-                      <MenuItem value="Cover">Cover</MenuItem>
-                      <MenuItem value="Live Recording">Live Recording</MenuItem>
-                    </Select>
-                    {/* <TextField
-                    variant="outlined"
-                    onChange={(e: any) => setSongType(e.target.value)}
-                    size="small"
-                    fullWidth
-                  ></TextField> */}
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={2}>
-                  <Box>
-                    <Typography>Song Key</Typography>
-                    <Select
-                      fullWidth
-                      variant="outlined"
-                      value={key}
-                      onChange={(e: any) => setKey(e.target.value)}
-                      size="small"
-                    >
-                      {musicKeys.map(({ key, id }) => {
-                        return (
-                          <MenuItem value={id} key={id}>
-                            {key.toUpperCase()}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </Box>
-                </Grid>
-                {/* <Grid item xs={10} md={4}>
-                <Box>
-                  <MusicUploader
-                    fullTrackFile={fullTrackFile}
-                    setFullTrackFile={setFullTrackFile}
-                    setFileUrl={setFileUrl}
-                    setDuration={setDuration}
-                  />
-                </Box>
-              </Grid> */}
-
-                {/* <Grid item xs={12}>
-                <Divider />
-              </Grid> */}
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>ISRC Code</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={isrcCode}
-                      onChange={(e) => setIsrcCode(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>UPC Code</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={upcCode}
-                      onChange={(e) => setUpcCode(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Record Label</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={recordLabel}
-                      onChange={(e) => setRecordLabel(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Distributor</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={distributor}
-                      onChange={(e) => setDistributor(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Date Created</Typography>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        onChange={(value, cotext) => {
-                          setDateCreated((value as Date).toJSON());
-                        }}
-                      />
-                    </LocalizationProvider>
-                  </Box>
-                </Grid>
-                <Grid item md={8}></Grid>
-                {/* <CreditsRows rowsObj={credits} setCredits={setCredits} /> */}
-
-                <Grid item xs={12}>
-                  <Typography variant="body1" fontWeight={700}>
-                    Location of Creation (max 2)
-                  </Typography>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Studio Name</Typography>
-                    <TextField fullWidth size="small" />
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box display={"flex"} justifyContent="space-between" gap={2}>
-                    <Box>
-                      <Typography>City</Typography>
-                      <TextField fullWidth size="small"></TextField>
-                    </Box>
-                    <Box>
-                      <Typography>State</Typography>
-                      <TextField fullWidth size="small" />
-                    </Box>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={6} md={2}>
-                  <Box>
-                    <Typography>Country</Typography>
-                    <TextField fullWidth size="small"></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={6} md={1}>
-                  <Box>
-                    <Typography>
-                      <br />
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      disabled={additionalCreationRow}
-                      onClick={() => setAdditionalCreationRow(true)}
-                    >
-                      Add
-                    </Button>
-                  </Box>
-                </Grid>
-                {additionalCreationRow && (
-                  <>
-                    <Grid item xs={10} md={4}>
-                      <Box>
-                        <Typography>Studio Name</Typography>
-                        <TextField fullWidth size="small" />
-                      </Box>
-                    </Grid>
-                    <Grid item xs={10} md={4}>
-                      <Box
-                        display={"flex"}
-                        justifyContent="space-between"
-                        gap={2}
-                      >
-                        <Box>
-                          <Typography>City</Typography>
-                          <TextField fullWidth size="small"></TextField>
-                        </Box>
-                        <Box>
-                          <Typography>State</Typography>
-                          <TextField fullWidth size="small" />
-                        </Box>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={6} md={2}>
-                      <Box>
-                        <Typography>Country</Typography>
-                        <TextField fullWidth size="small"></TextField>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6} md={1}></Grid>
-                  </>
-                )}
-                <Grid xs={12}>
-                  <Box>
-                    <Typography>Lyrics</Typography>
-                    <TextField
-                      multiline
-                      minRows={4}
-                      maxRows={10}
-                      fullWidth
-                      sx={{ mt: 0.5 }}
-                      value={lyrics}
-                      onChange={(e) => setLyrics(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid xs={8} md={4}>
-                  <Box>
-                    <Typography>Language</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid xs={2} md={2}>
-                  <Box>
-                    <Typography>Explicit Lyrics</Typography>
-                    <Checkbox
-                      value={explicitLyrics}
-                      onChange={(e, checked) => setExplicitLyrics(checked)}
-                    ></Checkbox>
-                  </Box>
-                </Grid>
-                {/* <Grid item xs={10} md={4}>
-                <Box>
-                  <Typography>Encrypt Assets</Typography>
-                  <Checkbox
-                    value={isEncryptFiles}
-                    onChange={(e) => setIsEncryptFiles(e.target.checked)}
-                    sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
-                  />
-                </Box>
-              </Grid> */}
-              </Grid>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              {/* <Box>
-                <Box
-                  style={{
-                    backgroundColor: "white",
-                    color: "black",
-                    borderRadius: "4px",
-                  }}
-                  p={1}
-                >
-                  <Typography
-                    variant="h6"
-                    p={1}
-                    color={"black"}
-                    textAlign="center"
-                    fontFamily={"Roboto"}
-                  >
-                    Overview
-                  </Typography>
-                  <Grid container>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Artist:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{artist}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Track Title:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{title}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Album:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{album}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Genre:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{genrePrimary}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Bpm:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{bpm}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Key:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{key}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Time Signature:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{timeSignature}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            No Of Measures:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{noOfBars}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Duration:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">{duration}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Start Beat Offset:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography color="black">
-                            {startBeatOffsetMs}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box p={1} display="flex" alignItems={"center"}>
-                        <Box flexBasis={{ xs: "45%", md: "20%" }}>
-                          <Typography fontWeight="bold" color="black">
-                            Music Cid:
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography
-                            color="black"
-                            overflow={"hidden"}
-                            textOverflow={"ellipsis"}
-                            whiteSpace="nowrap"
-                          >
-                            {cid}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Box>
-              </Box> */}
-            </Grid>
-          </Grid>
+          <SongMetadataTab
+            songMetadataObj={songMetadataObj}
+            setSongMetadataObj={setSongMetadataObj}
+          />
         )}
         {selectedTabIndex === 3 && (
-          <Grid container mt={8} gap={{ xs: 2 }}>
-            <Grid item xs={12} md={12}>
-              <Grid container gap={2}>
-                <Grid item xs={10} md={4}>
-                  <Typography>Audio</Typography>
-                  <MusicUploader
-                    fullTrackFile={fullTrackFile}
-                    setFullTrackFile={setFullTrackFile}
-                    setFileUrl={setFileUrl}
-                    setDuration={setDuration}
-                  />
-                </Grid>
-                <Grid item xs={10} md={3}>
-                  <Box>
-                    <Typography>Duration</Typography>
-                    <Tooltip title="Automatically set from the Uploaded Track">
-                      {duration ? (
-                        <TextField
-                          variant="outlined"
-                          value={duration}
-                          size="small"
-                          disabled
-                        ></TextField>
-                      ) : (
-                        <Skeleton
-                          variant="text"
-                          width={"50%"}
-                          height="50px"
-                          animation={false}
-                        />
-                      )}
-                    </Tooltip>
-                    {/* <TextField
-                    variant="outlined"
-                    value={duration}
-                    disabled
-                    // placeholder="Fetched from upload"
-                    helperText="auto calculation"
-                  ></TextField> */}
-                  </Box>
-                </Grid>
-                <Grid md={1} />
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Start Beat offset(ms)</Typography>
-                    <OutlinedInput
-                      value={startBeatOffsetMs}
-                      onChange={(e) =>
-                        setStartBeatOffsetMs(parseInt(e.target.value))
-                      }
-                      type="number"
-                      placeholder="Waveform Selection"
-                      size="small"
-                      endAdornment={
-                        <Tooltip title="Fetch from the selected Position on the waveform">
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={onFetchStartBeatOffet}
-                              edge="end"
-                            >
-                              <CachedIcon />
-                            </IconButton>
-                          </InputAdornment>
-                        </Tooltip>
-                      }
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Bpm</Typography>
-                    <TextField
-                      variant="outlined"
-                      type={"number"}
-                      value={bpm}
-                      onChange={(e: any) => setBpm(parseInt(e.target.value))}
-                      size="small"
-                      // fullWidth
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={4}>
-                  <Box>
-                    <Typography>Time Signature</Typography>
-                    <TextField
-                      required
-                      variant="outlined"
-                      value={timeSignature}
-                      onChange={(e: any) => setTimeSignature(e.target.value)}
-                      size="small"
-                      // fullWidth
-                    ></TextField>
-                  </Box>
-                </Grid>
-                <Grid item xs={10} md={3}>
-                  <Box>
-                    <Typography>No Of Measures</Typography>
-                    {noOfBars ? (
-                      <TextField
-                        variant="outlined"
-                        type="number"
-                        value={noOfBars}
-                        disabled
-                        size="small"
-                      ></TextField>
-                    ) : (
-                      <Skeleton
-                        variant="text"
-                        width={"50%"}
-                        height="50px"
-                        animation={false}
-                      />
-                    )}
-                    {/* <TextField
-                    variant="outlined"
-                    type="number"
-                    value={noOfBars}
-                    disabled
-                  ></TextField> */}
-                  </Box>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+          <ProofOfCreationTab
+            proofOfCreationMetadataObj={proofOfCreationMetadataObj}
+            setProofOfCreationMetadataObj={setProofOfCreationMetadataObj}
+            onFetchStartBeatOffet={onFetchStartBeatOffet}
+          />
         )}
         <Box display={selectedTabIndex === 3 ? "initial" : "none"}>
           <WaveForm
-            url={fileUrl}
-            durationOfEachBarInSec={durationOfEachBarInSec}
-            noOfBars={noOfBars}
-            startBeatOffsetMs={startBeatOffsetMs}
+            url={proofOfCreationMetadataObj.fileUrl}
+            durationOfEachBarInSec={
+              proofOfCreationMetadataObj.durationOfEachBarInSec
+            }
+            noOfBars={proofOfCreationMetadataObj.noOfBars}
+            startBeatOffsetMs={proofOfCreationMetadataObj.startBeatOffsetMs}
             getSelectedBeatOffet={getSelectedBeatOffet}
             sectionsObj={sectionsObj}
             setSectionsObj={setSectionsObj}

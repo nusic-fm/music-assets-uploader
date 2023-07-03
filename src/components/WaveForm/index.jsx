@@ -30,8 +30,8 @@ import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
+// import FormControl from "@mui/material/FormControl";
+// import InputLabel from "@mui/material/InputLabel";
 
 const SectionNames = [
   "Intro",
@@ -291,10 +291,10 @@ const WaveForm = (props) => {
     wavesurferIns.current.playPause();
   };
 
-  const onZoom = (e) => {
-    setZoomValue(Number(e.target.value));
-    wavesurferIns.current.zoom(Number(e.target.value));
-  };
+  // const onZoom = (e) => {
+  //   setZoomValue(Number(e.target.value));
+  //   wavesurferIns.current.zoom(Number(e.target.value));
+  // };
 
   const onPlay = () => {
     setIsPlaying(true);

@@ -86,6 +86,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               <TextField
                 fullWidth
                 size="small"
+                value={rowsObj[key].otherInfo}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
                   obj[key].otherInfo = e.target.value;
