@@ -205,7 +205,12 @@ function App() {
         durationOfEachBarInSec: durationOfEachBar,
       });
     }
-  }, [proofOfCreationMetadataObj]);
+  }, [
+    proofOfCreationMetadataObj.duration,
+    proofOfCreationMetadataObj.bpm,
+    proofOfCreationMetadataObj.timeSignature,
+    proofOfCreationMetadataObj.startBeatOffsetMs,
+  ]);
 
   const onFetchStartBeatOffet = async () => {
     if (proofOfCreationMetadataObj.fileUrl) {
@@ -717,13 +722,7 @@ function App() {
         )}
         <Box display={selectedTabIndex === 3 ? "initial" : "none"}>
           <WaveForm
-            url={proofOfCreationMetadataObj.fileUrl}
-            durationOfEachBarInSec={
-              proofOfCreationMetadataObj.durationOfEachBarInSec
-            }
-            noOfBars={proofOfCreationMetadataObj.noOfBars}
-            startBeatOffsetMs={proofOfCreationMetadataObj.startBeatOffsetMs}
-            getSelectedBeatOffet={getSelectedBeatOffet}
+            proofOfCreationMetadataObj={proofOfCreationMetadataObj}
             sectionsObj={sectionsObj}
             setSectionsObj={setSectionsObj}
           />

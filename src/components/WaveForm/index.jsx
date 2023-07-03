@@ -16,6 +16,8 @@ import {
   TextField,
   Skeleton,
   Autocomplete,
+  Switch,
+  FormControlLabel,
   // TextField,
 } from "@mui/material";
 import colormap from "colormap";
@@ -45,20 +47,39 @@ const SectionNames = [
   "Outro",
 ];
 
-const WaveForm = (props) => {
-  const {
-    url,
-    durationOfEachBarInSec,
-    noOfBars,
-    startBeatOffsetMs,
-    sectionsObj,
-    setSectionsObj,
-  } = props;
+const WaveForm = ({
+  proofOfCreationMetadataObj,
+  sectionsObj,
+  setSectionsObj,
+}) => {
+  const { fileUrl, durationOfEachBarInSec, noOfBars, startBeatOffsetMs, bpm } =
+    proofOfCreationMetadataObj;
   const [isLoading, setIsLoading] = useState(true);
   const wavesurferIns = useRef(null);
   const [zoomValue, setZoomValue] = useState(30);
   const [bars, setBars] = useState({});
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMetronomePlaying, setIsMetronomePlaying] = useState(true);
+  const intervalRef = useRef();
+
+  useEffect(() => {
+    if (isPlaying && isMetronomePlaying) {
+      const interval = (60 / bpm) * 1000;
+      intervalRef.current = setInterval(playTickSound, interval);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [bpm, isPlaying, isMetronomePlaying]);
+
+  function playTickSound() {
+    const audio = new Audio("beep.wav");
+    audio.volume = 0.5;
+    audio.play();
+  }
 
   useEffect(() => {
     if (noOfBars && durationOfEachBarInSec && wavesurferIns.current) {
@@ -154,7 +175,7 @@ const WaveForm = (props) => {
     //   // })
     //   // setSegments()
     // })
-    wavesurfer.load(url);
+    wavesurfer.load(fileUrl);
     wavesurferIns.current = wavesurfer;
     wavesurferIns.current.on("region-created", function (region) {
       // const newSectionsObj = { ...sectionsObj };
@@ -185,10 +206,11 @@ const WaveForm = (props) => {
   };
 
   useEffect(() => {
-    if (url) {
+    if (fileUrl) {
       showWaveForm();
     }
-  }, [url]);
+  }, [fileUrl]);
+
   const callback = (region) => {
     const id = region.id;
     const newSectionsObj = { ...sectionsObj };
@@ -354,6 +376,17 @@ const WaveForm = (props) => {
             </IconButton>
           }
         ></Button>
+        <FormControlLabel
+          label="Metronome"
+          control={
+            <Switch
+              checked={isMetronomePlaying}
+              onChange={() => setIsMetronomePlaying(!isMetronomePlaying)}
+              disabled={isLoading}
+            />
+          }
+        ></FormControlLabel>
+
         <Button
           onClick={addSection}
           variant="outlined"

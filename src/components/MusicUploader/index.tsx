@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 // import { Web3Storage } from "web3.storage";
 // import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
 // import PauseCircleFilledOutlinedIcon from "@mui/icons-material/PauseCircleFilledOutlined";
@@ -8,8 +8,6 @@ const MusicUploader = (props: any) => {
   const { fullTrackFile, onMultiplePropsChange } = props;
   const [, setIsPlaying] = useState<any>(false);
   const audioRef = useRef<any>(null);
-
-  useEffect(() => {}, []);
 
   const onFilesUpload = async (e: any) => {
     const files = e.target.files;
@@ -26,7 +24,6 @@ const MusicUploader = (props: any) => {
       function () {
         // Obtain the duration in seconds of the audio file (with milliseconds as well, a float value)
         var duration = audio.duration;
-
         // setDuration(duration);
         onMultiplePropsChange({
           fullTrackFile: files[0],

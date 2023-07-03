@@ -43,7 +43,6 @@ const ProofOfCreationTab = ({
     timeSignature,
     noOfBars,
   } = proofOfCreationMetadataObj;
-  console.log(fullTrackFile);
 
   const onPropertyChange = (key: string, value: any) => {
     setProofOfCreationMetadataObj({
