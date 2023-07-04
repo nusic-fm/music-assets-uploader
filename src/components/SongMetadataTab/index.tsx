@@ -115,6 +115,7 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
               <MenuItem value="Acoustic">Acoustic</MenuItem>
               <MenuItem value="Cover">Cover</MenuItem>
               <MenuItem value="Live Recording">Live Recording</MenuItem>
+              <MenuItem value="Instrumental">Instrumental</MenuItem>
             </Select>
           </Box>
         </Grid>
@@ -148,8 +149,7 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
               <MenuItem value="SINGLE">SINGLE</MenuItem>
               <MenuItem value="EP">EP</MenuItem>
               <MenuItem value="ALBUM">ALBUM</MenuItem>
-              <MenuItem value="SINGLE">SINGLE</MenuItem>
-              <MenuItem value="PLAYLIST">PLAYLIST</MenuItem>
+              <MenuItem value="COMPILATION">COMPILATION</MenuItem>
             </Select>
           </Box>
         </Grid>
