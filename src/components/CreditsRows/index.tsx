@@ -8,12 +8,12 @@ import {
   Chip,
   Tooltip,
 } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 
 type Props = { rowsObj: any; setCredits: (o: any) => void };
 
 const CreditsRows = ({ rowsObj, setCredits }: Props) => {
-  const [nextId, setNextId] = useState(2);
+  const keysLength = Object.keys(rowsObj).length;
   return (
     <>
       {Object.keys(rowsObj).map((key, i) => (
@@ -24,7 +24,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               <TextField
                 fullWidth
                 size="small"
-                value={rowsObj[key].credits}
+                value={rowsObj[key].credits || ""}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
                   obj[key].credits = e.target.value;
@@ -50,7 +50,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
                   "Mastering Engineer",
                   "Assistant Engineer",
                 ]}
-                value={rowsObj[key].role}
+                value={rowsObj[key].role || []}
                 onChange={(e, values: string[]) => {
                   const obj = { ...rowsObj };
                   obj[key].role = values;
@@ -70,6 +70,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
                 }
                 renderInput={(params) => (
                   <TextField
+                    placeholder="Press Enter to add"
                     {...params}
                     // variant="filled"
                     // label="freeSolo"
@@ -87,7 +88,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               <TextField
                 fullWidth
                 size="small"
-                value={rowsObj[key].otherInfo}
+                value={rowsObj[key].otherInfo || ""}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
                   obj[key].otherInfo = e.target.value;
@@ -101,15 +102,14 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               <Typography>
                 <br />
               </Typography>
-              {Object.keys(rowsObj).length - 1 === i ? (
+              {keysLength - 1 === i ? (
                 <Button
                   variant="outlined"
                   onClick={() => {
                     setCredits({
                       ...rowsObj,
-                      [nextId]: {},
+                      [keysLength + 1]: {},
                     });
-                    setNextId(nextId + 1);
                   }}
                 >
                   Add

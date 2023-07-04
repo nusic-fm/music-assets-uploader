@@ -1,11 +1,15 @@
 import { Grid, Box, Typography, TextField, Button } from "@mui/material";
 import React from "react";
-import { useState } from "react";
+import { MasterOwnershipObj } from "../ArtistMetadataTab";
 
-type Props = { rowsObj: any; setOwnerships: (o: any) => void };
+type Props = { rowsObj: MasterOwnershipObj; setOwnerships: (o: any) => void };
 
 const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
-  const [nextId, setNextId] = useState(2);
+  const keysLength = Object.keys(rowsObj).length;
+  const totalOwnership = Object.values(rowsObj)
+    .map((r) => r.ownershipPercentage)
+    .reduce((a, b) => (a || 0) + (b || 0));
+
   return (
     <>
       {Object.keys(rowsObj).map((key, i) => (
@@ -30,11 +34,18 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
               <Typography noWrap>% of ownership</Typography>
               <TextField
                 fullWidth
+                error={(totalOwnership || 0) > 100}
+                helperText={
+                  !!totalOwnership &&
+                  i === keysLength - 1 &&
+                  `Total: ${totalOwnership || 0}%`
+                }
                 size="small"
+                type={"number"}
                 value={rowsObj[key].ownershipPercentage}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
-                  obj[key].ownershipPercentage = e.target.value;
+                  obj[key].ownershipPercentage = Number(e.target.value) || 0;
                   setOwnerships(obj);
                 }}
               ></TextField>
@@ -47,16 +58,15 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
               <Typography>
                 <br />
               </Typography>
-              {Object.keys(rowsObj).length - 1 === i ? (
+              {keysLength - 1 === i ? (
                 <Button
                   variant="outlined"
-                  disabled={Object.keys(rowsObj).length === 4}
+                  disabled={keysLength === 4}
                   onClick={() => {
                     setOwnerships({
                       ...rowsObj,
-                      [nextId]: {},
+                      [keysLength + 1]: {},
                     });
-                    setNextId(nextId + 1);
                   }}
                 >
                   Add

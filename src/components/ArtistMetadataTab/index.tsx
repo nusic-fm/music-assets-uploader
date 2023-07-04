@@ -10,18 +10,30 @@ import CompositionOwnerships from "../CompositionOwnerships";
 import CreditsRows from "../CreditsRows";
 import MasterRecordingOwnerships from "../MasterRecordingOwnerships";
 
+export type MasterOwnershipObj = {
+  [key: string]: {
+    name?: string;
+    ownershipPercentage?: number;
+  };
+};
+
+export type CompositionOwnershipObj = {
+  [key: string]: {
+    name?: string;
+    ipi?: string;
+    pro?: string;
+    ownershipPercentage?: number;
+  };
+};
+
 export type ArtistMetadataObj = {
   artist: string;
   featuredArtists: never[];
   credits: {
     1: {};
   };
-  masterOwnerships: {
-    1: {};
-  };
-  compositionOwnerships: {
-    1: {};
-  };
+  masterOwnerships: MasterOwnershipObj;
+  compositionOwnerships: CompositionOwnershipObj;
 };
 type Props = {
   artistMetadataObj: ArtistMetadataObj;

@@ -350,30 +350,37 @@ const WaveForm = ({
           disabled={isLoading}
           size="small"
           startIcon={
-            <IconButton
-              disabled={isLoading}
-              size="small"
+            <ZoomOutIcon
               onClick={(e) => {
                 const newZoomVal = zoomValue - 10;
                 wavesurferIns.current.zoom(newZoomVal);
                 setZoomValue(newZoomVal);
               }}
-            >
-              <ZoomOutIcon />
-            </IconButton>
+            />
+            // <IconButton
+            //   disabled={isLoading}
+            //   size="small"
+            //   onClick={(e) => {
+            //     const newZoomVal = zoomValue - 10;
+            //     wavesurferIns.current.zoom(newZoomVal);
+            //     setZoomValue(newZoomVal);
+            //   }}
+            // >
+            // </IconButton>
           }
           endIcon={
-            <IconButton
-              disabled={isLoading}
-              size="small"
+            <ZoomInIcon
               onClick={() => {
                 const newZoomVal = zoomValue + 10;
                 wavesurferIns.current.zoom(newZoomVal);
                 setZoomValue(newZoomVal);
               }}
-            >
-              <ZoomInIcon />
-            </IconButton>
+            />
+            // <IconButton
+            //   disabled={isLoading}
+            //   size="small"
+            // >
+            // </IconButton>
           }
         ></Button>
         <FormControlLabel

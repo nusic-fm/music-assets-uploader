@@ -8,12 +8,19 @@ import {
   MenuItem,
 } from "@mui/material";
 import React from "react";
-import { useState } from "react";
+import { CompositionOwnershipObj } from "../ArtistMetadataTab";
 
-type Props = { rowsObj: any; setOwnerships: (o: any) => void };
+type Props = {
+  rowsObj: CompositionOwnershipObj;
+  setOwnerships: (o: any) => void;
+};
 
 function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
-  const [nextId, setNextId] = useState(2);
+  const keysLength = Object.keys(rowsObj).length;
+  const totalOwnership = Object.values(rowsObj)
+    .map((r) => r.ownershipPercentage)
+    .reduce((a, b) => (a || 0) + (b || 0));
+
   return (
     <>
       {Object.keys(rowsObj).map((key, i) => (
@@ -24,7 +31,7 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
               <TextField
                 fullWidth
                 size="small"
-                value={rowsObj[key].name}
+                value={rowsObj[key].name || ""}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
                   obj[key].name = e.target.value;
@@ -38,7 +45,7 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
               <Typography>IPI</Typography>
               <TextField
                 size="small"
-                value={rowsObj[key].ipi}
+                value={rowsObj[key].ipi || ""}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
                   obj[key].ipi = e.target.value;
@@ -53,7 +60,7 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
               <Typography>PRO</Typography>
               <Select
                 size="small"
-                value={rowsObj[key].pro}
+                value={rowsObj[key].pro || ""}
                 fullWidth
                 onChange={(e) => {
                   const obj = { ...rowsObj };
@@ -113,11 +120,12 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
                   "APDAYC",
                   "AGADU",
                   "SADAIC",
-                  "SAYCE",
                   "SCD",
                   "ACEMLA",
                 ].map((p) => (
-                  <MenuItem value={p}>{p}</MenuItem>
+                  <MenuItem value={p} key={p}>
+                    {p}
+                  </MenuItem>
                 ))}
               </Select>
             </Box>
@@ -127,11 +135,18 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
               <Typography noWrap>% of ownership</Typography>
               <TextField
                 fullWidth
+                error={(totalOwnership || 0) > 100}
+                helperText={
+                  !!totalOwnership &&
+                  i === keysLength - 1 &&
+                  `Total: ${totalOwnership || 0}%`
+                }
                 size="small"
-                value={rowsObj[key].ownershipPercentage}
+                type={"number"}
+                value={rowsObj[key].ownershipPercentage || ""}
                 onChange={(e) => {
                   const obj = { ...rowsObj };
-                  obj[key].ownershipPercentage = e.target.value;
+                  obj[key].ownershipPercentage = Number(e.target.value) || 0;
                   setOwnerships(obj);
                 }}
               ></TextField>
@@ -142,16 +157,15 @@ function CompositionOwnerships({ rowsObj, setOwnerships }: Props) {
               <Typography>
                 <br />
               </Typography>
-              {Object.keys(rowsObj).length - 1 === i ? (
+              {keysLength - 1 === i ? (
                 <Button
                   variant="outlined"
-                  disabled={Object.keys(rowsObj).length === 8}
+                  disabled={keysLength === 8}
                   onClick={() => {
                     setOwnerships({
                       ...rowsObj,
-                      [nextId]: {},
+                      [keysLength + 1]: {},
                     });
-                    setNextId(nextId + 1);
                   }}
                 >
                   Add

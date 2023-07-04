@@ -421,40 +421,40 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
               />
             </Box>
           </Grid>
-          <Grid item xs={10} md={4}>
-            <Box display={"flex"} justifyContent="space-between" gap={2}>
-              <Box>
-                <Typography>City</Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value={locationOfCreation[1].city}
-                  onChange={(e) => {
-                    const rowsObj = { ...locationOfCreation };
-                    rowsObj[1].city = e.target.value;
-                    setSongMetadataObj({
-                      ...songMetadataObj,
-                      locationOfCreation: rowsObj,
-                    });
-                  }}
-                ></TextField>
-              </Box>
-              <Box>
-                <Typography>State</Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value={locationOfCreation[1].state}
-                  onChange={(e) => {
-                    const rowsObj = { ...locationOfCreation };
-                    rowsObj[1].state = e.target.value;
-                    setSongMetadataObj({
-                      ...songMetadataObj,
-                      locationOfCreation: rowsObj,
-                    });
-                  }}
-                />
-              </Box>
+          <Grid item xs={10} md={2}>
+            <Box>
+              <Typography>City</Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={locationOfCreation[1].city}
+                onChange={(e) => {
+                  const rowsObj = { ...locationOfCreation };
+                  rowsObj[1].city = e.target.value;
+                  setSongMetadataObj({
+                    ...songMetadataObj,
+                    locationOfCreation: rowsObj,
+                  });
+                }}
+              ></TextField>
+            </Box>
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <Box>
+              <Typography>State</Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={locationOfCreation[1].state}
+                onChange={(e) => {
+                  const rowsObj = { ...locationOfCreation };
+                  rowsObj[1].state = e.target.value;
+                  setSongMetadataObj({
+                    ...songMetadataObj,
+                    locationOfCreation: rowsObj,
+                  });
+                }}
+              />
             </Box>
           </Grid>
 
@@ -510,40 +510,40 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
                   />
                 </Box>
               </Grid>
-              <Grid item xs={10} md={4}>
-                <Box display={"flex"} justifyContent="space-between" gap={2}>
-                  <Box>
-                    <Typography>City</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={locationOfCreation[2].city}
-                      onChange={(e) => {
-                        const rowsObj = { ...locationOfCreation };
-                        rowsObj[2].city = e.target.value;
-                        setSongMetadataObj({
-                          ...songMetadataObj,
-                          locationOfCreation: rowsObj,
-                        });
-                      }}
-                    ></TextField>
-                  </Box>
-                  <Box>
-                    <Typography>State</Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={locationOfCreation[2].state}
-                      onChange={(e) => {
-                        const rowsObj = { ...locationOfCreation };
-                        rowsObj[2].state = e.target.value;
-                        setSongMetadataObj({
-                          ...songMetadataObj,
-                          locationOfCreation: rowsObj,
-                        });
-                      }}
-                    />
-                  </Box>
+              <Grid item xs={10} md={2}>
+                <Box>
+                  <Typography>City</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    value={locationOfCreation[2].city}
+                    onChange={(e) => {
+                      const rowsObj = { ...locationOfCreation };
+                      rowsObj[2].city = e.target.value;
+                      setSongMetadataObj({
+                        ...songMetadataObj,
+                        locationOfCreation: rowsObj,
+                      });
+                    }}
+                  ></TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={6} md={2}>
+                <Box>
+                  <Typography>State</Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    value={locationOfCreation[2].state}
+                    onChange={(e) => {
+                      const rowsObj = { ...locationOfCreation };
+                      rowsObj[2].state = e.target.value;
+                      setSongMetadataObj({
+                        ...songMetadataObj,
+                        locationOfCreation: rowsObj,
+                      });
+                    }}
+                  />
                 </Box>
               </Grid>
 
