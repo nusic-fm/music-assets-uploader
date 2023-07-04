@@ -19,6 +19,7 @@ import {
   songMoodsOptions,
   musicKeys,
 } from "../../utils";
+import { Dayjs } from "dayjs";
 
 export type SongMetadataObj = {
   title: string;
@@ -34,7 +35,7 @@ export type SongMetadataObj = {
   upcCode: string;
   recordLabel: string;
   distributor: string;
-  dateCreated: string;
+  dateCreated?: Dayjs;
   additionalCreationRow: boolean;
   lyrics: string;
   language: string;
@@ -58,7 +59,7 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
   const {
     additionalCreationRow,
     album,
-    // dateCreated,
+    dateCreated,
     distributor,
     explicitLyrics,
     genrePrimary,
@@ -388,8 +389,9 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
               <Typography>Date Created</Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
-                  onChange={(value, cotext) => {
-                    onPropertyChange("dateCreated", (value as Date).toJSON());
+                  value={dateCreated}
+                  onChange={(value) => {
+                    onPropertyChange("dateCreated", value);
                   }}
                 />
               </LocalizationProvider>

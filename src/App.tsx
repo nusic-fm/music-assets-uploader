@@ -25,6 +25,7 @@ import ProofOfCreationTab, {
   ProofOfCreationMetadataObj,
 } from "./components/ProofOfCreationTab";
 import useSaveChanges from "./hooks/useSaveChanges";
+import dayjs from "dayjs";
 const CryptoJS = require("crypto-js");
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
@@ -117,7 +118,6 @@ function App() {
     upcCode: "",
     recordLabel: "",
     distributor: "",
-    dateCreated: "",
     additionalCreationRow: false,
     lyrics: "",
     language: "",
@@ -303,7 +303,7 @@ function App() {
       upcCode,
       recordLabel,
       distributor,
-      dateCreated,
+      dateCreated: dateCreated?.toJSON(),
       credits,
       masterOwnerships,
       compositionOwnerships,
@@ -652,6 +652,11 @@ function App() {
                 if (obj) {
                   const { artistMetadataObj, songMetadataObj } = obj;
                   setArtistMetadataObj(artistMetadataObj);
+                  if (songMetadataObj.dateCreated) {
+                    songMetadataObj.dateCreated = dayjs(
+                      songMetadataObj.dateCreated
+                    );
+                  }
                   setSongMetadataObj(songMetadataObj);
                   // setSectionsObj(sectionsObj);
                 }
