@@ -18,6 +18,7 @@ import {
   Autocomplete,
   Switch,
   FormControlLabel,
+  ButtonGroup,
   // TextField,
 } from "@mui/material";
 import colormap from "colormap";
@@ -346,43 +347,26 @@ const WaveForm = ({
           {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
           {/* {isPlaying ? "Pause" : "Play"} */}
         </Button>
-        <Button
-          disabled={isLoading}
-          size="small"
-          startIcon={
-            <ZoomOutIcon
-              onClick={(e) => {
-                const newZoomVal = zoomValue - 10;
-                wavesurferIns.current.zoom(newZoomVal);
-                setZoomValue(newZoomVal);
-              }}
-            />
-            // <IconButton
-            //   disabled={isLoading}
-            //   size="small"
-            //   onClick={(e) => {
-            //     const newZoomVal = zoomValue - 10;
-            //     wavesurferIns.current.zoom(newZoomVal);
-            //     setZoomValue(newZoomVal);
-            //   }}
-            // >
-            // </IconButton>
-          }
-          endIcon={
-            <ZoomInIcon
-              onClick={() => {
-                const newZoomVal = zoomValue + 10;
-                wavesurferIns.current.zoom(newZoomVal);
-                setZoomValue(newZoomVal);
-              }}
-            />
-            // <IconButton
-            //   disabled={isLoading}
-            //   size="small"
-            // >
-            // </IconButton>
-          }
-        ></Button>
+        <ButtonGroup disabled={isLoading}>
+          <Button
+            onClick={(e) => {
+              const newZoomVal = zoomValue - 10;
+              wavesurferIns.current.zoom(newZoomVal);
+              setZoomValue(newZoomVal);
+            }}
+          >
+            <ZoomOutIcon />
+          </Button>
+          <Button
+            onClick={() => {
+              const newZoomVal = zoomValue + 10;
+              wavesurferIns.current.zoom(newZoomVal);
+              setZoomValue(newZoomVal);
+            }}
+          >
+            <ZoomInIcon />
+          </Button>
+        </ButtonGroup>
         <FormControlLabel
           label="Metronome"
           control={

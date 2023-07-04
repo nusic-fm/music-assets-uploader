@@ -7,18 +7,27 @@ import {
   Autocomplete,
   Chip,
   Tooltip,
+  ButtonGroup,
 } from "@mui/material";
-import React from "react";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 type Props = { rowsObj: any; setCredits: (o: any) => void };
 
 const CreditsRows = ({ rowsObj, setCredits }: Props) => {
   const keysLength = Object.keys(rowsObj).length;
+  const onDelete = (key: string) => {
+    const obj = { ...rowsObj };
+    delete obj[key];
+    const newObject = {} as any;
+    Object.values(obj).map((value, i) => (newObject[i] = value));
+    setCredits(newObject);
+  };
+
   return (
     <>
       {Object.keys(rowsObj).map((key, i) => (
-        <React.Fragment key={key}>
-          <Grid item xs={10} md={4}>
+        <Grid container item spacing={2} key={key}>
+          <Grid item xs={6} md={4}>
             <Box>
               <Typography>Credits (Optional)</Typography>
               <TextField
@@ -81,8 +90,7 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               />
             </Box>
           </Grid>
-          <Grid item xs={false}></Grid>
-          <Grid item md={2}>
+          <Grid item xs={6} md={2}>
             <Typography>Other Info</Typography>
             <Tooltip title="Instrument Played">
               <TextField
@@ -97,38 +105,39 @@ const CreditsRows = ({ rowsObj, setCredits }: Props) => {
               />
             </Tooltip>
           </Grid>
-          <Grid item xs={4} md={1}>
+          <Grid item xs={6} md={2}>
             <Box>
               <Typography>
                 <br />
               </Typography>
               {keysLength - 1 === i ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setCredits({
-                      ...rowsObj,
-                      [keysLength + 1]: {},
-                    });
-                  }}
-                >
-                  Add
-                </Button>
+                <ButtonGroup variant="outlined">
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={() => {
+                      setCredits({
+                        ...rowsObj,
+                        [keysLength + 1]: {},
+                      });
+                    }}
+                  >
+                    Add New Credits
+                  </Button>
+                  {keysLength > 1 && (
+                    <Button onClick={() => onDelete(key)}>
+                      <DeleteOutlineOutlinedIcon />
+                    </Button>
+                  )}
+                </ButtonGroup>
               ) : (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    const obj = { ...rowsObj };
-                    delete obj[key];
-                    setCredits(obj);
-                  }}
-                >
-                  Delete
+                <Button variant="outlined" onClick={() => onDelete(key)}>
+                  <DeleteOutlineOutlinedIcon />
                 </Button>
               )}
             </Box>
           </Grid>
-        </React.Fragment>
+        </Grid>
       ))}
     </>
   );

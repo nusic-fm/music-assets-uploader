@@ -1,6 +1,13 @@
-import { Grid, Box, Typography, TextField, Button } from "@mui/material";
-import React from "react";
+import {
+  Grid,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  ButtonGroup,
+} from "@mui/material";
 import { MasterOwnershipObj } from "../ArtistMetadataTab";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 type Props = { rowsObj: MasterOwnershipObj; setOwnerships: (o: any) => void };
 
@@ -10,11 +17,19 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
     .map((r) => r.ownershipPercentage)
     .reduce((a, b) => (a || 0) + (b || 0));
 
+  const onDelete = (key: string) => {
+    const obj = { ...rowsObj };
+    delete obj[key];
+    const newObject = {} as any;
+    Object.values(obj).map((value, i) => (newObject[i] = value));
+    setOwnerships(newObject);
+  };
+
   return (
     <>
       {Object.keys(rowsObj).map((key, i) => (
-        <React.Fragment key={key}>
-          <Grid item xs={10} md={4}>
+        <Grid container item spacing={2} key={key}>
+          <Grid item xs={6} md={4}>
             <Box>
               <Typography>Name</Typography>
               <TextField
@@ -29,7 +44,7 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
               />
             </Box>
           </Grid>
-          <Grid item xs={6} md={4}>
+          <Grid item xs={4} md={2}>
             <Box>
               <Typography noWrap>% of ownership</Typography>
               <TextField
@@ -51,41 +66,39 @@ const MasterRecordingOwnerships = ({ rowsObj, setOwnerships }: Props) => {
               ></TextField>
             </Box>
           </Grid>
-          <Grid item xs={false} md={2}></Grid>
-          <Grid item xs={false}></Grid>
-          <Grid item xs={4} md={1}>
+          <Grid item xs={12} md={2} ml={{ md: "auto" }}>
             <Box>
               <Typography>
                 <br />
               </Typography>
               {keysLength - 1 === i ? (
-                <Button
-                  variant="outlined"
-                  disabled={keysLength === 4}
-                  onClick={() => {
-                    setOwnerships({
-                      ...rowsObj,
-                      [keysLength + 1]: {},
-                    });
-                  }}
-                >
-                  Add
-                </Button>
+                <ButtonGroup variant="outlined">
+                  <Button
+                    variant="outlined"
+                    disabled={keysLength === 4}
+                    onClick={() => {
+                      setOwnerships({
+                        ...rowsObj,
+                        [keysLength + 1]: {},
+                      });
+                    }}
+                  >
+                    Add New Owner
+                  </Button>
+                  {keysLength > 1 && (
+                    <Button onClick={() => onDelete(key)}>
+                      <DeleteOutlineOutlinedIcon />
+                    </Button>
+                  )}
+                </ButtonGroup>
               ) : (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    const obj = { ...rowsObj };
-                    delete obj[key];
-                    setOwnerships(obj);
-                  }}
-                >
-                  Delete
+                <Button variant="outlined" onClick={() => onDelete(key)}>
+                  <DeleteOutlineOutlinedIcon />
                 </Button>
               )}
             </Box>
           </Grid>
-        </React.Fragment>
+        </Grid>
       ))}
     </>
   );
