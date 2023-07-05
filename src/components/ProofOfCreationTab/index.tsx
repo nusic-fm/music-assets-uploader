@@ -8,6 +8,9 @@ import {
   InputAdornment,
   IconButton,
   Tooltip,
+  // Select,
+  // MenuItem,
+  // Autocomplete,
 } from "@mui/material";
 import MusicUploader from "../MusicUploader";
 import CachedIcon from "@mui/icons-material/Cached";
@@ -124,7 +127,12 @@ const ProofOfCreationTab = ({
           </Grid>
           <Grid item xs={10} md={4}>
             <Box>
-              <Typography>Bpm</Typography>
+              <Typography>
+                Bpm{" "}
+                <Typography component={"span"} color="error">
+                  *
+                </Typography>
+              </Typography>
               <TextField
                 variant="outlined"
                 type={"number"}
@@ -139,7 +147,31 @@ const ProofOfCreationTab = ({
           </Grid>
           <Grid item xs={10} md={4}>
             <Box>
-              <Typography>Time Signature</Typography>
+              <Typography>
+                Time Signature{" "}
+                <Typography component={"span"} color="error">
+                  *
+                </Typography>
+              </Typography>
+              {/* <Autocomplete
+                freeSolo
+                options={["2/4", "3/4", "4/4", "2/2", "6/8", "9/8", "12/8"]}
+                value={timeSignature}
+                onChange={(e: any, newValue) =>
+                  onPropertyChange("timeSignature", newValue)
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Press Enter to add"
+                    // variant="filled"
+                    // label="freeSolo"
+                    // placeholder="Favorites"
+                  />
+                )}
+                size="small"
+                sx={{ width: { xs: "40%", md: "45%" } }}
+              ></Autocomplete> */}
               <TextField
                 required
                 variant="outlined"

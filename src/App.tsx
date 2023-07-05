@@ -186,7 +186,7 @@ function App() {
   useEffect(() => {
     const { duration, bpm, timeSignature, startBeatOffsetMs } =
       proofOfCreationMetadataObj;
-    if (duration && bpm && timeSignature?.includes("/4")) {
+    if (duration && bpm && timeSignature?.length === 3) {
       const beatsPerSecond = bpm / 60;
       const totalNoOfBeats =
         beatsPerSecond * (duration - startBeatOffsetMs / 1000);

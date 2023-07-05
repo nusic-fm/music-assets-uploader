@@ -31,6 +31,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // import LoopRoundedIcon from "@mui/icons-material/LoopRounded";
 import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
 import PauseRounded from "@mui/icons-material/PauseRounded";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 // import FormControl from "@mui/material/FormControl";
@@ -60,7 +61,7 @@ const WaveForm = ({
   const [zoomValue, setZoomValue] = useState(30);
   const [bars, setBars] = useState({});
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMetronomePlaying, setIsMetronomePlaying] = useState(true);
+  const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const intervalRef = useRef();
 
   useEffect(() => {
@@ -506,6 +507,7 @@ const WaveForm = ({
                       "Hook",
                       "Outro",
                     ]}
+                    value={section.name}
                     onChange={(e, newValue) => {
                       const newSectionsObj = { ...sectionsObj };
                       const id = Object.keys(newSectionsObj).filter(
@@ -690,10 +692,25 @@ const WaveForm = ({
                       </Typography>
                       <IconButton
                         onClick={() => {
-                          wavesurferIns.current.regions.list[i].playLoop();
+                          wavesurferIns.current.regions.list[
+                            section.id
+                          ].playLoop();
                         }}
                       >
                         <PlayCircleFilledWhiteOutlinedIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => {
+                          const newObj = { ...sectionsObj };
+                          delete newObj[i];
+                          setSectionsObj(newObj);
+                          wavesurferIns.current.regions.list[
+                            section.id
+                          ].remove();
+                        }}
+                        disabled={i !== Object.keys(sectionsObj).length - 1}
+                      >
+                        <DeleteOutlineIcon />
                       </IconButton>
                       {/* <IconButton
                         onClick={() => {
@@ -704,15 +721,6 @@ const WaveForm = ({
                       </IconButton> */}
                     </Box>
                     {/* <Typography>End: {section.end.toFixed(2)}s</Typography> */}
-                    {/* <Box>
-                      <IconButton
-                        onClick={() => {
-                          wavesurferIns.current.regions.list[i].remove();
-                        }}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </Box> */}
                   </Box>
                 )}
               </Box>
